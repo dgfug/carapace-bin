@@ -75,7 +75,9 @@ func actionBinaryCompleter() carapace.Action {
 func actionPythonCompleter() carapace.Action {
 	return carapace.ActionCallback(func(c carapace.Context) carapace.Action {
 		current := c.CallbackValue
-		if c.CallbackValue == "-" {
+		if strings.HasPrefix(c.CallbackValue, "-") {
+            // no shorthand flags and python argparse gives missing argument error if partial flag name can be leads to single flag option
+            // so just get a list of all flags (essentially all args with `-` prefix are thus determined to be flags)
 			current = "--"
 		}
 		os.Setenv("COMP_LINE", "aws "+strings.Join(append(c.Args, current), " ")) // TODO escape/quote special characters

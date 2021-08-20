@@ -11,9 +11,12 @@
 # distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF
 # ANY KIND, either express or implied. See the License for the specific
 # language governing permissions and limitations under the License.
+import asyncio
 import json
 import os
 import sys
+
+from pprint import pprint
 
 if os.environ.get('LC_CTYPE', '') == 'UTF-8':
     os.environ['LC_CTYPE'] = 'en_US.UTF-8'
@@ -31,14 +34,33 @@ def main():
     try:
         args = str.split(command_line)
         completer = create_autocompleter(driver=create_clidriver(args))
+
         results = completer.autocomplete(command_line, command_index)
+       
+        loop = asyncio.get_event_loop()
+        parsed = completer._parser.parse(command_line, None)
+        groups = [None] * len(completer._completers)
+        for num, completer in enumerate(completer._completers):
+            groups[num] = asyncio.gather(complete(completer, parsed))
+        all_groups = asyncio.gather(*groups)
+        results = loop.run_until_complete(all_groups)
+        loop.close()
+
         sys.stdout.write(json.dumps(
-            [{'name': result.name, 'help_text': _get_display_meta(result)} for result in results]))
+            [{'name': result.name, 'help_text': _get_display_meta(result)} for result in flatten(flatten(results))]))
     except KeyboardInterrupt:
         # If the user hits Ctrl+C, we don't want to print
         # a traceback to the user.
         pass
 
+async def complete(completer, parsed):
+    result = completer.complete(parsed)
+    if result is not None:
+        return result
+    return []
+
+def flatten(t):
+    return [item for sublist in t for item in sublist]
 
 def _get_display_meta(completion):
     display_meta = ''
