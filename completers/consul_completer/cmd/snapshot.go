@@ -14,6 +14,5 @@ var snapshotCmd = &cobra.Command{
 func init() {
 	carapace.Gen(snapshotCmd).Standalone()
 
-
 	rootCmd.AddCommand(snapshotCmd)
 }
