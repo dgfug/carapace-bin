@@ -13,7 +13,7 @@ var reloadCmd = &cobra.Command{
 
 func init() {
 	carapace.Gen(reloadCmd).Standalone()
-    addClientFlags(reloadCmd)
+	addClientFlags(reloadCmd)
 
 	rootCmd.AddCommand(reloadCmd)
 }
