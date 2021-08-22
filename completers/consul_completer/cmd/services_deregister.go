@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/rsteube/carapace"
+	"github.com/rsteube/carapace-bin/completers/consul_completer/cmd/action"
 	"github.com/spf13/cobra"
 )
 
@@ -21,6 +22,9 @@ func init() {
 	servicesCmd.AddCommand(services_deregisterCmd)
 
 	// TODO flag completion
+	carapace.Gen(services_deregisterCmd).FlagCompletion(carapace.ActionMap{
+		"id": action.ActionServices(services_deregisterCmd),
+	})
 
 	carapace.Gen(services_deregisterCmd).PositionalAnyCompletion(
 		carapace.ActionFiles(),
