@@ -7,7 +7,7 @@ import (
 
 var rootCmd = &cobra.Command{
 	Use:   "consul",
-	Short: "",
+	Short: "Consul automates networking for simple and secure application delivery",
 	Run:   func(cmd *cobra.Command, args []string) {},
 }
 
