@@ -7,7 +7,7 @@ import (
 
 var logoutCmd = &cobra.Command{
 	Use:   "logout",
-	Short: "Destroy a Consul token created with login",
+	Short: "Gracefully leaves the Consul cluster and shuts down",
 	Run:   func(cmd *cobra.Command, args []string) {},
 }
 
