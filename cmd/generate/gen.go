@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"os"
 	"os/exec"
 	"regexp"
 	"strconv"
@@ -64,7 +65,9 @@ func executeCompleter(completer string) {
 		fmt.Sprintln(strings.Join(cases, "\n")),
 	)
 	if root, err := rootDir(); err == nil {
-		ioutil.WriteFile(root+"/cmd/carapace/cmd/completers.go", []byte(content), 0644)
+		ioutil.WriteFile(root+"/cmd/carapace/cmd/completers.go", []byte("// +build !release\n\n"+content), 0644)
+		ioutil.WriteFile(root+"/cmd/carapace/cmd/completers_release.go", []byte("// +build release\n\n"+strings.Replace(content, "/completers/", "/completers_release/", -1)), 0644)
+		os.RemoveAll(root + "/completers_release")
 	}
 }
 
