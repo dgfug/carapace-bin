@@ -13,6 +13,7 @@ var keyringCmd = &cobra.Command{
 
 func init() {
 	carapace.Gen(keyringCmd).Standalone()
+    addClientFlags(keyringCmd)
 
 	keyringCmd.Flags().String("install", "", "Install a new encryption key.")
 	keyringCmd.Flags().Bool("list", false, "List all keys currently in use within the cluster.")
