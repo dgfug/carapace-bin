@@ -14,6 +14,5 @@ var intentionCmd = &cobra.Command{
 func init() {
 	carapace.Gen(intentionCmd).Standalone()
 
-
 	rootCmd.AddCommand(intentionCmd)
 }

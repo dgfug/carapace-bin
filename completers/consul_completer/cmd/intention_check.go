@@ -13,13 +13,13 @@ var intention_checkCmd = &cobra.Command{
 
 func init() {
 	carapace.Gen(intention_checkCmd).Standalone()
-    addClientFlags(intention_checkCmd)
-    addServerFlags(intention_checkCmd)
-    intention_checkCmd.Flags().String("namespace", "", "Specifies the namespace to query")
+	addClientFlags(intention_checkCmd)
+	addServerFlags(intention_checkCmd)
+	intention_checkCmd.Flags().String("namespace", "", "Specifies the namespace to query")
 
 	intentionCmd.AddCommand(intention_checkCmd)
 
-    // TODO namespace completion
+	// TODO namespace completion
 
-    // TODO positional completion
+	// TODO positional completion
 }
