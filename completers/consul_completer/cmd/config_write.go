@@ -13,6 +13,8 @@ var config_writeCmd = &cobra.Command{
 
 func init() {
 	carapace.Gen(config_writeCmd).Standalone()
+	addClientFlags(config_writeCmd)
+	addServerFlags(config_writeCmd)
 
 	config_writeCmd.Flags().Bool("cas", false, "Perform a Check-And-Set operation.")
 	config_writeCmd.Flags().String("modify-index", "", "Unsigned integer representing the ModifyIndex of the config entry.")
