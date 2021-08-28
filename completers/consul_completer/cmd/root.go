@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/rsteube/carapace"
+	"github.com/rsteube/carapace-bin/completers/consul_completer/cmd/action"
 	"github.com/spf13/cobra"
 )
 
@@ -43,7 +44,9 @@ func addServerFlags(cmd *cobra.Command) {
 	cmd.Flags().String("datacenter", "", "Name of the datacenter to query.")
 	cmd.Flags().Bool("stale", false, "Permit any Consul server (non-leader) to respond to this request.")
 
-	// TODO datacenter completion
+	carapace.Gen(cmd).FlagCompletion(carapace.ActionMap{
+		"datacenter": action.ActionDatacenters(cmd),
+	})
 }
 
 func addMultiTenancyFlags(cmd *cobra.Command) {
