@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/rsteube/carapace"
+	"github.com/rsteube/carapace-bin/completers/consul_completer/cmd/action"
 	"github.com/spf13/cobra"
 )
 
@@ -35,20 +36,8 @@ func init() {
 
 	carapace.Gen(acl_authMethod_createCmd).FlagCompletion(carapace.ActionMap{
 		// TODO flag completions
-		"config": carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-			if strings.HasPrefix(c.CallbackValue, "@") {
-				c.CallbackValue = strings.TrimPrefix(c.CallbackValue, "@")
-				return carapace.ActionFiles().Invoke(c).Prefix("@").ToA()
-			}
-			return carapace.ActionValues()
-		}),
-		"format": carapace.ActionValues("json", "pretty"),
-		"kubertnetes-ca-cert": carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-			if strings.HasPrefix(c.CallbackValue, "@") {
-				c.CallbackValue = strings.TrimPrefix(c.CallbackValue, "@")
-				return carapace.ActionFiles().Invoke(c).Prefix("@").ToA()
-			}
-			return carapace.ActionValues()
-		}),
+		"config":              action.ActionOptionalFiles(),
+		"format":              carapace.ActionValues("json", "pretty"),
+		"kubertnetes-ca-cert": action.ActionOptionalFiles(),
 	})
 }

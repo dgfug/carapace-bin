@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/rsteube/carapace"
+	"github.com/rsteube/carapace-bin/completers/consul_completer/cmd/action"
 	"github.com/spf13/cobra"
 )
 
@@ -24,12 +25,6 @@ func init() {
 	// TODO namespace completion
 
 	carapace.Gen(kv_importCmd).PositionalCompletion(
-		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-			if strings.HasPrefix(c.CallbackValue, "@") {
-				c.CallbackValue = strings.TrimPrefix(c.CallbackValue, "@")
-				return carapace.ActionFiles(".json").Invoke(c).Prefix("@").ToA()
-			}
-			return carapace.ActionValues()
-		}),
+		action.ActionOptionalFiles(".json"),
 	)
 }
