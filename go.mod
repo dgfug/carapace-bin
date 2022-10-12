@@ -7,13 +7,13 @@ require (
 	github.com/mitchellh/go-ps v1.0.0
 	github.com/pelletier/go-toml v1.9.4
 	github.com/rsteube/carapace v0.8.14
-	github.com/spf13/cobra v1.2.1
+	github.com/spf13/cobra v1.6.0
 	github.com/spf13/pflag v1.0.5
 	golang.org/x/sys v0.0.0-20210510120138-977fb7262007
 	gopkg.in/ini.v1 v1.63.2
-	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
+	gopkg.in/yaml.v3 v3.0.1
 )
 
-require github.com/inconshreveable/mousetrap v1.0.0 // indirect
+require github.com/inconshreveable/mousetrap v1.0.1 // indirect
 
 replace github.com/spf13/pflag => github.com/cornfeedhobo/pflag v1.1.0
