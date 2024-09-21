@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
@@ -13,6 +13,7 @@ var bugCmd = &cobra.Command{
 
 func init() {
 	carapace.Gen(bugCmd).Standalone()
+	bugCmd.Flags().SetInterspersed(false)
 
 	rootCmd.AddCommand(bugCmd)
 }

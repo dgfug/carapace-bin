@@ -1,17 +1,19 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
 var listCmd = &cobra.Command{
-	Use:   "list",
-	Short: "list releases",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Use:     "list",
+	Short:   "list releases",
+	GroupID: "main",
+	Run:     func(cmd *cobra.Command, args []string) {},
 }
 
 func init() {
+	carapace.Gen(listCmd).Standalone()
 	listCmd.Flags().BoolP("all", "a", false, "show all releases without any filter applied")
 	listCmd.Flags().BoolP("all-namespaces", "A", false, "list releases across all namespaces")
 	listCmd.Flags().BoolP("date", "d", false, "sort by release date")

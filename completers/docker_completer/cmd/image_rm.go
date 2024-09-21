@@ -1,15 +1,16 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/tools/docker"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/docker"
 	"github.com/spf13/cobra"
 )
 
 var image_rmCmd = &cobra.Command{
-	Use:   "rm",
-	Short: "Remove one or more images",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Use:     "rm [OPTIONS] IMAGE [IMAGE...]",
+	Short:   "Remove one or more images",
+	Aliases: []string{"rmi", "remove"},
+	Run:     func(cmd *cobra.Command, args []string) {},
 }
 
 func init() {
@@ -19,10 +20,5 @@ func init() {
 	image_rmCmd.Flags().Bool("no-prune", false, "Do not delete untagged parents")
 	imageCmd.AddCommand(image_rmCmd)
 
-	rootAlias(image_rmCmd, func(cmd *cobra.Command, isAlias bool) {
-		if isAlias {
-			cmd.Use = "rmi"
-		}
-		carapace.Gen(cmd).PositionalAnyCompletion(docker.ActionRepositoryTags())
-	})
+	carapace.Gen(image_rmCmd).PositionalAnyCompletion(docker.ActionRepositoryTags())
 }

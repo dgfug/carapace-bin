@@ -1,11 +1,11 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/curl_completer/cmd/action"
-	"github.com/rsteube/carapace-bin/pkg/actions/net"
-	"github.com/rsteube/carapace-bin/pkg/actions/net/http"
-	"github.com/rsteube/carapace-bin/pkg/actions/net/ssh"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/curl_completer/cmd/action"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/net"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/net/http"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/net/ssh"
 	"github.com/spf13/cobra"
 )
 
@@ -261,10 +261,8 @@ func init() {
 		"capath":    carapace.ActionDirectories(),
 		"cert":      carapace.ActionFiles(),
 		"cert-type": carapace.ActionValues("DER", "PEM", "ENG"),
-		"ciphers": carapace.ActionMultiParts(":", func(c carapace.Context) carapace.Action {
-			return ssh.ActionCiphers().Invoke(c).Filter(c.Parts).ToA()
-		}),
-		"config": carapace.ActionFiles(),
+		"ciphers":   ssh.ActionCiphers().UniqueList(":"),
+		"config":    carapace.ActionFiles(),
 		"connect-to": carapace.ActionMultiParts(":", func(c carapace.Context) carapace.Action {
 			switch len(c.Parts) {
 			case 0:
@@ -294,9 +292,9 @@ func init() {
 		"header": carapace.ActionMultiParts(":", func(c carapace.Context) carapace.Action {
 			switch len(c.Parts) {
 			case 0:
-				return http.ActionHttpRequestHeaderNames().Invoke(c).Suffix(":").ToA()
+				return http.ActionRequestHeaderNames().Invoke(c).Suffix(":").ToA()
 			case 1:
-				return http.ActionHttpRequestHeaderValues(c.Parts[0])
+				return http.ActionRequestHeaderValues(c.Parts[0])
 			default:
 				return carapace.ActionValues()
 			}
@@ -310,14 +308,16 @@ func init() {
 		"proxy-capath":    carapace.ActionDirectories(),
 		"proxy-cert":      carapace.ActionFiles(),
 		"proxy-cert-type": carapace.ActionValues("DER", "PEM", "ENG"),
-		"proxy-ciphers": carapace.ActionMultiParts(":", func(c carapace.Context) carapace.Action {
-			return ssh.ActionCiphers().Invoke(c).Filter(c.Parts).ToA()
-		}),
-		"proxy-key":   carapace.ActionFiles(),
-		"random-file": carapace.ActionFiles(),
-		"trace":       carapace.ActionFiles(),
-		"unix-socket": carapace.ActionFiles(),
-		"upload-file": carapace.ActionFiles(),
-		"user-agent":  http.ActionUserAgents(),
+		"proxy-ciphers":   ssh.ActionCiphers().UniqueList(":"),
+		"proxy-key":       carapace.ActionFiles(),
+		"random-file":     carapace.ActionFiles(),
+		"trace":           carapace.ActionFiles(),
+		"unix-socket":     carapace.ActionFiles(),
+		"upload-file":     carapace.ActionFiles(),
+		"user-agent":      http.ActionUserAgents(),
 	})
+
+	carapace.Gen(rootCmd).PositionalCompletion(
+		http.ActionUrls(),
+	)
 }

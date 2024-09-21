@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/pulumi_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/pulumi_completer/cmd/action"
 	"github.com/spf13/cobra"
 )
 
@@ -13,6 +13,7 @@ var state_deleteCmd = &cobra.Command{
 }
 
 func init() {
+	carapace.Gen(state_deleteCmd).Standalone()
 	state_deleteCmd.Flags().Bool("force", false, "Force deletion of protected resources")
 	state_deleteCmd.PersistentFlags().StringP("stack", "s", "", "The name of the stack to operate on. Defaults to the current stack")
 	state_deleteCmd.Flags().BoolP("yes", "y", false, "Skip confirmation prompts")

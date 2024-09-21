@@ -1,25 +1,30 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/gh_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/gh_completer/cmd/action"
 	"github.com/spf13/cobra"
 )
 
 var pr_commentCmd = &cobra.Command{
-	Use:   "comment [<number> | <url> | <branch>]",
-	Short: "Create a new pr comment",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Use:     "comment [<number> | <url> | <branch>]",
+	Short:   "Add a comment to a pull request",
+	GroupID: "Targeted commands",
+	Run:     func(cmd *cobra.Command, args []string) {},
 }
 
 func init() {
-	pr_commentCmd.Flags().StringP("body", "b", "", "Supply a body. Will prompt for one otherwise.")
-	pr_commentCmd.Flags().StringP("body-file", "F", "", "Read body text from `file`")
-	pr_commentCmd.Flags().BoolP("editor", "e", false, "Add body using editor")
-	pr_commentCmd.Flags().BoolP("web", "w", false, "Add body in browser")
+	carapace.Gen(pr_commentCmd).Standalone()
+
+	pr_commentCmd.Flags().StringP("body", "b", "", "The comment body `text`")
+	pr_commentCmd.Flags().StringP("body-file", "F", "", "Read body text from `file` (use \"-\" to read from standard input)")
+	pr_commentCmd.Flags().Bool("edit-last", false, "Edit the last comment of the same author")
+	pr_commentCmd.Flags().BoolP("editor", "e", false, "Skip prompts and open the text editor to write the body in")
+	pr_commentCmd.Flags().BoolP("web", "w", false, "Open the web browser to write the comment")
 	prCmd.AddCommand(pr_commentCmd)
 
 	carapace.Gen(pr_commentCmd).FlagCompletion(carapace.ActionMap{
+		"body":      action.ActionBody(pr_commentCmd),
 		"body-file": carapace.ActionFiles(),
 	})
 

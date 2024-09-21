@@ -2,9 +2,10 @@ version: '3'
 
 services:
   build: &base
-    image: ghcr.io/rsteube/carapace:v0.8.14
+    image: ghcr.io/carapace-sh/carapace
     command: sh -c 'sh -c "cd /carapace-bin/cmd/carapace && go generate ./... && go build -ldflags=\"-s -w\" ."'
     environment:
+      CARAPACE_BRIDGES: zsh,fish,bash
       TARGET: /carapace-bin/cmd/carapace/carapace
     volumes:
       - '.:/carapace-bin/'
@@ -13,6 +14,13 @@ services:
   bash:
     <<: *base
     command: bash
+
+  ble:
+    <<: *base
+    command: bash
+    environment:
+      BLE: 1
+      TARGET: /carapace-bin/cmd/carapace/carapace
 
   elvish:
     <<: *base
@@ -58,7 +66,7 @@ services:
   inittrace:
     <<: *base
     working_dir: /carapace-bin
-    command: bash -c "GODEBUG=inittrace=1 go run ./cmd/carapace 2>&1 | grep 'init github.com/rsteube/carapace-bin' | awk '{print $$5\" \"$$6\" \"$$2}' | sort -r"
+    command: bash -c "GODEBUG=inittrace=1 go run ./cmd/carapace 2>&1 | grep 'init github.com/carapace-sh/carapace-bin' | awk '{print $$5\" \"$$6\" \"$$2}' | sort -r"
   
   lint:
     <<: *base
@@ -70,6 +78,14 @@ services:
     working_dir: /carapace-bin
     #  user: 1000:1000
     command: bash -c 'go run ./cmd/carafmt completers/*/cmd/*.go'
+
+  nix:
+    build:
+      context: .docker
+      dockerfile: nix.Dockerfile
+    image: nixos/nix
+    volumes:
+      - '.:/carapace-bin:ro'
 
 
 volumes:

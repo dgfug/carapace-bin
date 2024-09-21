@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/gh_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/gh_completer/cmd/action"
 	"github.com/spf13/cobra"
 )
 
@@ -13,6 +13,8 @@ var workflow_viewCmd = &cobra.Command{
 }
 
 func init() {
+	carapace.Gen(workflow_viewCmd).Standalone()
+
 	workflow_viewCmd.Flags().StringP("ref", "r", "", "The branch or tag name which contains the version of the workflow file you'd like to view")
 	workflow_viewCmd.Flags().BoolP("web", "w", false, "Open workflow in the browser")
 	workflow_viewCmd.Flags().BoolP("yaml", "y", false, "View the workflow yaml file")

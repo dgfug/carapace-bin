@@ -1,9 +1,9 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/tools/docker"
-	"github.com/rsteube/carapace-bin/pkg/util"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/docker"
+	"github.com/carapace-sh/carapace/pkg/condition"
 	"github.com/spf13/cobra"
 )
 
@@ -14,6 +14,7 @@ var image_loadCmd = &cobra.Command{
 }
 
 func init() {
+	carapace.Gen(image_loadCmd).Standalone()
 	image_loadCmd.Flags().Bool("daemon", false, "Cache image from docker daemon")
 	image_loadCmd.Flags().Bool("overwrite", true, "Overwrite image even if same image:tag name exists")
 	image_loadCmd.Flags().Bool("pull", false, "Pull the remote image (no caching)")
@@ -21,11 +22,9 @@ func init() {
 	imageCmd.AddCommand(image_loadCmd)
 
 	carapace.Gen(image_loadCmd).PositionalCompletion(
-		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-			if util.HasPathPrefix(c.CallbackValue) {
-				return carapace.ActionFiles()
-			}
-			return docker.ActionRepositoryTags()
-		}),
+		carapace.Batch(
+			carapace.ActionFiles(),
+			docker.ActionRepositoryTags().Unless(condition.CompletingPath),
+		).ToA(),
 	)
 }

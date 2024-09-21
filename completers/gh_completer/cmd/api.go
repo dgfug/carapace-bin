@@ -1,9 +1,11 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/gh_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/gh_completer/cmd/action"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/net/http"
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 )
 
 var apiCmd = &cobra.Command{
@@ -13,28 +15,31 @@ var apiCmd = &cobra.Command{
 }
 
 func init() {
-	apiCmd.Flags().StringArrayP("field", "F", nil, "Add a typed parameter in `key=value` format")
-	apiCmd.Flags().StringArrayP("header", "H", nil, "Add a HTTP request header in `key:value` format")
+	carapace.Gen(apiCmd).Standalone()
+
+	apiCmd.Flags().String("cache", "", "Cache the response, e.g. \"3600s\", \"60m\", \"1h\"")
+	apiCmd.Flags().StringSliceP("field", "F", []string{}, "Add a typed parameter in `key=value` format")
+	apiCmd.Flags().StringSliceP("header", "H", []string{}, "Add a HTTP request header in `key:value` format")
 	apiCmd.Flags().String("hostname", "", "The GitHub hostname for the request (default \"github.com\")")
-	apiCmd.Flags().BoolP("include", "i", false, "Include HTTP response headers in the output")
-	apiCmd.Flags().String("input", "", "The `file` to use as body for the HTTP request")
+	apiCmd.Flags().BoolP("include", "i", false, "Include HTTP response status line and headers in the output")
+	apiCmd.Flags().String("input", "", "The `file` to use as body for the HTTP request (use \"-\" to read from standard input)")
 	apiCmd.Flags().StringP("jq", "q", "", "Query to select values from the response using jq syntax")
-	apiCmd.Flags().StringP("method", "X", "GET", "The HTTP method for the request")
+	apiCmd.Flags().StringP("method", "X", "", "The HTTP method for the request")
 	apiCmd.Flags().Bool("paginate", false, "Make additional HTTP requests to fetch all pages of results")
-	apiCmd.Flags().StringSliceP("preview", "p", nil, "Opt into GitHub API previews")
-	apiCmd.Flags().StringArrayP("raw-field", "f", nil, "Add a string parameter in `key=value` format")
+	apiCmd.Flags().StringSliceP("preview", "p", []string{}, "GitHub API preview `names` to request (without the \"-preview\" suffix)")
+	apiCmd.Flags().StringSliceP("raw-field", "f", []string{}, "Add a string parameter in `key=value` format")
 	apiCmd.Flags().Bool("silent", false, "Do not print the response body")
-	apiCmd.Flags().StringP("template", "t", "", "Format the response using a Go template")
-	apiCmd.Flags().Duration("cache", 0, "Cache the response, e.g. \"3600s\", \"60m\", \"1h\"")
+	apiCmd.Flags().Bool("slurp", false, "Use with \"--paginate\" to return an array of all pages of either JSON arrays or objects")
+	apiCmd.Flags().StringP("template", "t", "", "Format JSON output using a Go template; see \"gh help formatting\"")
+	apiCmd.Flags().Bool("verbose", false, "Include full HTTP request and response in the output")
 	rootCmd.AddCommand(apiCmd)
 
 	carapace.Gen(apiCmd).FlagCompletion(carapace.ActionMap{
+		"header":   http.ActionRequestHeaders(),
 		"hostname": action.ActionConfigHosts(),
 		"input":    carapace.ActionFiles(),
-		"method":   action.ActionHttpMethods(),
-		"preview": carapace.ActionMultiParts(",", func(c carapace.Context) carapace.Action {
-			return action.ActionApiPreviews().Invoke(c).Filter(c.Parts).ToA()
-		}),
+		"method":   http.ActionRequestMethods(),
+		"preview":  action.ActionApiPreviews().UniqueList(","),
 	})
 
 	carapace.Gen(apiCmd).PositionalCompletion(
@@ -45,4 +50,14 @@ func init() {
 			).Invoke(c).Merge().ToA()
 		}),
 	)
+
+	carapace.Gen(apiCmd).PreInvoke(func(cmd *cobra.Command, _ *pflag.Flag, action carapace.Action) carapace.Action {
+		if f := cmd.Flag("hostname"); f.Changed {
+			return carapace.ActionCallback(func(c carapace.Context) carapace.Action {
+				c.Setenv("GH_HOST", f.Value.String()) // TODO provide Action.SetEnv or similar in carapace
+				return action.Invoke(c).ToA()
+			})
+		}
+		return action
+	})
 }

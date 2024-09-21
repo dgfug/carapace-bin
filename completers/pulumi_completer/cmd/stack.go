@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/pulumi_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/pulumi_completer/cmd/action"
 	"github.com/spf13/cobra"
 )
 
@@ -13,6 +13,7 @@ var stackCmd = &cobra.Command{
 }
 
 func init() {
+	carapace.Gen(stackCmd).Standalone()
 	stackCmd.Flags().BoolP("show-ids", "i", false, "Display each resource's provider-assigned unique ID")
 	stackCmd.Flags().Bool("show-name", false, "Display only the stack name")
 	stackCmd.Flags().Bool("show-secrets", false, "Display stack outputs which are marked as secret in plaintext")

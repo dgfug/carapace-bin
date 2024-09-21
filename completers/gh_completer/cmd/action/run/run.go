@@ -3,11 +3,12 @@ package run
 import (
 	"bytes"
 	"fmt"
-	exec "golang.org/x/sys/execabs"
 	"io"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/carapace-sh/carapace/pkg/execlog"
 )
 
 // Runnable is typically an exec.Cmd or its stub in tests
@@ -18,13 +19,13 @@ type Runnable interface {
 
 // PrepareCmd extends exec.Cmd with extra error reporting features and provides a
 // hook to stub command execution in tests
-var PrepareCmd = func(cmd *exec.Cmd) Runnable {
+var PrepareCmd = func(cmd *execlog.Cmd) Runnable {
 	return &cmdWithStderr{cmd}
 }
 
 // cmdWithStderr augments exec.Cmd by adding stderr to the error message
 type cmdWithStderr struct {
-	*exec.Cmd
+	*execlog.Cmd
 }
 
 func (c cmdWithStderr) Output() ([]byte, error) {

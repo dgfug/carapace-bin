@@ -1,18 +1,21 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/gh_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/gh_completer/cmd/action"
 	"github.com/spf13/cobra"
 )
 
 var release_uploadCmd = &cobra.Command{
-	Use:   "upload <tag> <files>...",
-	Short: "Upload assets to a release",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Use:     "upload <tag> <files>...",
+	Short:   "Upload assets to a release",
+	GroupID: "Targeted commands",
+	Run:     func(cmd *cobra.Command, args []string) {},
 }
 
 func init() {
+	carapace.Gen(release_uploadCmd).Standalone()
+
 	release_uploadCmd.Flags().Bool("clobber", false, "Overwrite existing assets of the same name")
 	releaseCmd.AddCommand(release_uploadCmd)
 
@@ -23,7 +26,7 @@ func init() {
 		carapace.ActionMultiParts("#", func(c carapace.Context) carapace.Action {
 			switch len(c.Parts) {
 			case 0:
-				return carapace.ActionFiles()
+				return carapace.ActionFiles().NoSpace()
 			default:
 				return carapace.ActionValues()
 			}

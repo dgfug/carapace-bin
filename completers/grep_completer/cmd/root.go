@@ -1,7 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace/pkg/style"
 	"github.com/spf13/cobra"
 )
 
@@ -13,12 +14,6 @@ var rootCmd = &cobra.Command{
 }
 
 func Execute() error {
-	return rootCmd.Execute()
-}
-
-// ExecuteOverride overrides Use before execution
-func ExecuteOverride(use string) error {
-	rootCmd.Use = use
 	return rootCmd.Execute()
 }
 
@@ -74,10 +69,13 @@ func init() {
 	rootCmd.Flags().BoolP("with-filename", "H", false, "print file name with output lines")
 	rootCmd.Flags().BoolP("word-regexp", "w", false, "match only whole words")
 
+	rootCmd.Flag("color").NoOptDefVal = " "
+	rootCmd.Flag("colour").NoOptDefVal = " "
+
 	carapace.Gen(rootCmd).FlagCompletion(carapace.ActionMap{
 		"binary-files": carapace.ActionValues("binary", "test", "without-match"),
-		"color":        carapace.ActionValues("always", "never", "auto"),
-		"colour":       carapace.ActionValues("always", "never", "auto"),
+		"color":        carapace.ActionValues("auto", "never", "always").StyleF(style.ForKeyword),
+		"colour":       carapace.ActionValues("auto", "never", "always").StyleF(style.ForKeyword),
 		"devices":      carapace.ActionValues("read", "skip"),
 		"directories":  carapace.ActionValues("read", "recurse", "skip"),
 		"exclude-from": carapace.ActionFiles(),

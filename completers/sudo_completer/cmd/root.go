@@ -1,8 +1,9 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/os"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/os"
+	"github.com/carapace-sh/carapace-bridge/pkg/actions/bridge"
 	"github.com/spf13/cobra"
 )
 
@@ -16,8 +17,10 @@ var rootCmd = &cobra.Command{
 func Execute() error {
 	return rootCmd.Execute()
 }
+
 func init() {
 	carapace.Gen(rootCmd).Standalone()
+	rootCmd.Flags().SetInterspersed(false)
 
 	rootCmd.Flags().BoolP("askpass", "A", false, "use a helper program for password prompting")
 	rootCmd.Flags().BoolP("background", "b", false, "run command in the background")
@@ -48,11 +51,18 @@ func init() {
 	carapace.Gen(rootCmd).FlagCompletion(carapace.ActionMap{
 		"group":        os.ActionGroups(),
 		"other-user":   os.ActionUsers(),
-		"preserve-env": os.ActionEnvironmentVariables(), // TODO comma separated list
+		"preserve-env": os.ActionEnvironmentVariables().UniqueList(","),
 		"user":         os.ActionUsers(),
 	})
 
 	carapace.Gen(rootCmd).PositionalCompletion(
-		carapace.ActionFiles(),
+		carapace.Batch(
+			carapace.ActionExecutables(),
+			carapace.ActionFiles(),
+		).ToA(),
+	)
+
+	carapace.Gen(rootCmd).PositionalAnyCompletion(
+		bridge.ActionCarapaceBin(),
 	)
 }

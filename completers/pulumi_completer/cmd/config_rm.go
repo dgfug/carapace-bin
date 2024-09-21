@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/pulumi_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/pulumi_completer/cmd/action"
 	"github.com/spf13/cobra"
 )
 
@@ -13,6 +13,7 @@ var config_rmCmd = &cobra.Command{
 }
 
 func init() {
+	carapace.Gen(config_rmCmd).Standalone()
 	config_rmCmd.PersistentFlags().Bool("path", false, "The key contains a path to a property in a map or list to remove")
 	configCmd.AddCommand(config_rmCmd)
 

@@ -1,15 +1,16 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/tools/git"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/git"
 	"github.com/spf13/cobra"
 )
 
 var fetchCmd = &cobra.Command{
-	Use:   "fetch",
-	Short: "Download objects and refs from another repository",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Use:     "fetch",
+	Short:   "Download objects and refs from another repository",
+	Run:     func(cmd *cobra.Command, args []string) {},
+	GroupID: groups[group_main].ID,
 }
 
 func init() {
@@ -53,7 +54,7 @@ func init() {
 	carapace.Gen(fetchCmd).PositionalAnyCompletion(
 		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
 			if !fetchCmd.Flag("all").Changed {
-				return git.ActionRemotes().Invoke(c).Filter(c.Args).ToA()
+				return git.ActionRemotes().FilterArgs()
 			} else {
 				return carapace.ActionValues()
 			}

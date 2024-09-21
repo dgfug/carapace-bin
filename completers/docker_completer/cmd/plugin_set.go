@@ -1,13 +1,13 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/tools/docker"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/docker"
 	"github.com/spf13/cobra"
 )
 
 var plugin_setCmd = &cobra.Command{
-	Use:   "set",
+	Use:   "set PLUGIN KEY=VALUE [KEY=VALUE...]",
 	Short: "Change settings for a plugin",
 	Run:   func(cmd *cobra.Command, args []string) {},
 }

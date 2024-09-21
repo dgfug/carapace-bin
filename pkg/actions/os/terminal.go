@@ -3,12 +3,13 @@ package os
 import (
 	"strings"
 
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 )
 
 // ActionTerminals completes terminals
-//   pts/5 (user)
-//   tty7 (root)
+//
+//	pts/5 (user)
+//	tty7 (root)
 func ActionTerminals() carapace.Action {
 	return carapace.ActionExecCommand("ps", "aux")(func(output []byte) carapace.Action {
 		lines := strings.Split(string(output), "\n")
@@ -25,5 +26,5 @@ func ActionTerminals() carapace.Action {
 			vals = append(vals, key, value)
 		}
 		return carapace.ActionValuesDescribed(vals...)
-	})
+	}).Tag("terminals")
 }

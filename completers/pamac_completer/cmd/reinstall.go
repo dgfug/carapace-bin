@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/pamac_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/pamac"
 	"github.com/spf13/cobra"
 )
 
@@ -22,7 +22,7 @@ func init() {
 	reinstallCmd.Flags().String("overwrite", "", "overwrite conflicting files, multiple patterns can be")
 	rootCmd.AddCommand(reinstallCmd)
 
-	carapace.Gen(reinstallCmd).PositionalAnyCompletion(carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-		return action.ActionInstalledPackages(false).Invoke(c).Filter(c.Args).ToA() // TODO groups as well
-	}))
+	carapace.Gen(reinstallCmd).PositionalAnyCompletion(
+		pamac.ActionInstalledPackages(false).FilterArgs(), // TODO groups as well
+	)
 }

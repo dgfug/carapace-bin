@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/helm_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/helm"
 	"github.com/spf13/cobra"
 )
 
@@ -13,9 +13,10 @@ var plugin_uninstallCmd = &cobra.Command{
 }
 
 func init() {
+	carapace.Gen(plugin_uninstallCmd).Standalone()
 	pluginCmd.AddCommand(plugin_uninstallCmd)
 
 	carapace.Gen(plugin_uninstallCmd).PositionalCompletion(
-		action.ActionPlugins(),
+		helm.ActionPlugins(),
 	)
 }

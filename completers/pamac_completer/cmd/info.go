@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/pamac_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/pamac"
 	"github.com/spf13/cobra"
 )
 
@@ -19,7 +19,7 @@ func init() {
 	infoCmd.Flags().Bool("no-aur", false, "do not search in AUR")
 	rootCmd.AddCommand(infoCmd)
 
-	carapace.Gen(infoCmd).PositionalAnyCompletion(carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-		return action.ActionPackageSearch().Invoke(c).Filter(c.Args).ToA() // TODO aur flag
-	}))
+	carapace.Gen(infoCmd).PositionalAnyCompletion(
+		pamac.ActionPackageSearch().FilterArgs(), // TODO aur flag
+	)
 }

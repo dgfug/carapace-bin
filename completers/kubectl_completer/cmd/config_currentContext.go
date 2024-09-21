@@ -1,13 +1,13 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
 var config_currentContextCmd = &cobra.Command{
 	Use:   "current-context",
-	Short: "Displays the current-context",
+	Short: "Display the current-context",
 	Run:   func(cmd *cobra.Command, args []string) {},
 }
 

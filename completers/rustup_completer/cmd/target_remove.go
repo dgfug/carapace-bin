@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/rustup_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/rustup_completer/cmd/action"
 	"github.com/spf13/cobra"
 )
 
@@ -24,8 +24,6 @@ func init() {
 	})
 
 	carapace.Gen(target_removeCmd).PositionalAnyCompletion(
-		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-			return action.ActionTargets(true).Invoke(c).Filter(c.Args).ToMultiPartsA("-")
-		}),
+		action.ActionTargets(true).FilterArgs().MultiParts("-"),
 	)
 }

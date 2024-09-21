@@ -1,13 +1,13 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/tools/docker"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/docker"
 	"github.com/spf13/cobra"
 )
 
 var node_psCmd = &cobra.Command{
-	Use:   "ps",
+	Use:   "ps [OPTIONS] [NODE...]",
 	Short: "List tasks running on one or more nodes, defaults to current node",
 	Run:   func(cmd *cobra.Command, args []string) {},
 }

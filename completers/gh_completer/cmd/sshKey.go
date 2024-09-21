@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
@@ -11,5 +12,7 @@ var sshKeyCmd = &cobra.Command{
 }
 
 func init() {
+	carapace.Gen(sshKeyCmd).Standalone()
+
 	rootCmd.AddCommand(sshKeyCmd)
 }

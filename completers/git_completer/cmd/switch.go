@@ -1,15 +1,16 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/tools/git"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/git"
 	"github.com/spf13/cobra"
 )
 
 var switchCmd = &cobra.Command{
-	Use:   "switch",
-	Short: "Switch branches",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Use:     "switch",
+	Short:   "Switch branches",
+	Run:     func(cmd *cobra.Command, args []string) {},
+	GroupID: groups[group_main].ID,
 }
 
 func init() {
@@ -24,6 +25,9 @@ func init() {
 	switchCmd.Flags().Bool("guess", false, "second guess 'git switch <no-such-branch>'")
 	switchCmd.Flags().Bool("ignore-other-worktrees", false, "do not check if another worktree is holding the given ref")
 	switchCmd.Flags().BoolP("merge", "m", false, "perform a 3-way merge with the new branch")
+	switchCmd.Flags().Bool("no-guess", false, "do not second guess 'git switch <no-such-branch>'")
+	switchCmd.Flags().Bool("no-progress", false, "do not force progress reporting")
+	switchCmd.Flags().Bool("no-track", false, "do not set upstream info for new branch")
 	switchCmd.Flags().String("orphan", "", "new unparented branch")
 	switchCmd.Flags().Bool("overwrite-ignore", false, "update ignored files (default)")
 	switchCmd.Flags().Bool("progress", false, "force progress reporting")
@@ -42,6 +46,13 @@ func init() {
 	})
 
 	carapace.Gen(switchCmd).PositionalCompletion(
-		git.ActionRefs(git.RefOption{LocalBranches: true}),
+		carapace.Batch(
+			git.ActionRemoteBranchNames(""),
+			git.ActionRefs(git.RefOption{LocalBranches: true}),
+		).ToA(),
+	)
+
+	carapace.Gen(switchCmd).DashAnyCompletion(
+		carapace.ActionPositional(switchCmd),
 	)
 }

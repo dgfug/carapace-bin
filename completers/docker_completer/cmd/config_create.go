@@ -1,12 +1,12 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
 var config_createCmd = &cobra.Command{
-	Use:   "create",
+	Use:   "create [OPTIONS] CONFIG file|-",
 	Short: "Create a config from a file or STDIN",
 	Run:   func(cmd *cobra.Command, args []string) {},
 }

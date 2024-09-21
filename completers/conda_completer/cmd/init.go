@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
@@ -25,7 +25,7 @@ func init() {
 
 	carapace.Gen(initCmd).PositionalAnyCompletion(
 		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-			return carapace.ActionValues("bash", "fish", "powershell", "tcsh", "xonsh", "zsh").Invoke(c).Filter(c.Args).ToA()
+			return carapace.ActionValues("bash", "fish", "powershell", "tcsh", "xonsh", "zsh").FilterArgs()
 		}),
 	)
 }

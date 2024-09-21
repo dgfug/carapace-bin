@@ -1,9 +1,9 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/faas-cli_completer/cmd/action"
-	"github.com/rsteube/carapace-bin/pkg/actions/net/http"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/faas-cli_completer/cmd/action"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/net/http"
 	"github.com/spf13/cobra"
 )
 
@@ -14,6 +14,8 @@ var invokeCmd = &cobra.Command{
 }
 
 func init() {
+	carapace.Gen(invokeCmd).Standalone()
+
 	invokeCmd.Flags().BoolP("async", "a", false, "Invoke the function asynchronously")
 	invokeCmd.Flags().String("content-type", "text/plain", "The content-type HTTP header such as application/json")
 	invokeCmd.Flags().Bool("envsubst", true, "Substitute environment variables in stack.yml file")
@@ -29,7 +31,7 @@ func init() {
 	rootCmd.AddCommand(invokeCmd)
 
 	carapace.Gen(invokeCmd).FlagCompletion(carapace.ActionMap{
-		"content-type": http.ActionMediaTypes(),
+		"content-type": http.ActionMediaTypes().MultiParts("/"),
 		"method":       http.ActionRequestMethods(),
 		"namespace":    action.ActionNamespaces(),
 	})

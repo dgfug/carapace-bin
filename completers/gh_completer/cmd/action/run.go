@@ -5,8 +5,10 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/gh_completer/cmd/action/utils"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/styles"
+	"github.com/carapace-sh/carapace-bin/pkg/util"
+	"github.com/carapace-sh/carapace/pkg/style"
 	"github.com/spf13/cobra"
 )
 
@@ -32,7 +34,7 @@ type runQuery struct {
 
 func ActionWorkflowRuns(cmd *cobra.Command, opts RunOpts) carapace.Action {
 	return carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-		repo, err := repoOverride(cmd)
+		repo, err := repoOverride(cmd, c)
 		if err != nil {
 			return carapace.ActionMessage(err.Error())
 		}
@@ -46,10 +48,46 @@ func ActionWorkflowRuns(cmd *cobra.Command, opts RunOpts) carapace.Action {
 					(opts.InProgress && run.Status == "in_progress") ||
 					(opts.Failed && run.Status == "completed" && run.Conclusion != "success") ||
 					(opts.Successful && run.Status == "completed" && run.Conclusion == "success") {
-					vals = append(vals, strconv.Itoa(run.Id), fmt.Sprintf("%v (%v) %v", run.Name, run.HeadBranch, utils.FuzzyAgo(ago)))
+
+					vals = append(vals, strconv.Itoa(run.Id), fmt.Sprintf("%v (%v) %v", run.Name, run.HeadBranch, util.FuzzyAgo(ago)), styleForRun(run))
 				}
 			}
-			return carapace.ActionValuesDescribed(vals...)
+			return carapace.ActionStyledValuesDescribed(vals...)
 		})
 	})
+}
+
+func styleForRun(run run) string {
+	switch run.Status {
+	case "in_progress":
+		return styles.Gh.JobInProgress
+	case "completed":
+		if run.Conclusion == "success" {
+			return styles.Gh.JobSuccess
+		} else {
+			return styles.Gh.JobFailed
+		}
+	default:
+		return style.Default
+	}
+}
+
+func ActionRunFields() carapace.Action {
+	return carapace.ActionValues(
+		"name",
+		"displayTitle",
+		"headBranch",
+		"headSha",
+		"createdAt",
+		"updatedAt",
+		"startedAt",
+		"status",
+		"conclusion",
+		"event",
+		"number",
+		"databaseId",
+		"workflowDatabaseId",
+		"workflowName",
+		"url",
+	)
 }

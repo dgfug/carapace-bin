@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/tsc_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/tsc_completer/cmd/action"
 	"github.com/spf13/cobra"
 )
 
@@ -133,13 +133,11 @@ func init() {
 	rootCmd.Flags().String("watchFile", "", "Specify how the TypeScript watch mode works.")
 
 	carapace.Gen(rootCmd).FlagCompletion(carapace.ActionMap{
-		"baseUrl":         carapace.ActionDirectories(),
-		"declarationDir":  carapace.ActionDirectories(),
-		"fallbackPolling": carapace.ActionValues("fixedinterval", "priorityinterval", "dynamicpriority", "fixedchunksize"),
-		"jsx":             carapace.ActionValues("preserve", "react-native", "react", "react-jsx", "react-jsxdev"),
-		"lib": carapace.ActionMultiParts(",", func(c carapace.Context) carapace.Action {
-			return action.ActionLibs().Invoke(c).Filter(c.Parts).ToA()
-		}),
+		"baseUrl":          carapace.ActionDirectories(),
+		"declarationDir":   carapace.ActionDirectories(),
+		"fallbackPolling":  carapace.ActionValues("fixedinterval", "priorityinterval", "dynamicpriority", "fixedchunksize"),
+		"jsx":              carapace.ActionValues("preserve", "react-native", "react", "react-jsx", "react-jsxdev"),
+		"lib":              action.ActionLibs().UniqueList(","),
 		"mapRoot":          carapace.ActionDirectories(),
 		"module":           carapace.ActionValues("none", "commonjs", "amd", "system", "umd", "es6", "es2015", "es2020", "esnext"),
 		"moduleResolution": carapace.ActionValues("node", "classic"),
@@ -148,13 +146,13 @@ func init() {
 		"outFile":          carapace.ActionFiles(),
 		"rootDir":          carapace.ActionDirectories(),
 		"rootDirs": carapace.ActionMultiParts(",", func(c carapace.Context) carapace.Action {
-			return carapace.ActionDirectories()
+			return carapace.ActionDirectories().NoSpace()
 		}),
 		"sourceRoot":      carapace.ActionDirectories(),
 		"target":          carapace.ActionValues("es3", "es5", "es6", "es2015", "es2016", "es2017", "es2018", "es2019", "es2020", "es2021", "esnext"),
 		"tsBuildInfoFile": carapace.ActionFiles(),
 		"typeRoots": carapace.ActionMultiParts(",", func(c carapace.Context) carapace.Action {
-			return carapace.ActionDirectories()
+			return carapace.ActionDirectories().NoSpace()
 		}),
 		"watchDirectory": carapace.ActionValues("usefsevents", "fixedpollinginterval", "dynamicprioritypolling", "fixedchunksizepolling"),
 		"watchFile":      carapace.ActionValues("fixedpollinginterval", "prioritypollinginterval", "dynamicprioritypolling", "fixedchunksizepolling", "usefsevents", "usefseventsonparentdirectory"),

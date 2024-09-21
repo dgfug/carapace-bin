@@ -1,12 +1,12 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
 var image_loadCmd = &cobra.Command{
-	Use:   "load",
+	Use:   "load [OPTIONS]",
 	Short: "Load an image from a tar archive or STDIN",
 	Run:   func(cmd *cobra.Command, args []string) {},
 }
@@ -18,9 +18,7 @@ func init() {
 	image_loadCmd.Flags().BoolP("quiet", "q", false, "Suppress the load output")
 	imageCmd.AddCommand(image_loadCmd)
 
-	rootAlias(image_loadCmd, func(cmd *cobra.Command, isAlias bool) {
-		carapace.Gen(cmd).FlagCompletion(carapace.ActionMap{
-			"input": carapace.ActionFiles(),
-		})
+	carapace.Gen(image_loadCmd).FlagCompletion(carapace.ActionMap{
+		"input": carapace.ActionFiles(),
 	})
 }

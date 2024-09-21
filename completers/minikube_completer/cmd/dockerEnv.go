@@ -1,17 +1,19 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
 var dockerEnvCmd = &cobra.Command{
-	Use:   "docker-env",
-	Short: "Configure environment to use minikube's Docker daemon",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Use:     "docker-env",
+	Short:   "Configure environment to use minikube's Docker daemon",
+	GroupID: "images",
+	Run:     func(cmd *cobra.Command, args []string) {},
 }
 
 func init() {
+	carapace.Gen(dockerEnvCmd).Standalone()
 	dockerEnvCmd.Flags().Bool("no-proxy", false, "Add machine IP to NO_PROXY environment variable")
 	dockerEnvCmd.Flags().String("shell", "", "Force environment to be configured for a specified shell: [fish, cmd, powershell, tcsh, bash, zsh], default is auto-detect")
 	dockerEnvCmd.Flags().Bool("ssh-add", false, "Add SSH identity key to SSH authentication agent")

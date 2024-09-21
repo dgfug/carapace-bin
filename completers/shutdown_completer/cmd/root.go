@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/time"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/time"
 	"github.com/spf13/cobra"
 )
 
@@ -34,7 +34,7 @@ func init() {
 			time.ActionTime(),
 			carapace.ActionMultiParts("+", func(c carapace.Context) carapace.Action {
 				if len(c.Parts) == 0 {
-					return carapace.ActionValuesDescribed("+", "shutdown in m minutes from now")
+					return carapace.ActionValuesDescribed("+", "shutdown in m minutes from now").NoSpace()
 				}
 				return carapace.ActionValues()
 			}),

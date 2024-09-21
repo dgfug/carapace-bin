@@ -1,13 +1,13 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/tools/docker"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/docker"
 	"github.com/spf13/cobra"
 )
 
 var trust_inspectCmd = &cobra.Command{
-	Use:   "inspect",
+	Use:   "inspect IMAGE[:TAG] [IMAGE[:TAG]...]",
 	Short: "Return low-level information about keys and signatures",
 	Run:   func(cmd *cobra.Command, args []string) {},
 }

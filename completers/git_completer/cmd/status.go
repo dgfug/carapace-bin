@@ -1,14 +1,16 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace/pkg/style"
 	"github.com/spf13/cobra"
 )
 
 var statusCmd = &cobra.Command{
-	Use:   "status",
-	Short: "show the working tree status",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Use:     "status",
+	Short:   "show the working tree status",
+	Run:     func(cmd *cobra.Command, args []string) {},
+	GroupID: groups[group_main].ID,
 }
 
 func init() {
@@ -40,14 +42,20 @@ func init() {
 	statusCmd.Flag("ignore-submodules").NoOptDefVal = "all"
 
 	carapace.Gen(statusCmd).FlagCompletion(carapace.ActionMap{
-		"column":            carapace.ActionValues("always", "never"),
-		"ignore-submodules": carapace.ActionValues("none", "untracked", "dirty", "all"),
+		"column":            carapace.ActionValues("always", "never").StyleF(style.ForKeyword),
+		"ignore-submodules": carapace.ActionValues("none", "untracked", "dirty", "all").StyleF(style.ForKeyword),
 		"ignored":           ActionIgnoredModes(),
 		"porcelain":         carapace.ActionValues("v1"),
 		"untracked-files":   ActionUntrackedFilesModes(),
 	})
 
-	carapace.Gen(statusCmd).PositionalAnyCompletion(carapace.ActionFiles())
+	carapace.Gen(statusCmd).PositionalAnyCompletion(
+		carapace.ActionFiles(),
+	)
+
+	carapace.Gen(statusCmd).DashAnyCompletion(
+		carapace.ActionPositional(statusCmd),
+	)
 }
 
 func ActionUntrackedFilesModes() carapace.Action {

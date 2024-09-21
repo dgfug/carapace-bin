@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
@@ -13,16 +13,10 @@ var rootCmd = &cobra.Command{
 }
 
 func Execute() error {
-	carapace.Override(carapace.Opts{
-		LongShorthand: true,
-	})
 	return rootCmd.Execute()
 }
 func init() {
 	carapace.Gen(rootCmd).Standalone()
-	rootCmd.Flags().Bool("v", false, "show version")
-	rootCmd.Flags().Bool("version", false, "show version")
-
-	rootCmd.PersistentFlags().Bool("h", false, "show help")
-	rootCmd.PersistentFlags().Bool("help", false, "show help")
+	rootCmd.Flags().BoolP("version", "v", false, "show version")
+	rootCmd.PersistentFlags().BoolP("help", "h", false, "show help")
 }

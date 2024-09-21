@@ -1,9 +1,10 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/top_completer/cmd/action"
-	"github.com/rsteube/carapace-bin/pkg/actions/os"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/top_completer/cmd/action"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/os"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/ps"
 	"github.com/spf13/cobra"
 )
 
@@ -58,9 +59,7 @@ func init() {
 			"p", "pebibytes",
 		),
 		"o": action.ActionFields(),
-		"p": carapace.ActionMultiParts(",", func(c carapace.Context) carapace.Action {
-			return os.ActionProcessIds().Invoke(c).Filter(c.Parts).ToA()
-		}),
+		"p": ps.ActionProcessIds().UniqueList(","),
 		"u": os.ActionUsers(),
 	})
 }

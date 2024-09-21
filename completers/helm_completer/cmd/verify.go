@@ -1,17 +1,19 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
 var verifyCmd = &cobra.Command{
-	Use:   "verify",
-	Short: "verify that a chart at the given path has been signed and is valid",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Use:     "verify",
+	Short:   "verify that a chart at the given path has been signed and is valid",
+	GroupID: "main",
+	Run:     func(cmd *cobra.Command, args []string) {},
 }
 
 func init() {
+	carapace.Gen(verifyCmd).Standalone()
 	verifyCmd.Flags().String("keyring", "/home/user/.gnupg/pubring.gpg", "keyring containing public keys")
 	rootCmd.AddCommand(verifyCmd)
 

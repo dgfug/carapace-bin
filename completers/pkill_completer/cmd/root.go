@@ -1,8 +1,9 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/os"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/os"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/ps"
 	"github.com/spf13/cobra"
 )
 
@@ -43,24 +44,18 @@ func init() {
 	rootCmd.Flags().BoolP("version", "V", false, "output version information and exit")
 
 	carapace.Gen(rootCmd).FlagCompletion(carapace.ActionMap{
-		"euid":  os.ActionUsers(),
-		"group": os.ActionGroups(),
-		"nslist": carapace.ActionMultiParts(",", func(c carapace.Context) carapace.Action {
-			return carapace.ActionValues("ipc", "mnt", "net", "pid", "user", "uts").Invoke(c).Filter(c.Parts).ToA()
-		}),
+		"euid":      os.ActionUsers(),
+		"group":     os.ActionGroups(),
+		"nslist":    carapace.ActionValues("ipc", "mnt", "net", "pid", "user", "uts").UniqueList(","),
 		"pidfile":   carapace.ActionFiles(),
-		"runstates": os.ActionProcessStates(),
-		"session": carapace.ActionMultiParts(",", func(c carapace.Context) carapace.Action {
-			return os.ActionSessionIds().Invoke(c).Filter(c.Parts).ToA()
-		}),
-		"signal": os.ActionKillSignals(),
-		"terminal": carapace.ActionMultiParts(",", func(c carapace.Context) carapace.Action {
-			return os.ActionTerminals().Invoke(c).Filter(c.Parts).ToA()
-		}),
-		"uid": os.ActionUsers(),
+		"runstates": ps.ActionProcessStates().UniqueList(","),
+		"session":   os.ActionSessionIds().UniqueList(","),
+		"signal":    ps.ActionKillSignals(),
+		"terminal":  os.ActionTerminals().UniqueList(","),
+		"uid":       os.ActionUsers(),
 	})
 
 	carapace.Gen(rootCmd).PositionalAnyCompletion(
-		os.ActionProcessExecutables(),
+		ps.ActionProcessExecutables(),
 	)
 }

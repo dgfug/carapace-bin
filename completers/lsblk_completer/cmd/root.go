@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/fs"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/fs"
 	"github.com/spf13/cobra"
 )
 
@@ -51,12 +51,8 @@ func init() {
 	rootCmd.Flag("tree").NoOptDefVal = " "
 
 	carapace.Gen(rootCmd).FlagCompletion(carapace.ActionMap{
-		"dedup": carapace.ActionMultiParts(",", func(c carapace.Context) carapace.Action {
-			return ActionColumns().Invoke(c).Filter(c.Parts).ToA()
-		}),
-		"output": carapace.ActionMultiParts(",", func(c carapace.Context) carapace.Action {
-			return ActionColumns().Invoke(c).Filter(c.Parts).ToA()
-		}),
+		"dedup":   ActionColumns().UniqueList(","),
+		"output":  ActionColumns().UniqueList(","),
 		"sort":    ActionColumns(),
 		"sysroot": carapace.ActionDirectories(),
 		"tree":    ActionColumns(),

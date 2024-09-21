@@ -1,13 +1,13 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/docker-compose_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/docker-compose_completer/cmd/action"
 	"github.com/spf13/cobra"
 )
 
 var startCmd = &cobra.Command{
-	Use:   "start",
+	Use:   "start [SERVICE...]",
 	Short: "Start services",
 	Run:   func(cmd *cobra.Command, args []string) {},
 }
@@ -18,6 +18,6 @@ func init() {
 	rootCmd.AddCommand(startCmd)
 
 	carapace.Gen(startCmd).PositionalAnyCompletion(
-		action.ActionServices(startCmd),
+		action.ActionServices(startCmd).FilterArgs(),
 	)
 }

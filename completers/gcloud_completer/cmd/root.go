@@ -1,10 +1,9 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/tools/argcomplete"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bridge/pkg/actions/bridge"
 	"github.com/spf13/cobra"
-	"os"
 )
 
 var rootCmd = &cobra.Command{
@@ -26,11 +25,11 @@ func init() {
 		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
 			// TODO patch user@instance and --flag=optarg as in gcloud completion script
 
-			if c.CallbackValue == "-" {
+			if c.Value == "-" {
 				return carapace.ActionValues("--").NoSpace() // seems shorthand flags aren't completed anyway so expand to longhand first
 			}
-			os.Setenv("CLOUDSDK_COMPONENT_MANAGER_DISABLE_UPDATE_CHECK", "1")
-			return argcomplete.ActionArgcomplete("gcloud")
+			c.Setenv("CLOUDSDK_COMPONENT_MANAGER_DISABLE_UPDATE_CHECK", "1")
+			return bridge.ActionArgcomplete("gcloud").Invoke(c).ToA()
 		}),
 	)
 }

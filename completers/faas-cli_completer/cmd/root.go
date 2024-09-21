@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
@@ -17,6 +17,8 @@ func Execute() error {
 }
 
 func init() {
+	carapace.Gen(rootCmd).Standalone()
+
 	rootCmd.PersistentFlags().String("filter", "", "Wildcard to match with function names in YAML file")
 	rootCmd.PersistentFlags().String("regex", "", "Regex to match with function names in YAML file")
 	rootCmd.PersistentFlags().StringP("yaml", "f", "stack.yml", "Path to YAML file describing function(s)")

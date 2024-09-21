@@ -2,40 +2,21 @@
 package fs
 
 import (
-	"fmt"
-	"io/ioutil"
-	"regexp"
+	"os"
 	"strings"
 	"unicode"
 
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace/pkg/style"
 )
 
-// ActionMounts completes file system mounts
-//   /boot/efi (/dev/sda1)
-//   /dev (dev)
-func ActionMounts() carapace.Action {
-	return carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-		return carapace.ActionExecCommand("mount")(func(output []byte) carapace.Action {
-			re := regexp.MustCompile(`^(?P<target>\S+) on (?P<mountt>\S+) type (?P<type>\S+) (?P<mode>.+)`)
-			mounts := make([]string, 0)
-			for _, line := range strings.Split(string(output), "\n") {
-				if re.MatchString(line) {
-					matches := re.FindStringSubmatch(line)
-					mounts = append(mounts, matches[2], matches[1])
-				}
-			}
-			return carapace.ActionValuesDescribed(mounts...)
-		})
-	})
-}
-
 // ActionSubDirectories completes subdirectories of a given path
-//   subdir/subsubdir
-//   subdir/subsubder2
+//
+//	subdir/subsubdir
+//	subdir/subsubder2
 func ActionSubDirectories(path string) carapace.Action {
 	return carapace.ActionMultiParts("/", func(c carapace.Context) carapace.Action {
-		if files, err := ioutil.ReadDir(path + "/" + strings.Join(c.Parts, "/") + "/"); err != nil {
+		if files, err := os.ReadDir(path + "/" + strings.Join(c.Parts, "/") + "/"); err != nil {
 			return carapace.ActionValues()
 		} else {
 			dirs := make([]string, 0)
@@ -50,8 +31,9 @@ func ActionSubDirectories(path string) carapace.Action {
 }
 
 // ActionFileModesSymbolic completes symbolic file modes
-//   a+rw
-//   g=rx
+//
+//	a+rw
+//	g=rx
 func ActionFileModesSymbolic() carapace.Action {
 	return carapace.ActionMultiParts("", func(c carapace.Context) carapace.Action {
 		if !strings.ContainsAny(strings.Join(c.Parts, ""), "+-=") {
@@ -68,78 +50,62 @@ func ActionFileModesSymbolic() carapace.Action {
 					"-", "removes the specified modes from the specified classes",
 					"=", "the modes specified are to be made the exact modes for the specified classes",
 				).Invoke(c)
-				return classes.Merge(operators).Filter(c.Parts).ToA()
+				return classes.Merge(operators).Filter(c.Parts...).ToA()
 			}
-			return classes.Filter(c.Parts).ToA()
+			return classes.Filter(c.Parts...).ToA()
 		} else {
-			return carapace.ActionValuesDescribed(
-				"r", "read",
-				"w", "write",
-				"x", "execute",
-				"X", "special execute",
-				"s", "setuid/gid",
-				"t", "sticky",
-			).Invoke(c).Filter(c.Parts).ToA()
+			return carapace.ActionStyledValuesDescribed(
+				"r", "read", style.Green,
+				"w", "write", style.Red,
+				"x", "execute", style.Yellow,
+				"X", "special execute", style.Yellow,
+				"s", "setuid/gid", style.Magenta,
+				"t", "sticky", style.Magenta,
+			).Invoke(c).Filter(c.Parts...).ToA()
 		}
-	})
+	}).Tag("symbolic filemodes")
 }
 
 // ActionFileModesNumeric completes numeric file modes
-//   644
-//   755
+//
+//	644
+//	755
 func ActionFileModesNumeric() carapace.Action {
 	return carapace.ActionMultiParts("", func(c carapace.Context) carapace.Action {
 		if len(c.Parts) < 3 {
-			return carapace.ActionValuesDescribed(
-				"7", "read, write and execute",
-				"6", "read and write",
-				"5", "read and execute",
-				"4", "read only",
-				"3", "write and execute",
-				"2", "write only",
-				"1", "execute only",
-				"0", "none",
+			return carapace.ActionStyledValuesDescribed(
+				"7", "read, write and execute", style.Red,
+				"6", "read and write", style.Red,
+				"5", "read and execute", style.Yellow,
+				"4", "read only", style.Green,
+				"3", "write and execute", style.Red,
+				"2", "write only", style.Red,
+				"1", "execute only", style.Yellow,
+				"0", "none", style.Default,
 			)
 		} else {
 			return carapace.ActionValues()
 		}
-	})
+	}).Tag("numeric filemodes")
 }
 
 // ActionFileModes completes numeric or symbolic file modes
-//   644
-//   a+rw
+//
+//	644
+//	a+rw
 func ActionFileModes() carapace.Action {
 	return carapace.ActionCallback(func(c carapace.Context) carapace.Action {
 		a := carapace.ActionValues().Invoke(c)
-		if len(c.CallbackValue) == 0 || !unicode.IsDigit([]rune(c.CallbackValue)[0]) {
+		if len(c.Value) == 0 || !unicode.IsDigit([]rune(c.Value)[0]) {
 			symbolic := carapace.ActionMultiParts(",", func(c carapace.Context) carapace.Action {
-				return ActionFileModesSymbolic()
+				return ActionFileModesSymbolic().NoSpace()
 			}).Invoke(c)
 			a = a.Merge(symbolic)
 		}
-		if len(c.CallbackValue) == 0 || unicode.IsDigit([]rune(c.CallbackValue)[0]) {
+		if len(c.Value) == 0 || unicode.IsDigit([]rune(c.Value)[0]) {
 			numeric := ActionFileModesNumeric().Invoke(c)
 			a = a.Merge(numeric)
 		}
 		return a.ToA()
-	})
-}
-
-// ActionBlockDevices completes block devices
-//   /dev/sda (10G)
-//   /dev/sda1 (2G Linux swap)
-func ActionBlockDevices() carapace.Action {
-	return carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-		return carapace.ActionExecCommand("lsblk", "-o", "PATH,SIZE,PARTTYPENAME")(func(output []byte) carapace.Action {
-			lines := strings.Split(string(output), "\n")
-
-			vals := make([]string, 0)
-			for _, line := range lines[1 : len(lines)-1] {
-				splitted := strings.SplitN(line, " ", 3)
-				vals = append(vals, splitted[0], strings.TrimSpace(fmt.Sprintf("%v %v", strings.TrimSpace(splitted[1]), strings.TrimSpace(splitted[2]))))
-			}
-			return carapace.ActionValuesDescribed(vals...)
-		})
 	})
 }

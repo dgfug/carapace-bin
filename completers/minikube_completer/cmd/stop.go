@@ -1,17 +1,19 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
 var stopCmd = &cobra.Command{
-	Use:   "stop",
-	Short: "Stops a running local Kubernetes cluster",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Use:     "stop",
+	Short:   "Stops a running local Kubernetes cluster",
+	GroupID: "basic",
+	Run:     func(cmd *cobra.Command, args []string) {},
 }
 
 func init() {
+	carapace.Gen(stopCmd).Standalone()
 	stopCmd.Flags().Bool("all", false, "Set flag to stop all profiles (clusters)")
 	stopCmd.Flags().Bool("cancel-scheduled", false, "cancel any existing scheduled stop requests")
 	stopCmd.Flags().Bool("keep-context-active", false, "keep the kube-context active after cluster is stopped. Defaults to false.")

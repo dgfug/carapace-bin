@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/pip_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/pip"
 	"github.com/spf13/cobra"
 )
 
@@ -19,8 +19,6 @@ func init() {
 	rootCmd.AddCommand(showCmd)
 
 	carapace.Gen(showCmd).PositionalAnyCompletion(
-		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-			return action.ActionInstalledPackages().Invoke(c).Filter(c.Args).ToA()
-		}),
+		pip.ActionInstalledPackages().FilterArgs(),
 	)
 }

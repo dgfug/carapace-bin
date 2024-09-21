@@ -1,15 +1,17 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/tools/git"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/git"
+	"github.com/carapace-sh/carapace/pkg/style"
 	"github.com/spf13/cobra"
 )
 
 var pullCmd = &cobra.Command{
-	Use:   "pull",
-	Short: "Fetch from and integrate with another repository or a local branch",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Use:     "pull",
+	Short:   "Fetch from and integrate with another repository or a local branch",
+	Run:     func(cmd *cobra.Command, args []string) {},
+	GroupID: groups[group_main].ID,
 }
 
 func init() {
@@ -36,11 +38,23 @@ func init() {
 	pullCmd.Flags().String("log", "", "add (at most <n>) entries from shortlog to merge commit message")
 	pullCmd.Flags().BoolS("n", "n", false, "do not show a diffstat at the end of the merge")
 	pullCmd.Flags().String("negotiation-tip", "", "report that we have only objects reachable from this object")
+	pullCmd.Flags().Bool("no-commit", false, "perform the merge but do not commit the result")
+	pullCmd.Flags().Bool("no-edit", false, "don't open an editor to change the commit message")
+	pullCmd.Flags().Bool("no-ff", false, "generate a merge commit even if the merge resol") // TODO
+	pullCmd.Flags().Bool("no-gpg-sign", false, "don't GPG-sign the commit")
+	pullCmd.Flags().Bool("no-log", false, "do not list one-line descriptions of the commit")
+	pullCmd.Flags().Bool("no-rebase", false, "do not perform a rebase after fetching")
+	pullCmd.Flags().Bool("no-recurse-submodules", false, "disable recursive fetching of submodules")
+	pullCmd.Flags().Bool("no-squash", false, "merge and commit")
+	pullCmd.Flags().Bool("no-stat", false, "do not show diffstat at the end of the merge")
+	pullCmd.Flags().Bool("no-tags", false, "disable automatic tag following")
+	pullCmd.Flags().Bool("no-verify-signatures", false, "do not verify the commits being merged")
 	pullCmd.Flags().Bool("progress", false, "force progress reporting")
 	pullCmd.Flags().BoolP("prune", "p", false, "prune remote-tracking branches no longer on remote")
 	pullCmd.Flags().BoolP("quiet", "q", false, "be more quiet")
 	pullCmd.Flags().StringP("rebase", "r", "", "incorporate changes by rebasing rather than merging")
 	pullCmd.Flags().String("recurse-submodules", "", "control for recursive fetching of submodules")
+	pullCmd.Flags().Bool("recurse-submodules-default", false, "provide internal temporary non-negative value f") // TODO
 	pullCmd.Flags().String("refmap", "", "specify fetch refmap")
 	pullCmd.Flags().StringP("server-option", "o", "", "option to transmit")
 	pullCmd.Flags().Bool("set-upstream", false, "set upstream for git pull/fetch")
@@ -52,8 +66,10 @@ func init() {
 	pullCmd.Flags().Bool("stat", false, "show a diffstat at the end of the merge")
 	pullCmd.Flags().StringP("strategy", "s", "", "merge strategy to use")
 	pullCmd.Flags().StringP("strategy-option", "X", "", "option for selected merge strategy")
+	pullCmd.Flags().Bool("submodule-prefix", false, "prepend <path> to paths printed in informative")
 	pullCmd.Flags().BoolP("tags", "t", false, "fetch all tags and associated objects")
 	pullCmd.Flags().Bool("unshallow", false, "convert to a complete repository")
+	pullCmd.Flags().BoolP("update-head-ok", "u", false, "allow updates of current branch head")
 	pullCmd.Flags().Bool("update-shallow", false, "accept refs that update .git/shallow")
 	pullCmd.Flags().String("upload-pack", "", "path to upload pack on remote end")
 	pullCmd.Flags().BoolP("verbose", "v", false, "be more verbose")
@@ -79,7 +95,7 @@ func init() {
 			"no", "disable recursion",
 			"on-demand", "only when submodule reference in superproject is updated",
 			"yes", "always recurse",
-		),
+		).StyleF(style.ForKeyword),
 		"strategy": carapace.ActionValues("octopus", "ours", "recursive", "resolve", "subtree"),
 	})
 

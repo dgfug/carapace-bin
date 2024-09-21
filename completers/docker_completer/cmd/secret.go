@@ -1,14 +1,15 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
 var secretCmd = &cobra.Command{
-	Use:   "secret",
-	Short: "Manage Docker secrets",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Use:     "secret",
+	Short:   "Manage Swarm secrets",
+	GroupID: "swarm",
+	Run:     func(cmd *cobra.Command, args []string) {},
 }
 
 func init() {

@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/faas-cli_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/faas-cli_completer/cmd/action"
 	"github.com/spf13/cobra"
 )
 
@@ -13,6 +13,7 @@ var store_describeCmd = &cobra.Command{
 }
 
 func init() {
+	carapace.Gen(store_describeCmd).Standalone()
 	store_describeCmd.Flags().BoolP("verbose", "v", false, "Verbose output for the field values")
 	storeCmd.AddCommand(store_describeCmd)
 

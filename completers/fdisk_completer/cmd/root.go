@@ -1,8 +1,9 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/fs"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/fs"
+	"github.com/carapace-sh/carapace/pkg/style"
 	"github.com/spf13/cobra"
 )
 
@@ -46,31 +47,29 @@ func init() {
 	rootCmd.Flag("lock").NoOptDefVal = " "
 
 	carapace.Gen(rootCmd).FlagCompletion(carapace.ActionMap{
-		"color":           carapace.ActionValues("auto", "always", "never"),
+		"color":           carapace.ActionValues("auto", "never", "always").StyleF(style.ForKeyword),
 		"compatibility":   carapace.ActionValues("dos", "nondos"),
-		"lock":            carapace.ActionValues("yes", "no", "nonblock"),
+		"lock":            carapace.ActionValues("yes", "no", "nonblock").StyleF(style.ForKeyword),
 		"units":           carapace.ActionValues("cylinders", "sectors"),
-		"wipe-partitions": carapace.ActionValues("auto", "always", "never"),
+		"wipe-partitions": carapace.ActionValues("auto", "never", "always").StyleF(style.ForKeyword),
 	})
 
 	carapace.Gen(rootCmd).PositionalCompletion(
-		ActionBlockDevicesAndFiles(),
+		carapace.Batch(
+			fs.ActionBlockDevices(),
+			carapace.ActionFiles(),
+		).ToA(),
 	)
 
 	carapace.Gen(rootCmd).PositionalAnyCompletion(
 		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
 			if rootCmd.Flag("list").Changed {
-				return ActionBlockDevicesAndFiles()
-			} else {
-				return carapace.ActionValues()
+				return carapace.Batch(
+					fs.ActionBlockDevices(),
+					carapace.ActionFiles(),
+				).ToA()
 			}
+			return carapace.ActionValues()
 		}),
 	)
-}
-
-func ActionBlockDevicesAndFiles() carapace.Action {
-	return carapace.Batch(
-		fs.ActionBlockDevices(),
-		carapace.ActionFiles(),
-	).ToA()
 }

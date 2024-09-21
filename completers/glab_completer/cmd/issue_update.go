@@ -1,21 +1,23 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/glab_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/glab_completer/cmd/action"
 	"github.com/spf13/cobra"
 )
 
 var issue_updateCmd = &cobra.Command{
-	Use:   "update",
+	Use:   "update <id>",
 	Short: "Update issue",
 	Run:   func(cmd *cobra.Command, args []string) {},
 }
 
 func init() {
+	carapace.Gen(issue_updateCmd).Standalone()
+
 	issue_updateCmd.Flags().StringSliceP("assignee", "a", []string{}, "assign users via username, prefix with '!' or '-' to remove from existing assignees, '+' to add, otherwise replace existing assignees with given users")
 	issue_updateCmd.Flags().BoolP("confidential", "c", false, "Make issue confidential")
-	issue_updateCmd.Flags().StringP("description", "d", "", "Issue description")
+	issue_updateCmd.Flags().StringP("description", "d", "", "Issue description; set to \"-\" to open an editor")
 	issue_updateCmd.Flags().StringSliceP("label", "l", []string{}, "add labels")
 	issue_updateCmd.Flags().Bool("lock-discussion", false, "Lock discussion on issue")
 	issue_updateCmd.Flags().StringP("milestone", "m", "", "title of the milestone to assign, pass \"\" or 0 to unassign")
@@ -27,16 +29,10 @@ func init() {
 	issueCmd.AddCommand(issue_updateCmd)
 
 	carapace.Gen(issue_updateCmd).FlagCompletion(carapace.ActionMap{
-		"assignee": carapace.ActionMultiParts(",", func(c carapace.Context) carapace.Action {
-			return action.ActionProjectMembers(issue_updateCmd).Invoke(c).Filter(c.Parts).ToA()
-		}),
-		"label": carapace.ActionMultiParts(",", func(c carapace.Context) carapace.Action {
-			return action.ActionLabels(issue_updateCmd).Invoke(c).Filter(c.Parts).ToA()
-		}),
+		"assignee":  action.ActionProjectMembers(issue_updateCmd).UniqueList(","),
+		"label":     action.ActionLabels(issue_updateCmd).UniqueList(","),
 		"milestone": action.ActionMilestones(issue_updateCmd),
-		"unlabel": carapace.ActionMultiParts(",", func(c carapace.Context) carapace.Action {
-			return action.ActionLabels(issue_updateCmd).Invoke(c).Filter(c.Parts).ToA()
-		}),
+		"unlabel":   action.ActionLabels(issue_updateCmd).UniqueList(","),
 	})
 
 	carapace.Gen(issue_updateCmd).PositionalCompletion(

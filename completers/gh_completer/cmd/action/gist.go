@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/gh"
 	"github.com/spf13/cobra"
 )
 
@@ -32,7 +33,7 @@ type gistQuery struct {
 func ActionGistUrls(cmd *cobra.Command) carapace.Action {
 	return carapace.ActionCallback(func(c carapace.Context) carapace.Action {
 		prefix := "https://gist."
-		if !strings.HasPrefix(c.CallbackValue, prefix) {
+		if !strings.HasPrefix(c.Value, prefix) {
 			// ActionMultiParts to force nospace (should maybe added as function to InvokedAction to prevent space suffix)
 			return carapace.ActionMultiParts(".", func(c carapace.Context) carapace.Action {
 				switch len(c.Parts) {
@@ -43,16 +44,15 @@ func ActionGistUrls(cmd *cobra.Command) carapace.Action {
 				}
 			})
 		} else {
-			c.CallbackValue = strings.TrimPrefix(c.CallbackValue, prefix)
+			c.Value = strings.TrimPrefix(c.Value, prefix)
 			return carapace.ActionMultiParts("/", func(c carapace.Context) carapace.Action {
 				switch len(c.Parts) {
 				case 0:
 					return ActionConfigHosts().Invoke(c).Suffix("/").ToA()
 				case 1:
-					return ActionUsers(cmd, UserOpts{Users: true}).Invoke(c).Suffix("/").ToA()
+					return gh.ActionUsers(gh.HostOpts{}).Invoke(c).Suffix("/").ToA()
 				case 2:
-					cmd.Flags().String("repo", fmt.Sprintf("%v/%v/", c.Parts[0], c.Parts[1]), "fake repo flag")
-					cmd.Flag("repo").Changed = true
+					fakeRepoFlag(cmd, c.Parts[0], c.Parts[1])
 					return ActionGistIds(cmd)
 				default:
 					return carapace.ActionValues()
@@ -88,7 +88,7 @@ func ActionGistIds(cmd *cobra.Command) carapace.Action {
 
 func ActionGists(cmd *cobra.Command) carapace.Action {
 	return carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-		if strings.HasPrefix(c.CallbackValue, "h") {
+		if strings.HasPrefix(c.Value, "h") {
 			return ActionGistUrls(cmd)
 		} else {
 			return ActionGistIds(cmd)
@@ -103,8 +103,7 @@ func ActionGistFiles(cmd *cobra.Command, name string) carapace.Action {
 		switch len(splitted) {
 		case 1:
 		case 5:
-			cmd.Flags().String("repo", fmt.Sprintf("%v/%v/", splitted[2], splitted[3]), "fake repo flag")
-			cmd.Flag("repo").Changed = true
+			fakeRepoFlag(cmd, splitted[2], splitted[3])
 		default:
 			return carapace.ActionMessage("invalid gist id/url: " + name)
 		}

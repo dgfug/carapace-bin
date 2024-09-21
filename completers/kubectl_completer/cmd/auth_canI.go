@@ -1,13 +1,13 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/kubectl_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/kubectl"
 	"github.com/spf13/cobra"
 )
 
 var auth_canICmd = &cobra.Command{
-	Use:   "can-i",
+	Use:   "can-i VERB [TYPE | TYPE/NAME | NONRESOURCEURL]",
 	Short: "Check whether an action is allowed",
 	Run:   func(cmd *cobra.Command, args []string) {},
 }
@@ -22,8 +22,14 @@ func init() {
 	auth_canICmd.Flags().String("subresource", "", "SubResource such as pod/log or deployment/scale")
 	authCmd.AddCommand(auth_canICmd)
 
+	// TODO subresource completion
+
 	carapace.Gen(auth_canICmd).PositionalCompletion(
-		action.ActionResourceVerbs(),
-		action.ActionApiResourceResources(),
+		kubectl.ActionResourceVerbs(),
+		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
+			return kubectl.ActionApiResourceResources(kubectl.ApiResourceResourcesOpts{
+				Namespace: rootCmd.Flag("namespace").Value.String(),
+			})
+		}),
 	)
 }

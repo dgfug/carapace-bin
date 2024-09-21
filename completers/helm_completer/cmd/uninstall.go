@@ -3,18 +3,20 @@ package cmd
 import (
 	"time"
 
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/helm_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/helm_completer/cmd/action"
 	"github.com/spf13/cobra"
 )
 
 var uninstallCmd = &cobra.Command{
-	Use:   "uninstall",
-	Short: "uninstall a release",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Use:     "uninstall",
+	Short:   "uninstall a release",
+	GroupID: "main",
+	Run:     func(cmd *cobra.Command, args []string) {},
 }
 
 func init() {
+	carapace.Gen(uninstallCmd).Standalone()
 	uninstallCmd.Flags().String("description", "", "add a custom description")
 	uninstallCmd.Flags().Bool("dry-run", false, "simulate a uninstall")
 	uninstallCmd.Flags().Bool("keep-history", false, "remove all associated resources and mark the release as deleted, but retain the release history")
@@ -23,6 +25,6 @@ func init() {
 	rootCmd.AddCommand(uninstallCmd)
 
 	carapace.Gen(uninstallCmd).PositionalCompletion(
-		action.ActionReleases(),
+		action.ActionReleases(uninstallCmd),
 	)
 }

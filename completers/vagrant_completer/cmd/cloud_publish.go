@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/vagrant_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/vagrant"
 	"github.com/spf13/cobra"
 )
 
@@ -37,11 +37,11 @@ func init() {
 	})
 
 	carapace.Gen(cloud_publishCmd).PositionalCompletion(
-		action.ActionCloudBoxSearch(""),
+		vagrant.ActionCloudBoxSearch(""),
 		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-			return action.ActionCloudBoxVersions(c.Args[0], "")
+			return vagrant.ActionCloudBoxVersions(c.Args[0], "")
 		}),
-		action.ActionProviders(),
+		vagrant.ActionProviders(),
 		carapace.ActionFiles(".box", ".json"),
 	)
 }

@@ -1,0 +1,109 @@
+version: 2
+before:
+  hooks:
+    - go mod download
+    - go generate ./cmd/...
+builds:
+  - id: default
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+      - darwin
+    main: ./cmd/carapace
+    binary: carapace
+    tags:
+      - release
+  - id: termux
+    env:
+      - CGO_ENABLED=1
+    goos:
+      - android
+    goarch:
+      - amd64
+      - arm64
+      - arm
+      - "386"
+    main: ./cmd/carapace
+    binary: carapace
+    tags:
+      - release
+    gobinary: go-termux
+archives:
+  - name_template: '{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}'
+    builds:
+     - default
+    format_overrides:
+      - goos: windows
+        format: zip
+  - id: termux
+    builds:
+      - termux
+    name_template: '{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}.termux'
+
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ .Tag }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+
+brews:
+  -
+    name: carapace
+    description: "multi-shell multi-command argument completer"
+    homepage: "https://github.com/carapace-sh/carapace-bin"
+    license: "MIT"
+    repository:
+      owner: rsteube
+      name: homebrew-tap
+      token: "{{ .Env.GORELEASER_GITHUB_TOKEN }}"
+    commit_msg_template: "Brew formula update for {{ .ProjectName }} version {{ .Tag }}"
+
+scoops:
+  -
+    description: "multi-shell multi-command argument completer"
+    homepage: "https://github.com/carapace-sh/carapace-bin"
+    license: "MIT"
+    repository:
+      owner: rsteube
+      name: scoop-bucket
+      token: "{{ .Env.GORELEASER_GITHUB_TOKEN }}"
+    commit_msg_template: "Scoop update for {{ .ProjectName }} version {{ .Tag }}"
+
+aurs:
+  -
+    description: "multi-shell multi-command argument completer"
+    homepage: "https://github.com/carapace-sh/carapace-bin"
+    license: "MIT"
+    maintainers:
+      - rsteube <rsteube@users.noreply.github.com>
+    private_key: '{{ .Env.AUR_KEY }}'
+    git_url: 'ssh://aur@aur.archlinux.org/carapace-bin.git'
+    provides:
+      - carapace
+    conflicts:
+      - carapace
+
+nfpms:
+  -
+    description: "multi-shell multi-command argument completer"
+    homepage: "https://github.com/carapace-sh/carapace-bin"
+    license: "MIT"
+    maintainer: rsteube <rsteube@users.noreply.github.com>
+    formats:
+      - apk
+      - deb
+      - rpm
+      - termux.deb
+
+publishers:
+  - name: fury
+    cmd: "bash -c \"[[ {{.ArtifactPath}} =~ ^.*_(386|amd64|arm64).(deb|rpm)$ ]] && curl -F package=@{{abs .ArtifactPath}} https://$FURY_TOKEN@push.fury.io/rsteube/ || true\""
+    env:
+      - FURY_TOKEN={{ .Env.FURY_TOKEN }}

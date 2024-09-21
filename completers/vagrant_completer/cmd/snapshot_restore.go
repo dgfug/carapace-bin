@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/vagrant_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/vagrant"
 	"github.com/spf13/cobra"
 )
 
@@ -22,15 +22,13 @@ func init() {
 	snapshotCmd.AddCommand(snapshot_restoreCmd)
 
 	carapace.Gen(snapshot_restoreCmd).FlagCompletion(carapace.ActionMap{
-		"provision-with": carapace.ActionMultiParts(",", func(c carapace.Context) carapace.Action {
-			return action.ActionProvisioners().Invoke(c).Filter(c.Parts).ToA()
-		}),
+		"provision-with": vagrant.ActionProvisioners().UniqueList(","),
 	})
 
 	carapace.Gen(snapshot_restoreCmd).PositionalCompletion(
-		action.ActionLocalMachines(),
+		vagrant.ActionLocalMachines(),
 		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-			return action.ActionSnapshots(c.Args[0])
+			return vagrant.ActionSnapshots(c.Args[0])
 		}),
 	)
 }

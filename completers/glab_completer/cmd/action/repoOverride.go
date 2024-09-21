@@ -1,9 +1,10 @@
 package action
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/spf13/cobra"
 	"strings"
+
+	"github.com/carapace-sh/carapace"
+	"github.com/spf13/cobra"
 )
 
 func FakeRepoFlag(cmd *cobra.Command, value string) {
@@ -14,7 +15,7 @@ func FakeRepoFlag(cmd *cobra.Command, value string) {
 func ActionRepo(cmd *cobra.Command) carapace.Action {
 	return carapace.ActionCallback(func(c carapace.Context) carapace.Action {
 		if flag := cmd.Flag("repo"); flag == nil {
-			FakeRepoFlag(cmd, c.CallbackValue)
+			FakeRepoFlag(cmd, c.Value)
 		}
 
 		configHosts, err := hosts()
@@ -22,10 +23,10 @@ func ActionRepo(cmd *cobra.Command) carapace.Action {
 			return carapace.ActionMessage(err.Error())
 		}
 
-		if strings.Contains(c.CallbackValue, "/") {
+		if strings.Contains(c.Value, "/") {
 			isKnownHost := false
 			for _, host := range configHosts {
-				if strings.HasPrefix(c.CallbackValue, host) {
+				if strings.HasPrefix(c.Value, host) {
 					isKnownHost = true
 					break
 				}
@@ -41,18 +42,18 @@ func ActionRepo(cmd *cobra.Command) carapace.Action {
 				return carapace.ActionValues(configHosts...).Invoke(c).Suffix("/").ToA()
 			case 1:
 				return carapace.Batch(
-					ActionUsers(cmd).Supress("search needs at least 3 characters"),
+					ActionUsers(cmd).Suppress("search needs at least 3 characters"),
 					ActionGroups(cmd),
 				).Invoke(c).Merge().Suffix("/").ToA()
 			case 2:
 				b := carapace.Batch(
-					ActionSubgroups(cmd, c.Parts[1]).Supress("failed to unmarshall"),
-					ActionGroupProjects(cmd, c.Parts[1]).Supress("failed to unmarshall"),
-					ActionUserProjects(cmd, c.Parts[1]).Supress("failed to unmarshall"),
+					ActionSubgroups(cmd, c.Parts[1]).Suppress("failed to unmarshall"),
+					ActionGroupProjects(cmd, c.Parts[1]).Suppress("failed to unmarshall"),
+					ActionUserProjects(cmd, c.Parts[1]).Suppress("failed to unmarshall"),
 				).Invoke(c)
 				return b[0].Suffix("/").Merge(b[1:]...).ToA() // ActionSubgroups needs `/` suffix
 			case 3:
-				return ActionGroupProjects(cmd, strings.Join(c.Parts[1:], "/")).Supress("failed to unmarshall")
+				return ActionGroupProjects(cmd, strings.Join(c.Parts[1:], "/")).Suppress("failed to unmarshall")
 			default:
 				return carapace.ActionValues()
 			}

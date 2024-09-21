@@ -1,13 +1,13 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/tools/docker"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/docker"
 	"github.com/spf13/cobra"
 )
 
 var image_tagCmd = &cobra.Command{
-	Use:   "tag",
+	Use:   "tag SOURCE_IMAGE[:TAG] TARGET_IMAGE[:TAG]",
 	Short: "Create a tag TARGET_IMAGE that refers to SOURCE_IMAGE",
 	Run:   func(cmd *cobra.Command, args []string) {},
 }
@@ -17,10 +17,8 @@ func init() {
 
 	imageCmd.AddCommand(image_tagCmd)
 
-	rootAlias(image_tagCmd, func(cmd *cobra.Command, isAlias bool) {
-		carapace.Gen(cmd).PositionalCompletion(
-			docker.ActionRepositoryTags(),
-			docker.ActionRepositoryTags(),
-		)
-	})
+	carapace.Gen(image_tagCmd).PositionalCompletion(
+		docker.ActionRepositoryTags(),
+		docker.ActionRepositoryTags(),
+	)
 }

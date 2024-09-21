@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/tools/git"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/git"
 	"github.com/spf13/cobra"
 )
 
@@ -19,8 +19,6 @@ func init() {
 	remoteCmd.AddCommand(remote_updateCmd)
 
 	carapace.Gen(remote_updateCmd).PositionalAnyCompletion(
-		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-			return git.ActionRemotes().Invoke(c).Filter(c.Args).ToA()
-		}),
+		git.ActionRemotes().FilterArgs(),
 	)
 }

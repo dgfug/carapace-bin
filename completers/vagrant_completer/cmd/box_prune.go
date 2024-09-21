@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/vagrant_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/vagrant"
 	"github.com/spf13/cobra"
 )
 
@@ -23,7 +23,7 @@ func init() {
 	boxCmd.AddCommand(box_pruneCmd)
 
 	carapace.Gen(box_pruneCmd).FlagCompletion(carapace.ActionMap{
-		"name":     action.ActionBoxes(),
-		"provider": action.ActionProviders(),
+		"name":     vagrant.ActionBoxes(),
+		"provider": vagrant.ActionProviders(),
 	})
 }

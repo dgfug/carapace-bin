@@ -1,27 +1,29 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/glab_completer/cmd/action"
-	"github.com/rsteube/carapace-bin/pkg/actions/net/http"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/glab_completer/cmd/action"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/net/http"
 	"github.com/spf13/cobra"
 )
 
 var apiCmd = &cobra.Command{
-	Use:   "api",
+	Use:   "api <endpoint>",
 	Short: "Make an authenticated request to GitLab API",
 	Run:   func(cmd *cobra.Command, args []string) {},
 }
 
 func init() {
-	apiCmd.Flags().StringArrayP("field", "F", []string{}, "Add a parameter of inferred type")
-	apiCmd.Flags().StringArrayP("header", "H", []string{}, "Add an additional HTTP request header")
+	carapace.Gen(apiCmd).Standalone()
+
+	apiCmd.Flags().StringSliceP("field", "F", []string{}, "Add a parameter of inferred type (changes default HTTP method to \"POST\")")
+	apiCmd.Flags().StringSliceP("header", "H", []string{}, "Add an additional HTTP request header")
 	apiCmd.Flags().String("hostname", "", "The GitLab hostname for the request (default is \"gitlab.com\" or authenticated host in current git directory)")
 	apiCmd.Flags().BoolP("include", "i", false, "Include HTTP response headers in the output")
 	apiCmd.Flags().String("input", "", "The file to use as body for the HTTP request")
-	apiCmd.Flags().StringP("method", "X", "GET", "The HTTP method for the request")
+	apiCmd.Flags().StringP("method", "X", "", "The HTTP method for the request")
 	apiCmd.Flags().Bool("paginate", false, "Make additional HTTP requests to fetch all pages of results")
-	apiCmd.Flags().StringArrayP("raw-field", "f", []string{}, "Add a string parameter")
+	apiCmd.Flags().StringSliceP("raw-field", "f", []string{}, "Add a string parameter")
 	apiCmd.Flags().Bool("silent", false, "Do not print the response body")
 	rootCmd.AddCommand(apiCmd)
 
@@ -30,9 +32,9 @@ func init() {
 			return carapace.ActionMultiParts(":", func(c carapace.Context) carapace.Action {
 				switch len(c.Parts) {
 				case 0:
-					return http.ActionHttpRequestHeaderNames().Invoke(c).Suffix(":").ToA()
+					return http.ActionRequestHeaderNames().Invoke(c).Suffix(":").ToA()
 				case 1:
-					return http.ActionHttpRequestHeaderValues(c.Parts[0])
+					return http.ActionRequestHeaderValues(c.Parts[0])
 				default:
 					return carapace.ActionValues()
 				}

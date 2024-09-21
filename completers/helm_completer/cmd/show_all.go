@@ -3,9 +3,9 @@ package cmd
 import (
 	"strings"
 
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/helm_completer/cmd/action"
-	"github.com/rsteube/carapace-bin/pkg/util"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/helm"
+	"github.com/carapace-sh/carapace/pkg/condition"
 	"github.com/spf13/cobra"
 )
 
@@ -16,6 +16,7 @@ var show_allCmd = &cobra.Command{
 }
 
 func init() {
+	carapace.Gen(show_allCmd).Standalone()
 	show_allCmd.Flags().String("ca-file", "", "verify certificates of HTTPS-enabled servers using this CA bundle")
 	show_allCmd.Flags().String("cert-file", "", "identify HTTPS client using this SSL certificate file")
 	show_allCmd.Flags().Bool("devel", false, "use development versions, too. Equivalent to version '>0.0.0-0'. If --version is set, this is ignored")
@@ -38,7 +39,7 @@ func init() {
 		"version": carapace.ActionCallback(func(c carapace.Context) carapace.Action {
 			if len(c.Args) > 0 {
 				if splitted := strings.Split(c.Args[0], "/"); len(splitted) == 2 {
-					return action.ActionChartVersions(splitted[0], splitted[1])
+					return helm.ActionChartVersions(splitted[0], splitted[1])
 				}
 			}
 			return carapace.ActionValues()
@@ -46,11 +47,9 @@ func init() {
 	})
 
 	carapace.Gen(show_allCmd).PositionalCompletion(
-		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-			if util.HasPathPrefix(c.CallbackValue) {
-				return carapace.ActionFiles()
-			}
-			return action.ActionRepositoryCharts()
-		}),
+		carapace.Batch(
+			carapace.ActionFiles(),
+			helm.ActionRepositoryCharts().Unless(condition.CompletingPath),
+		).ToA(),
 	)
 }

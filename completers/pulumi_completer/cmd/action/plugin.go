@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	exec "golang.org/x/sys/execabs"
 
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace/pkg/execlog"
 	"github.com/spf13/cobra"
 )
 
@@ -18,7 +18,7 @@ type plugin struct {
 
 func plugins(cwd string) (plugins []plugin, err error) {
 	stderr := bytes.Buffer{}
-	cmd := exec.Command("pulumi", "--cwd", cwd, "plugin", "ls", "--json")
+	cmd := execlog.Command("pulumi", "--cwd", cwd, "plugin", "ls", "--json")
 	cmd.Stderr = &stderr
 	cmd.Env = append(cmd.Env, "PULUMI_SKIP_UPDATE_CHECK=1")
 	if output, cmdErr := cmd.Output(); cmdErr != nil {

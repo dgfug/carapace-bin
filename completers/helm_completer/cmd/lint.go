@@ -1,17 +1,19 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
 var lintCmd = &cobra.Command{
-	Use:   "lint",
-	Short: "examine a chart for possible issues",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Use:     "lint",
+	Short:   "examine a chart for possible issues",
+	GroupID: "main",
+	Run:     func(cmd *cobra.Command, args []string) {},
 }
 
 func init() {
+	carapace.Gen(lintCmd).Standalone()
 	lintCmd.Flags().StringArray("set", []string{}, "set values on the command line (can specify multiple or separate values with commas: key1=val1,key2=val2)")
 	lintCmd.Flags().StringArray("set-file", []string{}, "set values from respective files specified via the command line (can specify multiple or separate values with commas: key1=path1,key2=path2)")
 	lintCmd.Flags().StringArray("set-string", []string{}, "set STRING values on the command line (can specify multiple or separate values with commas: key1=val1,key2=val2)")
@@ -25,12 +27,13 @@ func init() {
 			return carapace.ActionMultiParts("=", func(c carapace.Context) carapace.Action {
 				switch len(c.Parts) {
 				case 1:
-					return carapace.ActionFiles()
+					return carapace.ActionFiles().NoSpace()
 				default:
 					return carapace.ActionValues()
 				}
 			})
 		}),
+		"values": carapace.ActionFiles(".yaml", ".yml"),
 	})
 
 	carapace.Gen(lintCmd).PositionalCompletion(

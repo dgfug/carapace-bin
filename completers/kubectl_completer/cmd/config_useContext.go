@@ -1,15 +1,16 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/kubectl_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/kubectl"
 	"github.com/spf13/cobra"
 )
 
 var config_useContextCmd = &cobra.Command{
-	Use:   "use-context",
-	Short: "Sets the current-context in a kubeconfig file",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Use:     "use-context CONTEXT_NAME",
+	Short:   "Set the current-context in a kubeconfig file",
+	Aliases: []string{"use"},
+	Run:     func(cmd *cobra.Command, args []string) {},
 }
 
 func init() {
@@ -18,6 +19,6 @@ func init() {
 	configCmd.AddCommand(config_useContextCmd)
 
 	carapace.Gen(config_useContextCmd).PositionalCompletion(
-		action.ActionContexts(),
+		kubectl.ActionContexts(),
 	)
 }

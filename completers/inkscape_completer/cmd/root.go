@@ -1,8 +1,9 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/os"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/os"
+	"github.com/carapace-sh/carapace/pkg/style"
 	"github.com/spf13/cobra"
 )
 
@@ -86,7 +87,9 @@ func init() {
 		"display":            os.ActionDisplays(),
 		"export-filename":    carapace.ActionFiles(),
 		"export-pdf-version": carapace.ActionValues("1.4", "1.5"),
-		"export-type":        carapace.ActionValues("svg", "png", "ps", "eps", "pdf", "emf", "wmf", "xaml"),
+		"export-type": carapace.ActionValues("svg", "png", "ps", "eps", "pdf", "emf", "wmf", "xaml").StyleF(func(s string, sc style.Context) string {
+			return style.ForPathExt("."+s, sc)
+		}),
 	})
 
 	carapace.Gen(rootCmd).PositionalAnyCompletion(carapace.ActionFiles())

@@ -3,12 +3,11 @@ package config
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"path/filepath"
 	"syscall"
 
-	"github.com/mitchellh/go-homedir"
 	"gopkg.in/yaml.v3"
 )
 
@@ -41,23 +40,12 @@ func HomeDirPath(subdir string) (string, error) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		// TODO: remove go-homedir fallback in GitHub CLI v2
-		if legacyDir, err := homedir.Dir(); err == nil {
-			return filepath.Join(legacyDir, subdir), nil
-		}
 		return "", err
 	}
 
 	newPath := filepath.Join(homeDir, subdir)
 	if s, err := os.Stat(newPath); err == nil && s.IsDir() {
 		return newPath, nil
-	}
-
-	// TODO: remove go-homedir fallback in GitHub CLI v2
-	if legacyDir, err := homedir.Dir(); err == nil {
-		legacyPath := filepath.Join(legacyDir, subdir)
-		if s, err := os.Stat(legacyPath); err == nil && s.IsDir() {
-			return legacyPath, nil
-		}
 	}
 
 	return newPath, nil
@@ -68,10 +56,6 @@ func HomeDirPath(subdir string) (string, error) {
 func homeDirAutoMigrate() (string, error) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
-		// TODO: remove go-homedir fallback in GitHub CLI v2
-		if legacyDir, err := homedir.Dir(); err == nil {
-			return filepath.Join(legacyDir, ".config", "gh"), nil
-		}
 		return "", err
 	}
 
@@ -79,15 +63,6 @@ func homeDirAutoMigrate() (string, error) {
 	_, newPathErr := os.Stat(newPath)
 	if newPathErr == nil || !os.IsNotExist(err) {
 		return newPath, newPathErr
-	}
-
-	// TODO: remove go-homedir fallback in GitHub CLI v2
-	if legacyDir, err := homedir.Dir(); err == nil {
-		legacyPath := filepath.Join(legacyDir, ".config", "gh")
-		if s, err := os.Stat(legacyPath); err == nil && s.IsDir() {
-			_ = os.MkdirAll(filepath.Dir(newPath), 0755)
-			return newPath, os.Rename(legacyPath, newPath)
-		}
 	}
 
 	return newPath, nil
@@ -100,7 +75,7 @@ var ReadConfigFile = func(filename string) ([]byte, error) {
 	}
 	defer f.Close()
 
-	data, err := ioutil.ReadAll(f)
+	data, err := io.ReadAll(f)
 	if err != nil {
 		return nil, err
 	}

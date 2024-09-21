@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
@@ -24,8 +24,6 @@ func init() {
 
 	carapace.Gen(token_createCmd).FlagCompletion(carapace.ActionMap{
 		"config": carapace.ActionFiles(),
-		"usages": carapace.ActionMultiParts(",", func(c carapace.Context) carapace.Action {
-			return carapace.ActionValues("signing", "authentication").Invoke(c).Filter(c.Parts).ToA()
-		}),
+		"usages": carapace.ActionValues("signing", "authentication").UniqueList(","),
 	})
 }

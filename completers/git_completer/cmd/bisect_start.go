@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/tools/git"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/git"
 	"github.com/spf13/cobra"
 )
 
@@ -28,7 +28,16 @@ func init() {
 			if bisect_startCmd.Flags().ArgsLenAtDash() != -1 {
 				return carapace.ActionFiles()
 			}
-			return git.ActionRefs(git.RefOptionDefault)
+			return git.ActionRefs(git.RefOption{}.Default())
+		}),
+	)
+
+	carapace.Gen(bisect_startCmd).DashAnyCompletion(
+		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
+			if bisect_startCmd.Flags().ArgsLenAtDash() == 0 {
+				return carapace.ActionValues()
+			}
+			return git.ActionRefFiles(bisect_startCmd.Flags().Args()[0]).FilterArgs()
 		}),
 	)
 }

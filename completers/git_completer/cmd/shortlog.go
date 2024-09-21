@@ -1,17 +1,18 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/time"
-	"github.com/rsteube/carapace-bin/pkg/actions/tools/git"
-	"github.com/rsteube/carapace-bin/pkg/util"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/time"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/git"
+	"github.com/carapace-sh/carapace/pkg/condition"
 	"github.com/spf13/cobra"
 )
 
 var shortlogCmd = &cobra.Command{
-	Use:   "shortlog",
-	Short: "Summarize 'git log' output",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Use:     "shortlog",
+	Short:   "Summarize 'git log' output",
+	Run:     func(cmd *cobra.Command, args []string) {},
+	GroupID: groups[group_main].ID,
 }
 
 func init() {
@@ -83,6 +84,7 @@ func init() {
 
 	carapace.Gen(shortlogCmd).FlagCompletion(carapace.ActionMap{
 		"after":  time.ActionDate(),
+		"author": git.ActionAuthors(),
 		"before": time.ActionDate(),
 		"group": carapace.ActionMultiParts(":", func(c carapace.Context) carapace.Action {
 			switch len(c.Parts) {
@@ -101,18 +103,9 @@ func init() {
 	})
 
 	carapace.Gen(shortlogCmd).PositionalAnyCompletion(
-		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-			if util.HasPathPrefix(c.CallbackValue) {
-				return carapace.ActionFiles()
-			} else {
-				return carapace.ActionMultiParts("...", func(c carapace.Context) carapace.Action {
-					if len(c.Parts) < 2 {
-						return git.ActionRefs(git.RefOptionDefault)
-					} else {
-						return carapace.ActionValues()
-					}
-				})
-			}
-		}),
+		carapace.Batch(
+			carapace.ActionFiles(),
+			git.ActionRefRanges(git.RefOption{}.Default()).Unless(condition.CompletingPath),
+		).ToA(),
 	)
 }

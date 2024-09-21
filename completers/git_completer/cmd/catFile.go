@@ -1,15 +1,16 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/tools/git"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/git"
 	"github.com/spf13/cobra"
 )
 
 var catFileCmd = &cobra.Command{
-	Use:   "cat-file",
-	Short: "Provide content or type and size information for repository objects",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Use:     "cat-file",
+	Short:   "Provide content or type and size information for repository objects",
+	Run:     func(cmd *cobra.Command, args []string) {},
+	GroupID: groups[group_low_level_interrogator].ID,
 }
 
 func init() {
@@ -34,6 +35,6 @@ func init() {
 	// TODO completions
 	carapace.Gen(catFileCmd).PositionalCompletion(
 		carapace.ActionValues("blob", "tree", "commit", "tag"),
-		git.ActionRefs(git.RefOptionDefault),
+		git.ActionRefs(git.RefOption{}.Default()),
 	)
 }

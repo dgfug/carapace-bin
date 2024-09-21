@@ -1,14 +1,14 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/glab_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/glab_completer/cmd/action"
 	"github.com/spf13/cobra"
 )
 
 var sshKey_getCmd = &cobra.Command{
 	Use:   "get <key-id>",
-	Short: "Gets a single key",
+	Short: "Returns a single SSH key specified by the ID.",
 	Run:   func(cmd *cobra.Command, args []string) {},
 }
 

@@ -4,12 +4,13 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 )
 
-// ActionSoundCards completion sound cards
-//   0 (HDMI)
-//   PCH (1)
+// ActionSoundCards completes sound cards
+//
+//	0 (HDMI)
+//	PCH (1)
 func ActionSoundCards() carapace.Action {
 	return carapace.ActionCallback(func(c carapace.Context) carapace.Action {
 		return carapace.ActionExecCommand("aplay", "-l")(func(output []byte) carapace.Action {
@@ -29,5 +30,5 @@ func ActionSoundCards() carapace.Action {
 			}
 			return carapace.ActionValuesDescribed(vals...)
 		})
-	})
+	}).Tag("soundcards")
 }

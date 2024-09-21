@@ -1,14 +1,15 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
 var initCmd = &cobra.Command{
-	Use:   "init",
-	Short: "Create an empty Git repository or reinitialize an existing one",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Use:     "init",
+	Short:   "Create an empty Git repository or reinitialize an existing one",
+	Run:     func(cmd *cobra.Command, args []string) {},
+	GroupID: groups[group_main].ID,
 }
 
 func init() {

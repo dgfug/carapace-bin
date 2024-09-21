@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/hugo_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/hugo_completer/cmd/action"
 	"github.com/spf13/cobra"
 )
 
@@ -13,6 +13,7 @@ var serverCmd = &cobra.Command{
 }
 
 func init() {
+	carapace.Gen(serverCmd).Standalone()
 	serverCmd.Flags().Bool("appendPort", true, "append port to baseURL")
 	serverCmd.Flags().StringP("baseURL", "b", "", "hostname (and path) to the root, e.g. http://spf13.com/")
 	serverCmd.Flags().String("bind", "127.0.0.1", "interface to which the server will bind")

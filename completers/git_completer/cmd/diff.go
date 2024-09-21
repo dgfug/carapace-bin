@@ -1,180 +1,106 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/tools/git"
+	"strings"
+
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/git_completer/cmd/common"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/git"
+	"github.com/carapace-sh/carapace/pkg/style"
 	"github.com/spf13/cobra"
 )
 
 var diffCmd = &cobra.Command{
-	Use:   "diff",
-	Short: "Show changes between commits",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Use:     "diff",
+	Short:   "Show changes between commits",
+	Run:     func(cmd *cobra.Command, args []string) {},
+	GroupID: groups[group_main].ID,
 }
 
 func init() {
 	carapace.Gen(diffCmd).Standalone()
 
-	diffCmd.Flags().BoolS("0", "0", false, "Omit diff output for unmerged entries")
-	diffCmd.Flags().StringS("O", "O", "", "Control the order in which files appear in the output.")
-	diffCmd.Flags().BoolS("R", "R", false, "Swap two inputs")
-	diffCmd.Flags().StringS("S", "S", "", "Look for differences that change the number of occurrences of the specified string")
-	diffCmd.Flags().String("abbrev", "", "show only a partial prefix")
-	diffCmd.Flags().String("anchored", "", "Generate a diff using the \"anchored diff\" algorithm.")
-	diffCmd.Flags().BoolP("base", "1", false, "compare with base")
-	diffCmd.Flags().Bool("binary", false, "output a binary diff")
-	diffCmd.Flags().StringP("break-rewrites", "B", "", "Break complete rewrite changes into pairs of delete and create.")
-	diffCmd.Flags().Bool("check", false, "Warn if changes introduce conflict markers or whitespace errors")
-	diffCmd.Flags().String("color", "", "Show colored diff.")
-	diffCmd.Flags().String("color-moved", "", "Moved lines of code are colored differently.")
-	diffCmd.Flags().String("color-moved-ws", "", "This configures how whitespace is ignored when performing the move detection")
-	diffCmd.Flags().String("color-words", "", "Equivalent to --word-diff=color plus (if a regex was specified)")
-	diffCmd.Flags().Bool("compact-summary", false, "Output a condensed summary of extended header information")
-	diffCmd.Flags().Bool("cumulative", false, "Synonym for --dirstat=cumulative")
-	diffCmd.Flags().String("diff-algorithm", "", "")
-	diffCmd.Flags().String("diff-filter", "", "filter files")
-	diffCmd.Flags().StringP("dirstat", "X", "", "Output the distribution of relative amount of changes for each sub-directory")
-	diffCmd.Flags().String("dirstat-by-file", "", "Synonym for --dirstat=files,param1,param2...")
-	diffCmd.Flags().String("dst-prefix", "", "Show the given destination prefix instead of \"b/\".")
-	diffCmd.Flags().Bool("exit-code", false, "Make the program exit with codes similar to diff(1).")
-	diffCmd.Flags().Bool("ext-diff", false, "Allow an external diff helper to be executed.")
-	diffCmd.Flags().StringP("find-copies", "C", "", "Detect copies as well as renames")
-	diffCmd.Flags().Bool("find-copies-harder", false, "inspect unmodified files as candidates for the source of copy")
-	diffCmd.Flags().String("find-object", "", "Look for differences that change the number of occurrences of the specified object.")
-	diffCmd.Flags().StringP("find-renames", "M", "", "Detect renames")
-	diffCmd.Flags().Bool("full-index", false, "show the full pre- and post-image blob object names")
-	diffCmd.Flags().BoolP("function-context", "W", false, "Show whole surrounding functions of changes.")
-	diffCmd.Flags().Bool("histogram", false, "Generate a diff using the \"histogram diff\" algorithm.")
-	diffCmd.Flags().BoolP("ignore-all-space", "w", false, "Ignore whitespace when comparing lines.")
-	diffCmd.Flags().Bool("ignore-blank-lines", false, "Ignore changes whose lines are all blank.")
-	diffCmd.Flags().Bool("ignore-cr-at-eol", false, "Ignore carriage-return at the end of line when doing a comparison.")
-	diffCmd.Flags().Bool("ignore-space-at-eol", false, "Ignore changes in whitespace at EOL.")
-	diffCmd.Flags().BoolP("ignore-space-change", "b", false, "Ignore changes in amount of whitespace.")
-	diffCmd.Flags().String("ignore-submodules", "", "Ignore changes to submodules in the diff generation.")
-	diffCmd.Flags().Bool("indent-heuristic", false, "Enable the heuristic that shifts diff hunk boundaries to make patches easier to read.")
-	diffCmd.Flags().String("inter-hunk-context", "", "Show the context between diff hunks")
-	diffCmd.Flags().BoolP("irreversible-delete", "D", false, "Omit the preimage for deletes")
-	diffCmd.Flags().Bool("ita-invisible-in-index", false, "this option makes the entry appear as a new file")
-	diffCmd.Flags().StringS("l", "l", "", "prevent rename/copy detection from running if the number of rename/copy targets exceeds the specified number")
-	diffCmd.Flags().String("line-prefix", "", "Prepend an additional prefix to every line of output.")
-	diffCmd.Flags().Bool("minimal", false, "Spend extra time to make sure the smallest possible diff is produced.")
-	diffCmd.Flags().Bool("name-only", false, "Show only names of changed files.")
-	diffCmd.Flags().Bool("name-status", false, "Show only names and status of changed files.")
-	diffCmd.Flags().Bool("no-color", false, "Turn off colored diff.")
-	diffCmd.Flags().Bool("no-color-moved", false, "Turn off move detection.")
-	diffCmd.Flags().Bool("no-color-moved-ws", false, "Do not ignore whitespace when performing move detection")
-	diffCmd.Flags().Bool("no-ext-diff", false, "Disallow external diff drivers.")
-	diffCmd.Flags().Bool("no-indent-heuristic", false, "Disable the indent heuristic.")
-	diffCmd.Flags().BoolP("no-patch", "s", false, "Suppress diff output.")
-	diffCmd.Flags().Bool("no-prefix", false, "Do not show any source or destination prefix.")
-	diffCmd.Flags().Bool("no-rename-empty", false, "Whether to use empty blobs as rename source.")
-	diffCmd.Flags().Bool("no-renames", false, "Turn off rename detection")
-	diffCmd.Flags().Bool("numstat", false, "Similar to --stat, but shows number of added and deleted lines in decimal notation")
-	diffCmd.Flags().BoolP("ours", "2", false, "compare with our branch")
-	diffCmd.Flags().String("output", "", "Output to a specific file instead of stdout.")
-	diffCmd.Flags().String("output-indicator-context", "", "Specify the character used to indicate context lines in the generated patch.")
-	diffCmd.Flags().String("output-indicator-new", "", "Specify the character used to indicate new lines in the generated patch.")
-	diffCmd.Flags().String("output-indicator-old", "", "Specify the character used to indicate old lines in the generated patch.")
-	diffCmd.Flags().BoolP("patch", "p", false, "Generate patch")
-	diffCmd.Flags().Bool("patch-with-raw", false, "Synonym for -p --raw.")
-	diffCmd.Flags().Bool("patch-with-stat", false, "Synonym for -p --stat.")
-	diffCmd.Flags().Bool("patience", false, "Generate a diff using the \"patience diff\" algorithm.")
-	diffCmd.Flags().Bool("pickaxe-all", false, "When -S or -G finds a change, show all the changes in that changeset")
-	diffCmd.Flags().Bool("pickaxe-regex", false, "Treat the <string> given to -S as an extended POSIX regular expression to match.")
-	diffCmd.Flags().Bool("quiet", false, "Disable all output of the program.")
-	diffCmd.Flags().Bool("raw", false, "Generate the diff in raw format.")
-	diffCmd.Flags().String("relative,", "", "exclude changes outside the directory")
-	diffCmd.Flags().Bool("rename-empty", false, "Whether to use empty blobs as rename source.")
-	diffCmd.Flags().Bool("shortstat", false, "Output only the last line of the --stat format")
-	diffCmd.Flags().String("src-prefix", "", "Show the given source prefix instead of \"a/\".")
-	diffCmd.Flags().String("stat", "", "")
-	diffCmd.Flags().String("submodule", "", "Specify how differences in submodules are shown.")
-	diffCmd.Flags().Bool("summary", false, "Output a condensed summary of extended header information")
-	diffCmd.Flags().BoolP("text", "a", false, "Treat all files as text.")
-	diffCmd.Flags().String("textconv,", "", "Allow (or disallow) external text conversion filters to be run when comparing binary files")
-	diffCmd.Flags().BoolP("theirs", "3", false, "compare with their branch")
-	diffCmd.Flags().BoolS("u", "u", false, "Generate patch")
-	diffCmd.Flags().StringP("unified", "U", "", "Generate diffs with <n> lines of context instead of the usual three.")
-	diffCmd.Flags().String("word-diff", "", "Show a word diff, using the <mode> to delimit changed words.")
-	diffCmd.Flags().String("word-diff-regex", "", "Use <regex> to decide what a word is")
-	diffCmd.Flags().String("ws-error-highlight", "", "Highlight whitespace errors in the context, old or new lines of the diff")
-	diffCmd.Flags().BoolS("z", "z", false, "do not munge pathnames and use NULs as output field terminators")
+	common.AddDiffFlags(diffCmd)
 	rootCmd.AddCommand(diffCmd)
 
-	diffCmd.Flag("color-moved").NoOptDefVal = "default"
-	diffCmd.Flag("color-moved-ws").NoOptDefVal = " "
-	diffCmd.Flag("word-diff").NoOptDefVal = "plain"
-
-	carapace.Gen(diffCmd).FlagCompletion(carapace.ActionMap{
-		"color":          carapace.ActionValues("always", "never", "auto"),
-		"color-moved":    ActionColorMovedModes(),
-		"color-moved-ws": ActionColorMovedWsModes(),
-		"diff-algorithm": ActionDiffAlgorithms(),
-		"output":         carapace.ActionFiles(),
-		"submodule":      carapace.ActionValues("short", "long", "log"),
-		"word-diff":      ActionWordDiffModes(),
-		"ws-error-highlight": carapace.ActionMultiParts(",", func(c carapace.Context) carapace.Action {
-			return ActionWsErrorHighlightModes().Invoke(c).Filter(c.Parts).ToA()
-		}),
-	})
-
 	carapace.Gen(diffCmd).PositionalAnyCompletion(
-		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-			if diffCmd.Flags().ArgsLenAtDash() != -1 {
-				return carapace.ActionFiles()
+		actionDiffArgs(diffCmd),
+	)
+
+	carapace.Gen(diffCmd).DashAnyCompletion(
+		carapace.ActionPositional(diffCmd),
+	)
+}
+
+func actionDiffArgs(cmd *cobra.Command) carapace.Action {
+	return carapace.ActionCallback(func(c carapace.Context) carapace.Action {
+		if cmd.Flag("no-index").Changed {
+			switch len(c.Args) {
+			case 0, 1:
+				return carapace.ActionFiles().FilterArgs()
+			default:
+				return carapace.ActionValues()
 			}
-			return git.ActionRefs(git.RefOptionDefault)
-		}),
-	)
-}
+		}
 
-func ActionDiffAlgorithms() carapace.Action {
-	return carapace.ActionValuesDescribed(
-		"myers", "The basic greedy diff algorithm",
-		"minimal", "Spend extra time to make sure the smallest possible diff is produced",
-		"patience",
-		"Use patience diff algorithm when generating patches",
-		"histogram", "This algorithm extends the patience algorithm to support low-occurrence common elements",
-	)
-}
+		batch := carapace.Batch()
 
-func ActionColorMovedModes() carapace.Action {
-	return carapace.ActionValuesDescribed(
-		"no", "Moved lines are not highlighted",
-		"default", "default mode",
-		"plain", "plain mode",
-		"blocks", "greedily detects blocks",
-		"zebra", "Blocks of moved text are detected as in blocks mode",
-		"dimmed-zebra", "Similar to zebra, but additional dimming of uninteresting parts of moved code",
-	)
-}
+		filtered := make([]string, 0)
+		for index, arg := range c.Args {
+			if index == 0 && strings.Contains(arg, "..") { // assume refrange - TODO what about '{ref}...{ref}'
+				filtered = append(filtered, arg)
+				break
+			}
 
-func ActionColorMovedWsModes() carapace.Action {
-	return carapace.ActionValuesDescribed(
-		"no", "Do not ignore whitespace when performing move detection",
-		"ignore-space-at-eol", "Ignore changes in whitespace at EOL",
-		"ignore-space-change", "Ignore changes in amount of whitespace.",
-		"ignore-all-space", "Ignore whitespace when comparing lines.",
-		"allow-indentation-change", "Initially ignore any whitespace in the move detection",
-	)
-}
+			if err := c.Command("git", "rev-parse", "--verify", arg).Run(); err != nil {
+				break
+			}
+			filtered = append(filtered, arg)
+		}
 
-func ActionWordDiffModes() carapace.Action {
-	return carapace.ActionValuesDescribed(
-		"color", "Highlight changed words using only colors",
-		"plain", "Show words as [-removed-] and {+added+}",
-		"porcelain", "Use a special line-based format intended for script consumption",
-		"none", "Disable word diff again",
-	)
-}
+		if len(filtered) == len(c.Args) && cmd.Flags().ArgsLenAtDash() < 0 {
+			switch len(filtered) {
+			case 0:
+				batch = append(batch, git.ActionRefRanges(git.RefOption{}.Default()))
+			default:
+				switch {
+				case strings.Contains(c.Args[0], ".."): // skip if we already have a refrange
+				case cmd.Flag("cached").Changed: // skip as '-cached' accepts only on ref
+				default:
+					batch = append(batch, git.ActionRefs(git.RefOption{}.Default()))
+				}
+			}
+		}
 
-func ActionWsErrorHighlightModes() carapace.Action {
-	return carapace.ActionValuesDescribed(
-		"context", "context lines",
-		"old", "old lines",
-		"new", "new linex",
-		"none", "reset previous values",
-		"default", "reset to new",
-		"all", "shorthand for old,new,context",
-	)
+		expanded := filtered
+		if len(filtered) > 0 {
+			// TODO support/suppress '{ref}...{ref}'??
+			expanded = append(strings.SplitN(filtered[0], "..", 2), filtered[1:]...) // split refrange if any
+		}
+
+		switch len(expanded) {
+		case 0:
+			if !cmd.Flag("cached").Changed {
+				// TODO `git diff` fails on deleted files (seems still worth seeing them in completion though)
+				batch = append(batch, git.ActionChanges(git.ChangeOpts{Unstaged: true}).Filter(cmd.Flags().Args()...))
+			}
+		default:
+			// TODO handle --merge-base with more than 2 refs
+			var action carapace.Action
+			if cmd.Flag("cached").Changed {
+				if len(expanded) > 0 {
+					action = git.ActionCachedDiffs(expanded[0])
+				}
+			} else {
+				action = git.ActionRefDiffs(expanded...)
+			}
+
+			if len(expanded) > 0 { // multipart for potentially large diffs
+				action = action.MultiParts("/").StyleF(style.ForPathExt).Tag("changed files")
+			}
+			batch = append(batch, action.Filter(cmd.Flags().Args()[len(filtered):]...))
+		}
+
+		return batch.ToA()
+	})
 }

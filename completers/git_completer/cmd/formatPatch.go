@@ -1,15 +1,16 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/tools/git"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/git"
 	"github.com/spf13/cobra"
 )
 
 var formatPatchCmd = &cobra.Command{
-	Use:   "format-patch",
-	Short: "Prepare patches for e-mail submission",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Use:     "format-patch",
+	Short:   "Prepare patches for e-mail submission",
+	Run:     func(cmd *cobra.Command, args []string) {},
+	GroupID: groups[group_main].ID,
 }
 
 func init() {
@@ -64,15 +65,6 @@ func init() {
 	})
 
 	carapace.Gen(formatPatchCmd).PositionalCompletion(
-		carapace.ActionMultiParts("...", func(c carapace.Context) carapace.Action {
-			switch len(c.Parts) {
-			case 0:
-				return git.ActionRefs(git.RefOptionDefault)
-			case 1:
-				return git.ActionRefs(git.RefOptionDefault)
-			default:
-				return carapace.ActionValues()
-			}
-		}),
+		git.ActionRefRanges(git.RefOption{}.Default()),
 	)
 }

@@ -3,15 +3,16 @@ package os
 import (
 	"strings"
 
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 )
 
 // ActionLocales completes locales
-//   en_GB (English (United Kingdom))
-//   en_US (English (United States))
+//
+//	en_GB (English (United Kingdom))
+//	en_US (English (United States))
 func ActionLocales() carapace.Action {
 	return carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-		if !strings.Contains(c.CallbackValue, "_") {
+		if !strings.Contains(c.Value, "_") {
 			return ActionLanguages().NoSpace()
 		}
 		return carapace.ActionValuesDescribed(
@@ -314,5 +315,5 @@ func ActionLocales() carapace.Action {
 			"yo_NG", "Yoruba (Nigeria)",
 			"zu_za", "zulu (south africa)",
 		)
-	})
+	}).Tag("locales")
 }

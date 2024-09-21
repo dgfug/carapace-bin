@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
@@ -17,8 +17,6 @@ func init() {
 	config_printCmd.AddCommand(config_print_joinDefaultsCmd)
 
 	carapace.Gen(config_print_joinDefaultsCmd).FlagCompletion(carapace.ActionMap{
-		"component-configs": carapace.ActionMultiParts(",", func(c carapace.Context) carapace.Action {
-			return carapace.ActionValues("KubeProxyConfiguration", "KubeletConfiguration").Invoke(c).Filter(c.Parts).ToA()
-		}),
+		"component-configs": carapace.ActionValues("KubeProxyConfiguration", "KubeletConfiguration").UniqueList(","),
 	})
 }

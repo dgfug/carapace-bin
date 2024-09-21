@@ -3,12 +3,13 @@ package os
 import (
 	"strings"
 
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 )
 
 // ActionSessionIds completes session ids
-//   0 (root)
-//   1 (root)
+//
+//	0 (root)
+//	1 (root)
 func ActionSessionIds() carapace.Action {
 	return carapace.ActionExecCommand("ps", "-A", "-o", "user,sess")(func(output []byte) carapace.Action {
 		lines := strings.Split(string(output), "\n")
@@ -26,6 +27,5 @@ func ActionSessionIds() carapace.Action {
 		}
 
 		return carapace.ActionValuesDescribed(vals...)
-	})
-
+	}).Tag("session ids")
 }

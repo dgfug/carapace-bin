@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
@@ -13,6 +13,7 @@ var mod_vendorCmd = &cobra.Command{
 
 func init() {
 	carapace.Gen(mod_vendorCmd).Standalone()
+	mod_vendorCmd.Flags().SetInterspersed(false)
 
 	mod_vendorCmd.Flags().BoolS("v", "v", false, "print the names of vendored modules and packages")
 	modCmd.AddCommand(mod_vendorCmd)

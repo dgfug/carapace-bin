@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/pulumi_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/pulumi_completer/cmd/action"
 	"github.com/spf13/cobra"
 )
 
@@ -13,6 +13,7 @@ var newCmd = &cobra.Command{
 }
 
 func init() {
+	carapace.Gen(newCmd).Standalone()
 	newCmd.PersistentFlags().StringArrayP("config", "c", []string{}, "Config to save")
 	newCmd.PersistentFlags().Bool("config-path", false, "Config keys contain a path to a property in a map or list to set")
 	newCmd.PersistentFlags().StringP("description", "d", "", "The project description; if not specified, a prompt will request it")

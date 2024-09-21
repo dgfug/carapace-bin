@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
@@ -13,8 +13,9 @@ var fmtCmd = &cobra.Command{
 
 func init() {
 	carapace.Gen(fmtCmd).Standalone()
+	fmtCmd.Flags().SetInterspersed(false)
 
-	fmtCmd.Flags().Bool("mod", false, "set module download mode")
+	fmtCmd.Flags().BoolS("mod", "mod", false, "set module download mode")
 	fmtCmd.Flags().BoolS("n", "n", false, "print commands that would be executed")
 	fmtCmd.Flags().BoolS("x", "x", false, "print commands as they are executed")
 	rootCmd.AddCommand(fmtCmd)

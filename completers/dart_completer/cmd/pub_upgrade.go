@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/tools/pub"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/pub"
 	"github.com/spf13/cobra"
 )
 
@@ -26,8 +26,6 @@ func init() {
 	pubCmd.AddCommand(pub_upgradeCmd)
 
 	carapace.Gen(pub_upgradeCmd).PositionalAnyCompletion(
-		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-			return pub.ActionDependencies().Invoke(c).Filter(c.Args).ToA()
-		}),
+		pub.ActionDependencies().FilterArgs(),
 	)
 }

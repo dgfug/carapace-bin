@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/faas-cli_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/faas-cli_completer/cmd/action"
 	"github.com/spf13/cobra"
 )
 
@@ -13,6 +13,8 @@ var generateCmd = &cobra.Command{
 }
 
 func init() {
+	carapace.Gen(generateCmd).Standalone()
+
 	generateCmd.Flags().StringArray("annotation", []string{}, "Any annotations you want to add (to store functions only)")
 	generateCmd.Flags().String("api", "openfaas.com/v1", "CRD API version e.g openfaas.com/v1, serving.knative.dev/v1")
 	generateCmd.Flags().String("arch", "x86_64", "Desired image arch. (Default x86_64)")

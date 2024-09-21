@@ -4,8 +4,9 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/net/http"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/net/http"
+	"github.com/carapace-sh/carapace/pkg/style"
 	"github.com/spf13/cobra"
 )
 
@@ -17,12 +18,6 @@ var rootCmd = &cobra.Command{
 }
 
 func Execute() error {
-	return rootCmd.Execute()
-}
-
-// ExecuteHttps replace Use with `https` before execution (https alias command for httpie)
-func ExecuteHttps() error {
-	rootCmd.Use = "https" // TODO works for now
 	return rootCmd.Execute()
 }
 
@@ -93,11 +88,14 @@ func init() {
 		"session-read-only": carapace.ActionFiles(), // TODO complete names
 		"ssl":               carapace.ActionValues("ssl2.3", "tls1", "tls1.1", "tls1.2"),
 		"style":             ActionStyles(),
-		"verify":            carapace.ActionValues("yes", "no"),
+		"verify":            carapace.ActionValues("yes", "no").StyleF(style.ForKeyword),
 	})
 
 	carapace.Gen(rootCmd).PositionalCompletion(
-		http.ActionRequestMethods(),
+		carapace.Batch(
+			http.ActionRequestMethods(),
+			http.ActionUrls(),
+		).ToA(),
 		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
 			requestMethods := map[string]bool{
 				"GET":     true,
@@ -110,8 +108,8 @@ func init() {
 				"TRACE":   true,
 				"PATCH":   true,
 			}
-			if _, ok := requestMethods[c.Args[0]]; ok {
-				return carapace.ActionValues() // arg[1] is url
+			if _, ok := requestMethods[c.Args[0]]; ok { // arg[1] is url
+				return http.ActionUrls()
 			}
 			return ActionRequestItem()
 		}),
@@ -123,14 +121,12 @@ func init() {
 }
 
 func ActionPrintOptions() carapace.Action {
-	return carapace.ActionMultiParts("", func(c carapace.Context) carapace.Action {
-		return carapace.ActionValuesDescribed(
-			"H", "request headers",
-			"B", "request body",
-			"h", "response headers",
-			"b", "response body",
-		).Invoke(c).Filter(c.Parts).ToA()
-	})
+	return carapace.ActionValuesDescribed(
+		"H", "request headers",
+		"B", "request body",
+		"h", "response headers",
+		"b", "response body",
+	).UniqueList("")
 }
 
 func ActionStyles() carapace.Action {
@@ -148,10 +144,10 @@ func ActionFormatOptions() carapace.Action {
 	return carapace.ActionMultiParts(",", func(cEntries carapace.Context) carapace.Action {
 		return carapace.ActionMultiParts(":", func(c carapace.Context) carapace.Action {
 			options := map[string]carapace.Action{
-				"headers.sort":   carapace.ActionValues("true", "false"),
-				"json.format":    carapace.ActionValues("true", "false"),
+				"headers.sort":   carapace.ActionValues("true", "false").StyleF(style.ForKeyword),
+				"json.format":    carapace.ActionValues("true", "false").StyleF(style.ForKeyword),
 				"json.indent":    carapace.ActionValues(),
-				"json.sort_keys": carapace.ActionValues("true", "false"),
+				"json.sort_keys": carapace.ActionValues("true", "false").StyleF(style.ForKeyword),
 			}
 			switch len(c.Parts) {
 			case 0:
@@ -165,7 +161,7 @@ func ActionFormatOptions() carapace.Action {
 					entryKeys[index] = strings.Split(entry, ":")[0]
 				}
 
-				return carapace.ActionValues(keys...).Invoke(c).Filter(entryKeys).Suffix(":").ToA()
+				return carapace.ActionValues(keys...).Invoke(c).Filter(entryKeys...).Suffix(":").ToA()
 			case 1:
 				if a, ok := options[c.Parts[0]]; ok {
 					return a
@@ -178,10 +174,10 @@ func ActionFormatOptions() carapace.Action {
 	})
 }
 
-func determineSeparator(callbackValue string) (result string, err error) {
-	resultIndex := len(callbackValue)
+func determineSeparator(s string) (result string, err error) {
+	resultIndex := len(s)
 	for _, separator := range []string{"==", "=@", "@", "=", ":=@", ":=", ":"} {
-		if index := strings.Index(callbackValue, separator); index != -1 && index < resultIndex {
+		if index := strings.Index(s, separator); index != -1 && index < resultIndex {
 			resultIndex = index
 			result = separator
 		}
@@ -195,7 +191,7 @@ func determineSeparator(callbackValue string) (result string, err error) {
 
 func ActionRequestItem() carapace.Action {
 	return carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-		if separator, err := determineSeparator(c.CallbackValue); err == nil {
+		if separator, err := determineSeparator(c.Value); err == nil {
 			return carapace.ActionMultiParts(separator, func(c carapace.Context) carapace.Action {
 				switch len(c.Parts) {
 				case 1:
@@ -205,7 +201,7 @@ func ActionRequestItem() carapace.Action {
 					case ":=@":
 						return carapace.ActionFiles()
 					case ":":
-						return http.ActionHttpRequestHeaderValues(c.Parts[0])
+						return http.ActionRequestHeaderValues(c.Parts[0])
 					default:
 						return carapace.ActionValues()
 					}
@@ -216,13 +212,13 @@ func ActionRequestItem() carapace.Action {
 		}
 
 		context := c
-		if index := strings.IndexAny(c.CallbackValue, ":=@"); index != -1 {
-			context.CallbackValue = context.CallbackValue[:index]
+		if index := strings.IndexAny(c.Value, ":=@"); index != -1 {
+			context.Value = context.Value[:index]
 		}
 
-		headers := http.ActionHttpRequestHeaderNames().Invoke(c).Suffix(":") // use full context
+		headers := http.ActionRequestHeaderNames().Invoke(c).Suffix(":") // use full context
 		return carapace.ActionMultiParts("", func(c carapace.Context) carapace.Action {
-			return ActionSeparators()
+			return ActionSeparators().Style(style.Blue)
 		}).Invoke(context).Merge(headers).ToA()
 	})
 }
@@ -236,5 +232,5 @@ func ActionSeparators() carapace.Action {
 		"@", "Form file fields (only with --form or --multipart)",
 		"=@", "A data field like '=', but takes a file path and embeds its content",
 		":=@", "A raw JSON field like ':=', but takes a file path and embeds its content",
-	)
+	).Tag("separators")
 }

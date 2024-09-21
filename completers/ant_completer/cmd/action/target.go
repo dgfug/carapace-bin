@@ -2,9 +2,9 @@ package action
 
 import (
 	"encoding/xml"
-	"io/ioutil"
+	"os"
 
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 )
 
 type project struct {
@@ -19,7 +19,7 @@ func ActionTargets(path string) carapace.Action {
 		if path == "" {
 			path = "build.xml"
 		}
-		content, err := ioutil.ReadFile(path)
+		content, err := os.ReadFile(path)
 		if err != nil {
 			return carapace.ActionMessage(err.Error())
 		}

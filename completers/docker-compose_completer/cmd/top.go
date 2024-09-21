@@ -1,13 +1,13 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/docker-compose_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/docker-compose_completer/cmd/action"
 	"github.com/spf13/cobra"
 )
 
 var topCmd = &cobra.Command{
-	Use:   "top",
+	Use:   "top [SERVICES...]",
 	Short: "Display the running processes",
 	Run:   func(cmd *cobra.Command, args []string) {},
 }
@@ -18,6 +18,6 @@ func init() {
 	rootCmd.AddCommand(topCmd)
 
 	carapace.Gen(topCmd).PositionalAnyCompletion(
-		action.ActionServices(topCmd),
+		action.ActionServices(topCmd).FilterArgs(),
 	)
 }

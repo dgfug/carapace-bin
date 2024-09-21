@@ -1,37 +1,49 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/kubectl_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/kubectl"
 	"github.com/spf13/cobra"
 )
 
 var create_clusterrolebindingCmd = &cobra.Command{
-	Use:   "clusterrolebinding",
-	Short: "Create a ClusterRoleBinding for a particular ClusterRole",
+	Use:   "clusterrolebinding NAME --clusterrole=NAME [--user=username] [--group=groupname] [--serviceaccount=namespace:serviceaccountname] [--dry-run=server|client|none]",
+	Short: "Create a cluster role binding for a particular cluster role",
 	Run:   func(cmd *cobra.Command, args []string) {},
 }
 
 func init() {
 	carapace.Gen(create_clusterrolebindingCmd).Standalone()
 
-	create_clusterrolebindingCmd.Flags().Bool("allow-missing-template-keys", false, "If true, ignore any errors in templates when a field or map key is missing in the template. Only app")
+	create_clusterrolebindingCmd.Flags().Bool("allow-missing-template-keys", false, "If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.")
 	create_clusterrolebindingCmd.Flags().String("clusterrole", "", "ClusterRole this ClusterRoleBinding should reference")
-	create_clusterrolebindingCmd.Flags().String("dry-run", "", "Must be \"none\", \"server\", or \"client\". If client strategy, only print the object that would be sent,")
+	create_clusterrolebindingCmd.Flags().String("dry-run", "", "Must be \"none\", \"server\", or \"client\". If client strategy, only print the object that would be sent, without sending it. If server strategy, submit server-side request without persisting the resource.")
 	create_clusterrolebindingCmd.Flags().String("field-manager", "", "Name of the manager used to track field ownership.")
-	create_clusterrolebindingCmd.Flags().String("group", "", "Groups to bind to the clusterrole")
-	create_clusterrolebindingCmd.Flags().StringP("output", "o", "", "Output format. One of: json|yaml|name|go-template|go-template-file|template|templatefile|jsonpath|js")
-	create_clusterrolebindingCmd.Flags().Bool("save-config", false, "If true, the configuration of current object will be saved in its annotation. Otherwise, the annotat")
-	create_clusterrolebindingCmd.Flags().String("serviceaccount", "", "Service accounts to bind to the clusterrole, in the format <namespace>:<name>")
-	create_clusterrolebindingCmd.Flags().String("template", "", "Template string or path to template file to use when -o=go-template, -o=go-template-file. The templa")
-	create_clusterrolebindingCmd.Flags().Bool("validate", false, "If true, use a schema to validate the input before sending it")
+	create_clusterrolebindingCmd.Flags().StringSlice("group", []string{}, "Groups to bind to the clusterrole. The flag can be repeated to add multiple groups.")
+	create_clusterrolebindingCmd.Flags().StringP("output", "o", "", "Output format. One of: (json, yaml, name, go-template, go-template-file, template, templatefile, jsonpath, jsonpath-as-json, jsonpath-file).")
+	create_clusterrolebindingCmd.Flags().Bool("save-config", false, "If true, the configuration of current object will be saved in its annotation. Otherwise, the annotation will be unchanged. This flag is useful when you want to perform kubectl apply on this object in the future.")
+	create_clusterrolebindingCmd.Flags().StringSlice("serviceaccount", []string{}, "Service accounts to bind to the clusterrole, in the format <namespace>:<name>. The flag can be repeated to add multiple service accounts.")
+	create_clusterrolebindingCmd.Flags().Bool("show-managed-fields", false, "If true, keep the managedFields when printing objects in JSON or YAML format.")
+	create_clusterrolebindingCmd.Flags().String("template", "", "Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].")
+	create_clusterrolebindingCmd.Flags().StringSlice("user", []string{}, "Usernames to bind to the clusterrole. The flag can be repeated to add multiple users.")
+	create_clusterrolebindingCmd.Flags().String("validate", "", "Validation mode.")
+	create_clusterrolebindingCmd.MarkFlagRequired("clusterrole")
+	create_clusterrolebindingCmd.Flag("dry-run").NoOptDefVal = " "
+	create_clusterrolebindingCmd.Flag("validate").NoOptDefVal = " "
 	createCmd.AddCommand(create_clusterrolebindingCmd)
 
 	carapace.Gen(create_clusterrolebindingCmd).FlagCompletion(carapace.ActionMap{
-		"clusterrole":    action.ActionResources("", "clusterrole"),
-		"dry-run":        action.ActionDryRunModes(),
-		"output":         action.ActionOutputFormats(),
-		"serviceaccount": action.ActionNamespaceServiceAccounts(),
+		"clusterrole": carapace.ActionCallback(func(c carapace.Context) carapace.Action {
+			return kubectl.ActionResources(kubectl.ResourceOpts{
+				Context:   rootCmd.Flag("context").Value.String(),
+				Namespace: rootCmd.Flag("namespace").Value.String(),
+				Types:     "clusterrole",
+			})
+		}),
+		"dry-run":        kubectl.ActionDryRunModes(),
+		"output":         kubectl.ActionOutputFormats(),
+		"serviceaccount": kubectl.ActionNamespaceServiceAccounts(),
 		"template":       carapace.ActionFiles(),
+		"validate":       kubectl.ActionValidationModes(),
 	})
 }

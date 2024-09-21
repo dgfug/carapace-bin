@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
@@ -12,6 +12,7 @@ var repo_indexCmd = &cobra.Command{
 }
 
 func init() {
+	carapace.Gen(repo_indexCmd).Standalone()
 	repo_indexCmd.Flags().String("merge", "", "merge the generated index into the given index")
 	repo_indexCmd.Flags().String("url", "", "url of chart repository")
 	repoCmd.AddCommand(repo_indexCmd)

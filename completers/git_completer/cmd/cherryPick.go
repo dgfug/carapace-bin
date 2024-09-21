@@ -1,16 +1,17 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/os"
-	"github.com/rsteube/carapace-bin/pkg/actions/tools/git"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/os"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/git"
 	"github.com/spf13/cobra"
 )
 
 var cherryPickCmd = &cobra.Command{
-	Use:   "cherry-pick",
-	Short: "Apply the changes introduced by some existing commits",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Use:     "cherry-pick",
+	Short:   "Apply the changes introduced by some existing commits",
+	Run:     func(cmd *cobra.Command, args []string) {},
+	GroupID: groups[group_main].ID,
 }
 
 func init() {
@@ -51,12 +52,6 @@ func init() {
 	})
 
 	carapace.Gen(cherryPickCmd).PositionalAnyCompletion(
-		// TODO `...` divider not yet working
-		carapace.ActionMultiParts("...", func(c carapace.Context) carapace.Action {
-			if len(c.Parts) < 2 {
-				return git.ActionRefs(git.RefOptionDefault)
-			}
-			return carapace.ActionValues()
-		}),
+		git.ActionRefRanges(git.RefOption{}.Default()),
 	)
 }

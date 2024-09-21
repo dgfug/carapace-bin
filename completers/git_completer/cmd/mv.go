@@ -1,14 +1,15 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
 var mvCmd = &cobra.Command{
-	Use:   "mv",
-	Short: "Move or rename a file, a directory, or a symlink",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Use:     "mv",
+	Short:   "Move or rename a file, a directory, or a symlink",
+	Run:     func(cmd *cobra.Command, args []string) {},
+	GroupID: groups[group_main].ID,
 }
 
 func init() {

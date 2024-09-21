@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/vagrant_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/vagrant"
 	"github.com/spf13/cobra"
 )
 
@@ -28,6 +28,6 @@ func init() {
 
 	carapace.Gen(cloud_searchCmd).FlagCompletion(carapace.ActionMap{
 		"order":    carapace.ActionValues("desc", "asc"),
-		"provider": action.ActionProviders(),
+		"provider": vagrant.ActionProviders(),
 	})
 }

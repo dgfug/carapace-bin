@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/tools/git"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/git"
 	"github.com/spf13/cobra"
 )
 
@@ -23,7 +23,10 @@ func init() {
 	carapace.Gen(remote_setUrlCmd).PositionalCompletion(
 		git.ActionRemotes(),
 		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-			return git.ActionRemoteUrls(c.Args[0])
+			return carapace.Batch(
+				git.ActionRemoteUrls(c.Args[0]),
+				git.ActionRepositorySearch(git.SearchOpts{}.Default()),
+			).ToA()
 		}),
 	)
 }

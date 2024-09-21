@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
@@ -13,6 +13,7 @@ var versionCmd = &cobra.Command{
 
 func init() {
 	carapace.Gen(versionCmd).Standalone()
+	versionCmd.Flags().SetInterspersed(false)
 
 	versionCmd.Flags().BoolS("m", "m", false, "print each executable's embedded module version information")
 	versionCmd.Flags().BoolS("v", "v", false, "report unrecognized files")

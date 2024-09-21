@@ -4,7 +4,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"gopkg.in/ini.v1"
 )
 
@@ -14,9 +14,9 @@ type submodule struct {
 	Branch string `ini:"branch"`
 }
 
-func loadSubmodules() (submodules map[string]*submodule, err error) {
+func loadSubmodules(c carapace.Context) (submodules map[string]*submodule, err error) {
 	var root string
-	if root, err = rootDir(); err == nil {
+	if root, err = rootDir(c); err == nil {
 		var cfg *ini.File
 		if cfg, err = ini.Load(root + "/.gitmodules"); err == nil {
 			r := regexp.MustCompile(`^submodule "(?P<name>.*)"$`)
@@ -35,11 +35,12 @@ func loadSubmodules() (submodules map[string]*submodule, err error) {
 }
 
 // ActionSubmoduleNames completes submodule names
-//   cobra (https://github.com/spf13/cobra.git)
-//   pflag (https://github.com/spf13/pflag.git)
+//
+//	cobra (https://github.com/spf13/cobra.git)
+//	pflag (https://github.com/spf13/pflag.git)
 func ActionSubmoduleNames() carapace.Action {
 	return carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-		submodules, err := loadSubmodules()
+		submodules, err := loadSubmodules(c)
 		if err != nil {
 			return carapace.ActionMessage(err.Error())
 		}
@@ -55,7 +56,7 @@ func ActionSubmoduleNames() carapace.Action {
 // TODO verify and add example
 func ActionSubmoduleBranches(filter ...string) carapace.Action {
 	return carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-		submodules, err := loadSubmodules()
+		submodules, err := loadSubmodules(c)
 		if err != nil {
 			return carapace.ActionMessage(err.Error())
 		}
@@ -63,7 +64,7 @@ func ActionSubmoduleBranches(filter ...string) carapace.Action {
 		for name, s := range submodules {
 			if len(filter) == 0 || contains(filter, name) {
 				if s.Url != "" {
-					actions = append(actions, ActionLsRemoteRefs(s.Url, LsRemoteRefOption{Branches: true, Tags: true}))
+					actions = append(actions, ActionLsRemoteRefs(LsRemoteRefOption{Url: s.Url, Branches: true, Tags: true}))
 				}
 			}
 		}
@@ -81,8 +82,9 @@ func contains(slice []string, s string) bool {
 }
 
 // ActionSubmodulePaths completes submodules (relative path)
-//   ../cli (v1.12.1-12-gaed8966f)
-//   ../pflag (heads/forOgier)
+//
+//	../cli (v1.12.1-12-gaed8966f)
+//	../pflag (heads/forOgier)
 func ActionSubmodulePaths() carapace.Action {
 	// TODO use loadSubmodules
 	return carapace.ActionExecCommand("git", "submodule")(func(output []byte) carapace.Action {

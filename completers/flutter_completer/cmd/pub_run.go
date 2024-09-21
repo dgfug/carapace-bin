@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/tools/pub"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/pub"
 	"github.com/spf13/cobra"
 )
 
@@ -34,7 +34,7 @@ func init() {
 			case 0:
 				return pub.ActionDependencies().Invoke(c).Suffix(":").ToA()
 			case 1:
-				return pub.ActionHostedExecutables(c.Parts[0], "")
+				return pub.ActionHostedExecutables(pub.HostedExecutablesOpts{Name: c.Parts[0], Version: ""})
 			default:
 				return carapace.ActionValues()
 			}

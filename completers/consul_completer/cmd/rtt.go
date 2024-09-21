@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/consul_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/consul_completer/cmd/action"
 	"github.com/spf13/cobra"
 )
 
@@ -22,7 +22,7 @@ func init() {
 	carapace.Gen(rttCmd).PositionalCompletion(
 		action.ActionNodes(rttCmd),
 		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-			return action.ActionNodes(rttCmd).Invoke(c).Filter(c.Args[:1]).ToA()
+			return action.ActionNodes(rttCmd).Invoke(c).Filter(c.Args[:1]...).ToA() // TODO should work with FilterArgs
 		}),
 	)
 }

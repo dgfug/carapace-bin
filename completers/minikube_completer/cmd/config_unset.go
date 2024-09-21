@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/minikube_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/minikube_completer/cmd/action"
 	"github.com/spf13/cobra"
 )
 
@@ -13,6 +13,7 @@ var config_unsetCmd = &cobra.Command{
 }
 
 func init() {
+	carapace.Gen(config_unsetCmd).Standalone()
 	configCmd.AddCommand(config_unsetCmd)
 
 	carapace.Gen(config_unsetCmd).PositionalCompletion(

@@ -1,13 +1,14 @@
 package cmd
 
 import (
-	exec "golang.org/x/sys/execabs"
 	"regexp"
+	"sort"
 	"strings"
 
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/util"
-	"github.com/rsteube/carapace/pkg/cache"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace/pkg/cache/key"
+	"github.com/carapace-sh/carapace/pkg/style"
+	"github.com/carapace-sh/carapace/pkg/util"
 	"github.com/spf13/cobra"
 )
 
@@ -105,36 +106,48 @@ func locateBuildConfig() (target string, err error) {
 
 func ActionTasks() carapace.Action {
 	return carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-		if tasks, err := parseTasks(); err != nil {
+		tasks, err := parseTasks(c)
+		if err != nil {
 			return carapace.ActionMessage(err.Error())
-		} else {
-			return carapace.ActionValuesDescribed(tasks...)
 		}
+
+		sorted := make([]string, 0, len(tasks))
+		for key := range tasks {
+			sorted = append(sorted, key)
+		}
+		sort.Strings(sorted)
+
+		batch := carapace.Batch()
+		for index, group := range sorted {
+			batch = append(batch, carapace.ActionValuesDescribed(tasks[group]...).Style(style.Carapace.Highlight(index)).Tag(group))
+		}
+		return batch.ToA()
 	}).Cache(-1, func() (string, error) {
 		if buildConfig, err := locateBuildConfig(); err != nil {
 			return "", err
 		} else {
-			return cache.FileChecksum(buildConfig)()
+			return key.FileChecksum(buildConfig)()
 		}
 	})
 }
 
-func parseTasks() ([]string, error) {
-	output, err := exec.Command("gradle", "tasks", "--all").Output()
+func parseTasks(c carapace.Context) (map[string][]string, error) {
+	output, err := c.Command("gradle", "tasks", "--all").Output()
 	if err != nil {
 		return nil, err
 	}
 
-	patternTaskGroups := regexp.MustCompile(`[^ ]+ tasks\n-----+\n(?P<tasks>(.+\n)*)`)
+	patternTaskGroups := regexp.MustCompile(`\n(?P<group>[^ \n]+ tasks)\n-----+\n(?P<tasks>(.+\n)*)`)
 	patternTask := regexp.MustCompile(`^(?P<task>[^ ]+)( - (?P<description>.*))?`)
 
-	result := make([]string, 0)
+	result := make(map[string][]string, 0)
 	taskGroups := patternTaskGroups.FindAllStringSubmatch(string(output), -1)
 	for _, taskGroup := range taskGroups {
-		for _, line := range strings.Split(taskGroup[1], "\n") {
+		result[taskGroup[1]] = make([]string, 0)
+		for _, line := range strings.Split(taskGroup[2], "\n") {
 			if patternTask.MatchString(line) {
 				task := patternTask.FindStringSubmatch(line)
-				result = append(result, task[1], task[3])
+				result[taskGroup[1]] = append(result[taskGroup[1]], task[1], task[3])
 			}
 		}
 	}

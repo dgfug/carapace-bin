@@ -1,9 +1,9 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/npm_completer/cmd/action"
-	"github.com/rsteube/carapace-bin/pkg/util"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/npm_completer/cmd/action"
+	"github.com/carapace-sh/carapace/pkg/condition"
 	"github.com/spf13/cobra"
 )
 
@@ -19,11 +19,9 @@ func init() {
 	cacheCmd.AddCommand(cache_addCmd)
 
 	carapace.Gen(cache_addCmd).PositionalAnyCompletion(
-		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-			if util.HasPathPrefix(c.CallbackValue) {
-				return carapace.ActionFiles()
-			}
-			return action.ActionPackages(cache_addCmd)
-		}),
+		carapace.Batch(
+			carapace.ActionFiles(),
+			action.ActionPackages(cache_addCmd).Unless(condition.CompletingPath),
+		).ToA(),
 	)
 }

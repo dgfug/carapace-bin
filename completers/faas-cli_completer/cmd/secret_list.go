@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/faas-cli_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/faas-cli_completer/cmd/action"
 	"github.com/spf13/cobra"
 )
 
@@ -13,6 +13,7 @@ var secret_listCmd = &cobra.Command{
 }
 
 func init() {
+	carapace.Gen(secret_listCmd).Standalone()
 	secret_listCmd.Flags().StringP("gateway", "g", "http://127.0.0.1:8080", "Gateway URL starting with http(s)://")
 	secret_listCmd.Flags().StringP("namespace", "n", "", "Namespace of the function")
 	secret_listCmd.Flags().Bool("tls-no-verify", false, "Disable TLS validation")

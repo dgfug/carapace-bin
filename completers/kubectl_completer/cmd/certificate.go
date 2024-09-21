@@ -1,14 +1,15 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
 var certificateCmd = &cobra.Command{
-	Use:   "certificate",
-	Short: "Modify certificate resources",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Use:     "certificate SUBCOMMAND",
+	Short:   "Modify certificate resources.",
+	GroupID: "cluster management",
+	Run:     func(cmd *cobra.Command, args []string) {},
 }
 
 func init() {

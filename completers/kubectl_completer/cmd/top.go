@@ -1,14 +1,15 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
 var topCmd = &cobra.Command{
-	Use:   "top",
-	Short: "Display Resource (CPU/Memory/Storage) usage",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Use:     "top",
+	Short:   "Display resource (CPU/memory) usage",
+	GroupID: "cluster management",
+	Run:     func(cmd *cobra.Command, args []string) {},
 }
 
 func init() {

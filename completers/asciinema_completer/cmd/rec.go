@@ -1,7 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/os"
 	"github.com/spf13/cobra"
 )
 
@@ -28,7 +29,11 @@ func init() {
 	rootCmd.AddCommand(recCmd)
 
 	carapace.Gen(recCmd).FlagCompletion(carapace.ActionMap{
-		"command": carapace.ActionFiles(), // TODO PATH binaries
+		"command": carapace.Batch(
+			carapace.ActionFiles(),
+			carapace.ActionExecutables(),
+		).ToA(),
+		"env": os.ActionEnvironmentVariables().UniqueList(","),
 	})
 
 	carapace.Gen(recCmd).PositionalCompletion(

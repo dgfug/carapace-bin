@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/faas-cli_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/faas-cli_completer/cmd/action"
 	"github.com/spf13/cobra"
 )
 
@@ -13,6 +13,7 @@ var newCmd = &cobra.Command{
 }
 
 func init() {
+	carapace.Gen(newCmd).Standalone()
 	newCmd.Flags().StringP("append", "a", "", "Append to existing YAML file")
 	newCmd.Flags().String("cpu-limit", "", "Set a limit for the CPU")
 	newCmd.Flags().String("cpu-request", "", "Set a request value for the CPU")

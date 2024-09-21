@@ -1,15 +1,16 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/tools/git"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/git"
 	"github.com/spf13/cobra"
 )
 
 var restoreCmd = &cobra.Command{
-	Use:   "restore",
-	Short: "Restore working tree files",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Use:     "restore",
+	Short:   "Restore working tree files",
+	Run:     func(cmd *cobra.Command, args []string) {},
+	GroupID: groups[group_main].ID,
 }
 
 func init() {
@@ -36,16 +37,16 @@ func init() {
 	carapace.Gen(restoreCmd).FlagCompletion(carapace.ActionMap{
 		"conflict":           carapace.ActionValues("merge", "diff3"),
 		"pathspec-from-file": carapace.ActionFiles(),
-		"recurse-submodules": git.ActionRefs(git.RefOptionDefault),
-		"source":             git.ActionRefs(git.RefOptionDefault),
+		"recurse-submodules": git.ActionRefs(git.RefOption{}.Default()),
+		"source":             git.ActionRefs(git.RefOption{}.Default()),
 	})
 
 	carapace.Gen(restoreCmd).PositionalAnyCompletion(
 		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
 			if restoreCmd.Flag("staged").Changed {
-				return git.ActionChanges(git.ChangeOption{Staged: true})
+				return git.ActionChanges(git.ChangeOpts{Staged: true}).FilterArgs()
 			}
-			return git.ActionChanges(git.ChangeOption{Unstaged: true})
+			return git.ActionChanges(git.ChangeOpts{Unstaged: true}).FilterArgs()
 		}),
 	)
 }

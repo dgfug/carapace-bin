@@ -1,8 +1,9 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/net"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/net"
+	"github.com/carapace-sh/carapace/pkg/style"
 	"github.com/spf13/cobra"
 )
 
@@ -19,7 +20,7 @@ func init() {
 	device_wifiCmd.AddCommand(device_wifi_wifi_listCmd)
 
 	carapace.Gen(device_wifi_wifi_listCmd).FlagCompletion(carapace.ActionMap{
-		"rescan": carapace.ActionValues("yes", "no", "auto"),
+		"rescan": carapace.ActionValues("yes", "no", "auto").StyleF(style.ForKeyword),
 	})
 
 	carapace.Gen(device_wifi_wifi_listCmd).PositionalCompletion(

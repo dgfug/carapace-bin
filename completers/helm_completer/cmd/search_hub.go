@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
@@ -12,6 +12,7 @@ var search_hubCmd = &cobra.Command{
 }
 
 func init() {
+	carapace.Gen(search_hubCmd).Standalone()
 	search_hubCmd.Flags().String("endpoint", "https://hub.helm.sh", "Hub instance to query for charts")
 	search_hubCmd.Flags().Uint("max-col-width", 50, "maximum column width for output table")
 	search_hubCmd.Flags().StringP("output", "o", "table", "prints the output in the specified format. Allowed values: table, json, yaml")

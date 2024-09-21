@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/minikube_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/minikube_completer/cmd/action"
 	"github.com/spf13/cobra"
 )
 
@@ -13,6 +13,7 @@ var config_viewCmd = &cobra.Command{
 }
 
 func init() {
+	carapace.Gen(config_viewCmd).Standalone()
 	config_viewCmd.Flags().String("format", "- {{.ConfigKey}}: {{.ConfigValue}}", "Go template format string for the config view output.")
 	configCmd.AddCommand(config_viewCmd)
 

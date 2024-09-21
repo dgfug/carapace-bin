@@ -1,14 +1,16 @@
-// package fs contains filesystem related actions
 package fs
 
 import (
 	"archive/zip"
-	"github.com/rsteube/carapace"
+
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace/pkg/style"
 )
 
 // ActionZipFileContents completes contents of given zip file
-//   fileA
-//   dirA/fileB
+//
+//	fileA
+//	dirA/fileB
 func ActionZipFileContents(file string) carapace.Action {
 	return carapace.ActionCallback(func(c carapace.Context) carapace.Action {
 		if reader, err := zip.OpenReader(file); err != nil {
@@ -19,7 +21,7 @@ func ActionZipFileContents(file string) carapace.Action {
 			for index, f := range reader.File {
 				vals[index] = f.Name
 			}
-			return carapace.ActionValues(vals...).Invoke(c).ToMultiPartsA("/")
+			return carapace.ActionValues(vals...).Invoke(c).ToMultiPartsA("/").StyleF(style.ForPathExt)
 		}
 	})
 }

@@ -12,9 +12,9 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/rsteube/carapace-bin/completers/gh_completer/cmd/action/run"
-	"github.com/rsteube/carapace-bin/pkg/util"
-	exec "golang.org/x/sys/execabs"
+	"github.com/carapace-sh/carapace-bin/completers/gh_completer/cmd/action/run"
+	"github.com/carapace-sh/carapace/pkg/execlog"
+	"github.com/carapace-sh/carapace/pkg/util"
 )
 
 // ErrNotOnAnyBranch indicates that the user is in detached HEAD state
@@ -107,8 +107,8 @@ func Config(name string) (string, error) {
 
 }
 
-var GitCommand = func(args ...string) (*exec.Cmd, error) {
-	gitExe, err := exec.LookPath("git")
+var GitCommand = func(args ...string) (*execlog.Cmd, error) {
+	gitExe, err := execlog.LookPath("git")
 	if err != nil {
 		programName := "git"
 		if runtime.GOOS == "windows" {
@@ -116,7 +116,7 @@ var GitCommand = func(args ...string) (*exec.Cmd, error) {
 		}
 		return nil, fmt.Errorf("unable to find git executable in PATH; please install %s before retrying", programName)
 	}
-	return exec.Command(gitExe, args...), nil
+	return execlog.Command(gitExe, args...), nil
 }
 
 func UncommittedChangeCount() (int, error) {

@@ -1,13 +1,13 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/tools/docker"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/docker"
 	"github.com/spf13/cobra"
 )
 
 var trust_signCmd = &cobra.Command{
-	Use:   "sign",
+	Use:   "sign IMAGE:TAG",
 	Short: "Sign an image",
 	Run:   func(cmd *cobra.Command, args []string) {},
 }

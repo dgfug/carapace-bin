@@ -3,7 +3,7 @@ package cmd
 import (
 	"strings"
 
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
@@ -45,25 +45,19 @@ func init() {
 					"seek", "skip N obs-sized blocks at start of output",
 					"skip", "skip N ibs-sized blocks at start of input",
 					"status", "The LEVEL of information to print to stderr",
-				).Invoke(c).Filter(keys).Suffix("=").ToA()
+				).Invoke(c).Filter(keys...).Suffix("=").ToA()
 			case 1:
 				switch c.Parts[0] {
 				case "conv":
-					return carapace.ActionMultiParts(",", func(c carapace.Context) carapace.Action {
-						return actionConvs().Invoke(c).Filter(c.Parts).ToA()
-					})
+					return actionConvs().UniqueList(",")
 				case "if":
 					return carapace.ActionFiles()
 				case "iflag":
-					return carapace.ActionMultiParts(",", func(c carapace.Context) carapace.Action {
-						return actionIFlags().Invoke(c).Filter(c.Parts).ToA()
-					})
+					return actionIFlags().UniqueList(",")
 				case "of":
 					return carapace.ActionFiles()
 				case "oflag":
-					return carapace.ActionMultiParts(",", func(c carapace.Context) carapace.Action {
-						return actionOFlags().Invoke(c).Filter(c.Parts).ToA()
-					})
+					return actionOFlags().UniqueList(",")
 				case "status":
 					return carapace.ActionValues("none", "noxfer", "progress")
 				default:

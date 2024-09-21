@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
@@ -27,7 +27,7 @@ type workFlowQuery struct {
 
 func ActionWorkflows(cmd *cobra.Command, opts WorkflowOpts) carapace.Action {
 	return carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-		repo, err := repoOverride(cmd)
+		repo, err := repoOverride(cmd, c)
 		if err != nil {
 			return carapace.ActionMessage(err.Error())
 		}

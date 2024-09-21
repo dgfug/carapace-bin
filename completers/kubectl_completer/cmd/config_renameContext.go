@@ -1,14 +1,14 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/kubectl_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/kubectl"
 	"github.com/spf13/cobra"
 )
 
 var config_renameContextCmd = &cobra.Command{
-	Use:   "rename-context",
-	Short: "Renames a context from the kubeconfig file",
+	Use:   "rename-context CONTEXT_NAME NEW_NAME",
+	Short: "Rename a context from the kubeconfig file",
 	Run:   func(cmd *cobra.Command, args []string) {},
 }
 
@@ -18,6 +18,6 @@ func init() {
 	configCmd.AddCommand(config_renameContextCmd)
 
 	carapace.Gen(config_renameContextCmd).PositionalCompletion(
-		action.ActionContexts(),
+		kubectl.ActionContexts(),
 	)
 }

@@ -1,10 +1,9 @@
 package action
 
 import (
-	"io/ioutil"
 	"os"
 
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"gopkg.in/yaml.v3"
 )
 
@@ -12,7 +11,7 @@ func LoadAliases() (aliases map[string]string, err error) {
 	var dir string
 	if dir, err = os.UserConfigDir(); err == nil {
 		var content []byte
-		if content, err = ioutil.ReadFile(dir + "/glab-cli/aliases.yml"); err == nil {
+		if content, err = os.ReadFile(dir + "/glab-cli/aliases.yml"); err == nil {
 			err = yaml.Unmarshal(content, &aliases)
 		}
 	}

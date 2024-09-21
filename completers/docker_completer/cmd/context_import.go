@@ -1,13 +1,13 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/tools/docker"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/docker"
 	"github.com/spf13/cobra"
 )
 
 var context_importCmd = &cobra.Command{
-	Use:   "import",
+	Use:   "import CONTEXT FILE|-",
 	Short: "Import a context from a tar or zip file",
 	Run:   func(cmd *cobra.Command, args []string) {},
 }

@@ -1,13 +1,10 @@
 package cmd
 
 import (
-	"fmt"
-	exec "golang.org/x/sys/execabs"
-	"regexp"
-	"strings"
-
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/make"
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 )
 
 var rootCmd = &cobra.Command{
@@ -77,44 +74,15 @@ func init() {
 
 	carapace.Gen(rootCmd).PositionalAnyCompletion(
 		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-			return actionTargets().Invoke(c).Filter(c.Args).ToA()
+			file := "Makefile"
+			if rootCmd.Flag("file").Changed {
+				file = rootCmd.Flag("file").Value.String()
+			}
+			return make.ActionTargets(file).FilterArgs()
 		}),
 	)
-}
 
-func actionTargets() carapace.Action {
-	return carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-		file := "Makefile"
-		if rootCmd.Flag("directory").Changed {
-			file = fmt.Sprintf("%v/Makefile", rootCmd.Flag("directory").Value.String())
-		}
-		if rootCmd.Flag("file").Changed {
-			file = rootCmd.Flag("file").Value.String()
-		}
-
-		cmd := exec.Command("make", "-qp", "--file", file)
-		if output, err := cmd.Output(); err != nil && cmd.ProcessState.ExitCode() != 1 {
-			return carapace.ActionMessage(err.Error())
-		} else {
-			lines := strings.Split(string(output), "\n")
-			r := regexp.MustCompile(`^(?P<target>[a-zA-Z0-9][^$#\/\t=]*):([^=]|$)`)
-
-			vals := make([]string, 0)
-			skip := false
-			for _, line := range lines {
-				if strings.HasPrefix(line, "# Not a target:") {
-					skip = true
-					continue
-				} else if skip {
-					skip = false
-					continue
-				}
-
-				if r.MatchString(line) {
-					vals = append(vals, r.FindStringSubmatch(line)[1])
-				}
-			}
-			return carapace.ActionValues(vals...)
-		}
+	carapace.Gen(rootCmd).PreInvoke(func(cmd *cobra.Command, flag *pflag.Flag, action carapace.Action) carapace.Action {
+		return action.Chdir(rootCmd.Flag("directory").Value.String())
 	})
 }

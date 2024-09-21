@@ -1,15 +1,16 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/tools/git"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/git"
 	"github.com/spf13/cobra"
 )
 
 var archiveCmd = &cobra.Command{
-	Use:   "archive",
-	Short: "Create an archive of files from a named tree",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Use:     "archive",
+	Short:   "Create an archive of files from a named tree",
+	Run:     func(cmd *cobra.Command, args []string) {},
+	GroupID: groups[group_main].ID,
 }
 
 func init() {
@@ -44,7 +45,7 @@ func init() {
 	})
 
 	carapace.Gen(archiveCmd).PositionalCompletion(
-		git.ActionRefs(git.RefOptionDefault),
+		git.ActionRefs(git.RefOption{}.Default()),
 	)
 
 	carapace.Gen(archiveCmd).PositionalAnyCompletion(

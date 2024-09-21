@@ -1,15 +1,16 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/tools/git"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/git"
 	"github.com/spf13/cobra"
 )
 
 var applyCmd = &cobra.Command{
-	Use:   "apply",
-	Short: "Apply a patch to files and/or to the index",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Use:     "apply",
+	Short:   "Apply a patch to files and/or to the index",
+	Run:     func(cmd *cobra.Command, args []string) {},
+	GroupID: groups[group_low_level_manipulator].ID,
 }
 
 func init() {
@@ -54,6 +55,10 @@ func init() {
 	})
 
 	carapace.Gen(applyCmd).PositionalAnyCompletion(
-		carapace.ActionFiles(),
+		carapace.ActionFiles().FilterArgs(),
+	)
+
+	carapace.Gen(applyCmd).DashAnyCompletion(
+		carapace.ActionPositional(applyCmd),
 	)
 }

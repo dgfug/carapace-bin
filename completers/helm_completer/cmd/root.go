@@ -1,8 +1,12 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/os"
+	"strings"
+
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/os"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/kubectl"
+	"github.com/carapace-sh/carapace-bridge/pkg/actions/bridge"
 	"github.com/spf13/cobra"
 )
 
@@ -18,6 +22,13 @@ func Execute() error {
 }
 
 func init() {
+	carapace.Gen(rootCmd).Standalone()
+
+	rootCmd.AddGroup(
+		&cobra.Group{ID: "main", Title: "Main Commands"},
+		&cobra.Group{ID: "plugin", Title: "Plugin Commands"},
+	)
+
 	rootCmd.PersistentFlags().Bool("add-dir-header", false, "If true, adds the file directory to the header of the log messages")
 	rootCmd.PersistentFlags().Bool("alsologtostderr", false, "log to standard error as well as files")
 	rootCmd.PersistentFlags().Bool("debug", false, "enable verbose output")
@@ -49,12 +60,49 @@ func init() {
 		"kube-as-group": os.ActionGroups(),
 		"kube-as-user":  os.ActionUsers(),
 		"kube-ca-file":  carapace.ActionFiles(),
-		// TODO "kube-context"
-		"kubeconfig": carapace.ActionFiles(),
-		"log-dir":    carapace.ActionDirectories(),
-		"log-file":   carapace.ActionFiles(),
-		// TODO namespace
+		"kube-context":  kubectl.ActionContexts(),
+		"kubeconfig":    carapace.ActionFiles(),
+		"log-dir":       carapace.ActionDirectories(),
+		"log-file":      carapace.ActionFiles(),
+		"namespace": carapace.ActionCallback(func(c carapace.Context) carapace.Action {
+			return kubectl.ActionResources(kubectl.ResourceOpts{Types: "namespaces", Context: rootCmd.Flag("kube-context").Value.String()})
+		}),
 		"registry-config":  carapace.ActionFiles(),
 		"repository-cache": carapace.ActionFiles(),
 	})
+
+	carapace.Gen(rootCmd).PreRun(func(cmd *cobra.Command, args []string) {
+		if _, _, err := cmd.Find(args); len(args) > 1 && err == nil {
+			return // core command - skip plugin commands
+		}
+		addPluginCommands()
+	})
+}
+
+func addPluginCommands() {
+	if output, err := (carapace.Context{}).Command("helm", "plugin", "list").Output(); err == nil {
+		lines := strings.Split(string(output), "\n")
+
+		if len(lines) < 2 {
+			return
+		}
+
+		for _, line := range lines[1 : len(lines)-1] {
+			if splitted := strings.SplitN(line, "\t", 3); len(splitted) == 3 {
+				pluginCmd := &cobra.Command{
+					Use:                splitted[0],
+					Short:              splitted[2],
+					Run:                func(cmd *cobra.Command, args []string) {},
+					GroupID:            "plugin",
+					DisableFlagParsing: true,
+				}
+
+				carapace.Gen(pluginCmd).PositionalAnyCompletion(
+					bridge.ActionCarapaceBin("helm-" + splitted[0]),
+				)
+
+				rootCmd.AddCommand(pluginCmd)
+			}
+		}
+	}
 }

@@ -3,8 +3,9 @@ package cmd
 import (
 	"strings"
 
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/os"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/os"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/ps"
 	"github.com/spf13/cobra"
 )
 
@@ -25,7 +26,7 @@ func init() {
 	rootCmd.Flags().String("drop-capabilities", "", "Drop Linux capabilities when running as root")
 	rootCmd.Flags().StringP("filter", "F", "", "Show only the commands matching the given filter")
 	rootCmd.Flags().BoolP("help", "h", false, "Print this help screen")
-	rootCmd.Flags().BoolP("highlight-changes", "H", false, "Highlight new and old processes")
+	rootCmd.Flags().StringP("highlight-changes", "H", "", "Highlight new and old processes")
 	rootCmd.Flags().BoolP("no-color", "C", false, "Use a monochrome color scheme")
 	rootCmd.Flags().BoolP("no-mouse", "m", false, "Disable the mouse")
 	rootCmd.Flags().BoolP("no-unicode", "U", false, "Do not use unicode but plain ASCII")
@@ -45,9 +46,7 @@ func init() {
 			"basic", "drop all capabilities not needed by htop",
 			"strict", "drop all capabilities except those needed for core functionality",
 		),
-		"pid": carapace.ActionMultiParts(",", func(c carapace.Context) carapace.Action {
-			return os.ActionProcessIds().Invoke(c).Filter(c.Parts).ToA()
-		}),
+		"pid":      ps.ActionProcessIds().UniqueList(","),
 		"sort-key": ActionSortKeys(),
 		"user":     os.ActionUsers(),
 	})

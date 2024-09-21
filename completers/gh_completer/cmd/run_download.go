@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/gh_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/gh_completer/cmd/action"
 	"github.com/spf13/cobra"
 )
 
@@ -13,8 +13,11 @@ var run_downloadCmd = &cobra.Command{
 }
 
 func init() {
-	run_downloadCmd.Flags().StringP("dir", "D", ".", "The directory to download artifacts into")
-	run_downloadCmd.Flags().StringArrayP("name", "n", nil, "Only download artifacts that match any of the given names")
+	carapace.Gen(run_downloadCmd).Standalone()
+
+	run_downloadCmd.Flags().StringP("dir", "D", "", "The directory to download artifacts into")
+	run_downloadCmd.Flags().StringSliceP("name", "n", []string{}, "Download artifacts that match any of the given names")
+	run_downloadCmd.Flags().StringSliceP("pattern", "p", []string{}, "Download artifacts that match a glob pattern")
 	runCmd.AddCommand(run_downloadCmd)
 
 	carapace.Gen(run_downloadCmd).FlagCompletion(carapace.ActionMap{
@@ -33,6 +36,6 @@ func init() {
 	})
 
 	carapace.Gen(run_downloadCmd).PositionalCompletion(
-		action.ActionWorkflowRuns(run_downloadCmd, action.RunOpts{Successful: true}),
+		action.ActionWorkflowRuns(run_downloadCmd, action.RunOpts{All: true}),
 	)
 }

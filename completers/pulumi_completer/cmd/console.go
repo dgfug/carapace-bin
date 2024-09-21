@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/pulumi_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/pulumi_completer/cmd/action"
 	"github.com/spf13/cobra"
 )
 
@@ -13,6 +13,7 @@ var consoleCmd = &cobra.Command{
 }
 
 func init() {
+	carapace.Gen(consoleCmd).Standalone()
 	consoleCmd.PersistentFlags().StringP("stack", "s", "", "The name of the stack to view")
 	rootCmd.AddCommand(consoleCmd)
 

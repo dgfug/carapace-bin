@@ -1,9 +1,9 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/npm_completer/cmd/action"
-	"github.com/rsteube/carapace-bin/pkg/util"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/npm_completer/cmd/action"
+	"github.com/carapace-sh/carapace/pkg/condition"
 	"github.com/spf13/cobra"
 )
 
@@ -29,11 +29,9 @@ func init() {
 	rootCmd.AddCommand(diffCmd)
 
 	carapace.Gen(diffCmd).FlagCompletion(carapace.ActionMap{
-		"diff": carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-			if util.HasPathPrefix(c.CallbackValue) {
-				return carapace.ActionFiles()
-			}
-			return action.ActionPackages(diffCmd)
-		}),
+		"diff": carapace.Batch(
+			carapace.ActionFiles(),
+			action.ActionPackages(diffCmd).Unless(condition.CompletingPath),
+		).ToA(),
 	})
 }

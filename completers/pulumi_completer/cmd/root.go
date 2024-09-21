@@ -1,7 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace/pkg/style"
 	"github.com/spf13/cobra"
 )
 
@@ -17,6 +18,7 @@ func Execute() error {
 }
 
 func init() {
+	carapace.Gen(rootCmd).Standalone()
 	rootCmd.PersistentFlags().String("color", "auto", "Colorize output. Choices are: always, never, raw, auto")
 	rootCmd.PersistentFlags().StringP("cwd", "C", "", "Run pulumi as if it had been started in another directory")
 	rootCmd.PersistentFlags().Bool("disable-integrity-checking", false, "Disable integrity checking of checkpoint files")
@@ -27,10 +29,11 @@ func init() {
 	rootCmd.PersistentFlags().Bool("non-interactive", false, "Disable interactive mode for all commands")
 	rootCmd.PersistentFlags().String("profiling", "", "Emit CPU and memory profiles and an execution trace to '[filename].[pid].{cpu,mem,trace}', respectively")
 	rootCmd.PersistentFlags().String("tracing", "", "Emit tracing to the specified endpoint. Use the `file:` scheme to write tracing data to a local file")
+	rootCmd.PersistentFlags().String("tracing-header", "", "Include the tracing header with the given contents.")
 	rootCmd.PersistentFlags().IntP("verbose", "v", 0, "Enable verbose logging (e.g., v=3); anything >3 is very verbose")
 
 	carapace.Gen(rootCmd).FlagCompletion(carapace.ActionMap{
-		"color": carapace.ActionValues("always", "never", "raw", "auto"),
+		"color": carapace.ActionValues("always", "never", "raw", "auto").StyleF(style.ForKeyword),
 		"cwd":   carapace.ActionDirectories(),
 		"tracing": carapace.ActionMultiParts(":", func(c carapace.Context) carapace.Action {
 			switch len(c.Parts) {

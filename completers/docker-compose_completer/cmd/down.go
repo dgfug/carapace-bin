@@ -1,31 +1,30 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/docker-compose_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
 var downCmd = &cobra.Command{
-	Use:   "down",
-	Short: "Stop and remove containers, networks, images, and volumes",
+	Use:   "down [OPTIONS] [SERVICES]",
+	Short: "Stop and remove containers, networks",
 	Run:   func(cmd *cobra.Command, args []string) {},
 }
 
 func init() {
 	carapace.Gen(downCmd).Standalone()
 
-	downCmd.Flags().Bool("remove-orphans", false, "Remove containers for services not defined in the")
-	downCmd.Flags().String("rmi", "", "Remove images. Type must be one of:")
-	downCmd.Flags().StringP("timeout", "t", "", "Specify a shutdown timeout in seconds.")
-	downCmd.Flags().BoolP("volumes", "v", false, "Remove named volumes declared in the `volumes`")
+	downCmd.Flags().Bool("remove-orphans", false, "Remove containers for services not defined in the Compose file.")
+	downCmd.Flags().String("rmi", "", "Remove images used by services. \"local\" remove only images that don't have a custom tag (\"local\"|\"all\")")
+	downCmd.Flags().StringP("timeout", "t", "", "Specify a shutdown timeout in seconds")
+	downCmd.Flags().BoolP("volumes", "v", false, "Remove named volumes declared in the \"volumes\" section of the Compose file and anonymous volumes attached to containers.")
 	rootCmd.AddCommand(downCmd)
 
+	// TODO volumes flag
 	carapace.Gen(downCmd).FlagCompletion(carapace.ActionMap{
 		"rmi": carapace.ActionValuesDescribed(
 			"all", "Remove all images used by any service.",
 			"local", "Remove only images that don't have a custom tag set by the image field.",
 		),
-		"volumes": action.ActionVolumes(downCmd),
 	})
 }

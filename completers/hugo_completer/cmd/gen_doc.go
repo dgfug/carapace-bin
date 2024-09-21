@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
@@ -12,6 +12,7 @@ var gen_docCmd = &cobra.Command{
 }
 
 func init() {
+	carapace.Gen(gen_docCmd).Standalone()
 	gen_docCmd.PersistentFlags().String("dir", "/tmp/hugodoc/", "the directory to write the doc.")
 	genCmd.AddCommand(gen_docCmd)
 

@@ -4,8 +4,19 @@ language = "en"
 multilingual = false
 src = "src"
 title = "carapace-bin"
+description = "A multi-shell multi-command completion binary. Supports Bash, Elvish, Fish, Nushell, Oil, Powershell, Xonsh and Zsh."
 
 [output.html]
-default-theme = "Coal"
+default-theme = "Latte"
+preferred-dark-theme = "Mocha"
+additional-css = ["asciinema/asciinema-player.css", "./theme/catppuccin.css"]
+additional-js = ["asciinema/asciinema-player.min.js", "asciinema/load.js"]
+git-repository-url = "https://github.com/carapace-sh/carapace-bin"
+edit-url-template = "https://github.com/carapace-sh/carapace-bin/edit/master/docs/{path}"
 
-#[output.linkcheck]
+[output.html.fold]
+enable = true
+
+[output.linkcheck]
+follow-web-links = true
+exclude = [ 'archlinux\.org', 'specifications\.freedesktop\.org' ]

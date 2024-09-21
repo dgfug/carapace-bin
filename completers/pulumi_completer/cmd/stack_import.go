@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
@@ -12,6 +12,7 @@ var stack_importCmd = &cobra.Command{
 }
 
 func init() {
+	carapace.Gen(stack_importCmd).Standalone()
 	stack_importCmd.PersistentFlags().String("file", "", "A filename to read stack input from")
 	stack_importCmd.PersistentFlags().BoolP("force", "f", false, "Force the import to occur, even if apparent errors are discovered beforehand (not recommended)")
 	stackCmd.AddCommand(stack_importCmd)

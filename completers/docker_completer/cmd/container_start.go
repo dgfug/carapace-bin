@@ -1,13 +1,13 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/tools/docker"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/docker"
 	"github.com/spf13/cobra"
 )
 
 var container_startCmd = &cobra.Command{
-	Use:   "start",
+	Use:   "start [OPTIONS] CONTAINER [CONTAINER...]",
 	Short: "Start one or more stopped containers",
 	Run:   func(cmd *cobra.Command, args []string) {},
 }
@@ -22,11 +22,8 @@ func init() {
 	container_startCmd.Flags().BoolP("interactive", "i", false, "Attach container's STDIN")
 	containerCmd.AddCommand(container_startCmd)
 
-	rootAlias(container_startCmd, func(cmd *cobra.Command, isAlias bool) {
-		carapace.Gen(cmd).FlagCompletion(carapace.ActionMap{
-			// TODO checkpoint completion
-			"detach-keys": docker.ActionDetachKeys(),
-		})
-
+	carapace.Gen(container_startCmd).FlagCompletion(carapace.ActionMap{
+		// TODO checkpoint completion
+		"detach-keys": docker.ActionDetachKeys(),
 	})
 }

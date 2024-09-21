@@ -3,11 +3,12 @@ package action
 import (
 	"strings"
 
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/net/http"
-	"github.com/rsteube/carapace-bin/pkg/actions/tools/aws"
-	"github.com/rsteube/carapace-bin/pkg/actions/tools/docker"
-	"github.com/rsteube/carapace-bin/pkg/actions/tools/jaeger"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/net/http"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/aws"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/docker"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/jaeger"
+	"github.com/carapace-sh/carapace/pkg/style"
 )
 
 func ActionParameters() carapace.Action {
@@ -370,16 +371,16 @@ func actionFlagNames() carapace.Action {
 		vals := make([]string, 0)
 		for key, value := range flags {
 			replacement := ""
-			if index := strings.Index(key, "<name>"); index != -1 && strings.HasPrefix(c.CallbackValue, key[:index]) {
-				replacement = strings.Split(c.CallbackValue[index:], ".")[0]
+			if index := strings.Index(key, "<name>"); index != -1 && strings.HasPrefix(c.Value, key[:index]) {
+				replacement = strings.Split(c.Value[index:], ".")[0]
 			}
 			vals = append(vals, strings.Replace(key, "<name>", replacement, -1), value)
 		}
 
-		if strings.HasPrefix(c.CallbackValue, "--accesslog.fields.headers.names.") {
-			return http.ActionHttpRequestHeaderNames().Invoke(c).Prefix("--accesslog.fields.headers.names.").ToMultiPartsA(".")
+		if strings.HasPrefix(c.Value, "--accesslog.fields.headers.names.") {
+			return http.ActionRequestHeaderNames().Invoke(c).Prefix("--accesslog.fields.headers.names.").ToMultiPartsA(".")
 		}
-		if strings.HasPrefix(c.CallbackValue, "--accesslog.fields.names.") {
+		if strings.HasPrefix(c.Value, "--accesslog.fields.names.") {
 			return ActionAccessLogFieldNames().Invoke(c).Prefix("--accesslog.fields.names.").ToMultiPartsA(".")
 		}
 		return carapace.ActionValuesDescribed(vals...).Invoke(c).ToMultiPartsA(".")
@@ -585,7 +586,7 @@ func flagValues(name string) (acn carapace.Action, ok bool) {
 		"--tracing.haystack.traceidheadername":                               carapace.ActionValues(),
 		"--tracing.instana.localagenthost":                                   carapace.ActionValues(),
 		"--tracing.instana.localagentport":                                   carapace.ActionValues(),
-		"--tracing.instana.loglevel":                                         carapace.ActionValues("error", "warn", "info", "debug"),
+		"--tracing.instana.loglevel":                                         carapace.ActionValues("error", "warn", "info", "debug").StyleF(style.ForLogLevel),
 		"--tracing.jaeger.collector.endpoint":                                carapace.ActionValues(),
 		"--tracing.jaeger.collector.password":                                carapace.ActionValues(),
 		"--tracing.jaeger.collector.user":                                    carapace.ActionValues(),
@@ -618,7 +619,7 @@ func actionStatusCodeRanges() carapace.Action {
 	return carapace.ActionMultiParts(",", func(c carapace.Context) carapace.Action {
 		return carapace.ActionMultiParts("-", func(c carapace.Context) carapace.Action {
 			if len(c.Parts) < 2 {
-				return http.ActionStatusCodes()
+				return http.ActionStatusCodes().NoSpace()
 			}
 			return carapace.ActionValues()
 		})

@@ -1,13 +1,13 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/tools/docker"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/docker"
 	"github.com/spf13/cobra"
 )
 
 var context_useCmd = &cobra.Command{
-	Use:   "use",
+	Use:   "use CONTEXT",
 	Short: "Set the current docker context",
 	Run:   func(cmd *cobra.Command, args []string) {},
 }

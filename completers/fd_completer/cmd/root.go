@@ -1,8 +1,10 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/os"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/fs"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/os"
+	"github.com/carapace-sh/carapace/pkg/style"
 	"github.com/spf13/cobra"
 )
 
@@ -44,9 +46,10 @@ func init() {
 	rootCmd.Flags().BoolP("version", "V", false, "Prints version information")
 
 	carapace.Gen(rootCmd).FlagCompletion(carapace.ActionMap{
-		"color":      carapace.ActionValues("never", "auto", "always"),
+		"color":      carapace.ActionValues("auto", "never", "always").StyleF(style.ForKeyword),
 		"exec":       carapace.ActionFiles(),
 		"exec-batch": carapace.ActionFiles(),
+		"extension":  fs.ActionFilenameExtensions(),
 		"owner":      os.ActionUserGroup(),
 		"type": carapace.ActionValues(
 			"file",
@@ -58,6 +61,10 @@ func init() {
 			"pipe",
 		),
 	})
+
+	carapace.Gen(rootCmd).PositionalCompletion(
+		carapace.ActionValues(),
+	)
 
 	carapace.Gen(rootCmd).PositionalAnyCompletion(
 		carapace.ActionDirectories(),

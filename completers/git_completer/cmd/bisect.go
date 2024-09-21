@@ -1,15 +1,16 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/tools/git"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/git"
 	"github.com/spf13/cobra"
 )
 
 var bisectCmd = &cobra.Command{
-	Use:   "bisect",
-	Short: "Use binary search to find the commit that introduced a bug",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Use:     "bisect",
+	Short:   "Use binary search to find the commit that introduced a bug",
+	Run:     func(cmd *cobra.Command, args []string) {},
+	GroupID: groups[group_main].ID,
 }
 
 func init() {
@@ -18,11 +19,6 @@ func init() {
 	rootCmd.AddCommand(bisectCmd)
 
 	carapace.Gen(bisect_skipCmd).PositionalAnyCompletion(
-		carapace.ActionMultiParts("...", func(c carapace.Context) carapace.Action {
-			if len(c.Parts) > 2 {
-				return carapace.ActionValues()
-			}
-			return git.ActionRefs(git.RefOptionDefault)
-		}),
+		git.ActionRefRanges(git.RefOption{}.Default()),
 	)
 }

@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
@@ -15,7 +15,7 @@ func init() {
 	carapace.Gen(builder_pruneCmd).Standalone()
 
 	builder_pruneCmd.Flags().BoolP("all", "a", false, "Remove all unused build cache, not just dangling ones")
-	builder_pruneCmd.Flags().String("filter", "", "Provide filter values (e.g. 'until=24h')")
+	builder_pruneCmd.Flags().String("filter", "", "Provide filter values (e.g. \"until=24h\")")
 	builder_pruneCmd.Flags().BoolP("force", "f", false, "Do not prompt for confirmation")
 	builder_pruneCmd.Flags().String("keep-storage", "", "Amount of disk space to keep for cache")
 	builderCmd.AddCommand(builder_pruneCmd)

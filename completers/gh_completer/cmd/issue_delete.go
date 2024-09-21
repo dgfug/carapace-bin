@@ -1,18 +1,24 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/gh_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/gh_completer/cmd/action"
 	"github.com/spf13/cobra"
 )
 
 var issue_deleteCmd = &cobra.Command{
-	Use:   "delete {<number> | <url>}",
-	Short: "Delete issue",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Use:     "delete {<number> | <url>}",
+	Short:   "Delete issue",
+	GroupID: "Targeted commands",
+	Run:     func(cmd *cobra.Command, args []string) {},
 }
 
 func init() {
+	carapace.Gen(issue_deleteCmd).Standalone()
+
+	issue_deleteCmd.Flags().Bool("confirm", false, "confirm deletion without prompting")
+	issue_deleteCmd.Flags().Bool("yes", false, "confirm deletion without prompting")
+	issue_deleteCmd.Flag("confirm").Hidden = true
 	issueCmd.AddCommand(issue_deleteCmd)
 
 	carapace.Gen(issue_deleteCmd).PositionalCompletion(

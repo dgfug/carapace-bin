@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/tools/pacman"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/pacman"
 	"github.com/spf13/cobra"
 )
 
@@ -26,11 +26,11 @@ func init() {
 
 	carapace.Gen(listCmd).PositionalAnyCompletion(carapace.ActionCallback(func(c carapace.Context) carapace.Action {
 		if listCmd.Flag("groups").Changed {
-			return pacman.ActionPackageGroups().Invoke(c).Filter(c.Args).ToA()
+			return pacman.ActionPackageGroups().FilterArgs()
 		} else if listCmd.Flag("repos").Changed {
-			return pacman.ActionRepositories().Invoke(c).Filter(c.Args).ToA()
+			return pacman.ActionRepositories().FilterArgs()
 		} else if listCmd.Flag("files").Changed {
-			return pacman.ActionPackages(pacman.PackageOption{}).Invoke(c).Filter(c.Args).ToA()
+			return pacman.ActionPackages().FilterArgs()
 		} else {
 			return carapace.ActionValues()
 		}

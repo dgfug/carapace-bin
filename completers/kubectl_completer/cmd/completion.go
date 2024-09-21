@@ -1,14 +1,15 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
 var completionCmd = &cobra.Command{
-	Use:   "completion",
-	Short: "Output shell completion code for the specified shell (bash or zsh)",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Use:     "completion SHELL",
+	Short:   "Output shell completion code for the specified shell (bash, zsh, fish, or powershell)",
+	GroupID: "settings",
+	Run:     func(cmd *cobra.Command, args []string) {},
 }
 
 func init() {
@@ -17,6 +18,6 @@ func init() {
 	rootCmd.AddCommand(completionCmd)
 
 	carapace.Gen(completionCmd).PositionalCompletion(
-		carapace.ActionValues("bash", "zsh"),
+		carapace.ActionValues("bash", "zsh", "fish", "powershell"),
 	)
 }

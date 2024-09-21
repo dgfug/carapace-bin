@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/gh_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/gh_completer/cmd/action"
 	"github.com/spf13/cobra"
 )
 
@@ -13,6 +13,8 @@ var config_getCmd = &cobra.Command{
 }
 
 func init() {
+	carapace.Gen(config_getCmd).Standalone()
+
 	config_getCmd.Flags().StringP("host", "h", "", "Get per-host setting")
 	configCmd.AddCommand(config_getCmd)
 

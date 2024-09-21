@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/kubeadm_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/kubeadm_completer/cmd/action"
 	"github.com/spf13/cobra"
 )
 
@@ -24,10 +24,8 @@ func init() {
 	upgradeCmd.AddCommand(upgrade_planCmd)
 
 	carapace.Gen(upgrade_planCmd).FlagCompletion(carapace.ActionMap{
-		"config": carapace.ActionFiles(),
-		"ignore-preflight-errors": carapace.ActionMultiParts(",", func(c carapace.Context) carapace.Action {
-			return action.ActionChecks().Invoke(c).Filter(c.Parts).ToA()
-		}),
-		"kubeconfig": carapace.ActionFiles(),
+		"config":                  carapace.ActionFiles(),
+		"ignore-preflight-errors": action.ActionChecks().UniqueList(","),
+		"kubeconfig":              carapace.ActionFiles(),
 	})
 }

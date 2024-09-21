@@ -1,9 +1,9 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/net"
-	"github.com/rsteube/carapace-bin/pkg/util"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/net"
+	"github.com/carapace-sh/carapace/pkg/condition"
 	"github.com/spf13/cobra"
 )
 
@@ -30,21 +30,19 @@ func init() {
 	})
 
 	carapace.Gen(rootCmd).PositionalCompletion(
-		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-			if util.HasPathPrefix(c.CallbackValue) {
-				return carapace.ActionFiles()
-			}
-			return carapace.ActionMultiParts(":", func(c carapace.Context) carapace.Action {
+		carapace.Batch(
+			carapace.ActionFiles(),
+			carapace.ActionMultiParts(":", func(c carapace.Context) carapace.Action {
 				switch len(c.Parts) {
 				case 0:
-					return net.ActionHosts()
+					return net.ActionHosts().NoSpace()
 				case 1:
 					return net.ActionPorts()
 				default:
 					return carapace.ActionValues()
 				}
-			})
-		}),
+			}).Unless(condition.CompletingPath),
+		).ToA(),
 	)
 
 	carapace.Gen(rootCmd).PositionalAnyCompletion(

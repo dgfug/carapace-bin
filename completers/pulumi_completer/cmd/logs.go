@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/pulumi_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/pulumi_completer/cmd/action"
 	"github.com/spf13/cobra"
 )
 
@@ -13,6 +13,7 @@ var logsCmd = &cobra.Command{
 }
 
 func init() {
+	carapace.Gen(logsCmd).Standalone()
 	logsCmd.PersistentFlags().String("config-file", "", "Use the configuration values in the specified file rather than detecting the file name")
 	logsCmd.PersistentFlags().BoolP("follow", "f", false, "Follow the log stream in real time (like tail -f)")
 	logsCmd.PersistentFlags().BoolP("json", "j", false, "Emit output as JSON")

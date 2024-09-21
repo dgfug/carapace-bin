@@ -1,10 +1,11 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/code_completer/cmd/action"
-	"github.com/rsteube/carapace-bin/pkg/actions/os"
-	"github.com/rsteube/carapace-bin/pkg/util"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/code_completer/cmd/action"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/os"
+	"github.com/carapace-sh/carapace/pkg/condition"
+	"github.com/carapace-sh/carapace/pkg/style"
 	"github.com/spf13/cobra"
 )
 
@@ -16,11 +17,6 @@ var rootCmd = &cobra.Command{
 }
 
 func Execute() error {
-	return rootCmd.Execute()
-}
-
-func ExecuteInsiders() error {
-	rootCmd.Use = "code-insiders"
 	return rootCmd.Execute()
 }
 
@@ -65,19 +61,19 @@ func init() {
 		"goto": carapace.ActionMultiParts(":", func(c carapace.Context) carapace.Action {
 			switch len(c.Parts) {
 			case 0:
-				return carapace.ActionFiles()
+				return carapace.ActionFiles().NoSpace()
 			default:
 				return carapace.ActionValues()
 			}
 		}),
 		"install-extension": carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-			if util.HasPathPrefix(c.CallbackValue) {
-				return carapace.ActionFiles(".vsix")
-			}
-			return action.ActionExtensionSearch(rootCmd.Flag("category").Value.String())
+			return carapace.Batch(
+				carapace.ActionFiles(".vsix"),
+				action.ActionExtensionSearch(rootCmd.Flag("category").Value.String()).Unless(condition.CompletingPathS),
+			).ToA()
 		}),
 		"locale":              os.ActionLocales(),
-		"log":                 carapace.ActionValues("critical", "error", "warn", "info", "debug", "trace", "off"),
+		"log":                 carapace.ActionValues("critical", "error", "warn", "info", "debug", "trace", "off").StyleF(style.ForLogLevel),
 		"sync":                carapace.ActionValues("on", "off"),
 		"uninstall-extension": action.ActionExtensions(rootCmd),
 		"user-data-dir":       carapace.ActionDirectories(),

@@ -1,13 +1,13 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/tools/docker"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/docker"
 	"github.com/spf13/cobra"
 )
 
 var node_updateCmd = &cobra.Command{
-	Use:   "update",
+	Use:   "update [OPTIONS] NODE",
 	Short: "Update a node",
 	Run:   func(cmd *cobra.Command, args []string) {},
 }
@@ -15,10 +15,10 @@ var node_updateCmd = &cobra.Command{
 func init() {
 	carapace.Gen(node_updateCmd).Standalone()
 
-	node_updateCmd.Flags().String("availability", "", "Availability of the node (\"active\"|\"pause\"|\"drain\")")
-	node_updateCmd.Flags().String("label-add", "", "Add or update a node label (key=value)")
+	node_updateCmd.Flags().String("availability", "", "Availability of the node (\"active\", \"pause\", \"drain\")")
+	node_updateCmd.Flags().String("label-add", "", "Add or update a node label (\"key=value\")")
 	node_updateCmd.Flags().String("label-rm", "", "Remove a node label if exists")
-	node_updateCmd.Flags().String("role", "", "Role of the node (\"worker\"|\"manager\")")
+	node_updateCmd.Flags().String("role", "", "Role of the node (\"worker\", \"manager\")")
 	nodeCmd.AddCommand(node_updateCmd)
 
 	carapace.Gen(node_updateCmd).FlagCompletion(carapace.ActionMap{

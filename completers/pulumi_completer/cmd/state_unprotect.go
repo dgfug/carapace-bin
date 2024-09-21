@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/pulumi_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/pulumi_completer/cmd/action"
 	"github.com/spf13/cobra"
 )
 
@@ -13,6 +13,7 @@ var state_unprotectCmd = &cobra.Command{
 }
 
 func init() {
+	carapace.Gen(state_unprotectCmd).Standalone()
 	state_unprotectCmd.Flags().Bool("all", false, "Unprotect all resources in the checkpoint")
 	state_unprotectCmd.PersistentFlags().StringP("stack", "s", "", "The name of the stack to operate on. Defaults to the current stack")
 	state_unprotectCmd.Flags().BoolP("yes", "y", false, "Skip confirmation prompts")

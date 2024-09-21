@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
@@ -13,6 +13,8 @@ var cacheCmd = &cobra.Command{
 }
 
 func init() {
+	carapace.Gen(cacheCmd).Standalone()
+
 	cacheCmd.Flags().Bool("blank", false, "Create completely new syntax and theme sets (instead of appending to the default sets).")
 	cacheCmd.Flags().BoolP("build", "b", false, "Initialize or update the syntax/theme cache by loading from the source directory.")
 	cacheCmd.Flags().BoolP("clear", "c", false, "Remove the cached syntax definitions and themes.")

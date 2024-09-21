@@ -1,14 +1,15 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
 var loginCmd = &cobra.Command{
-	Use:   "login",
-	Short: "Log in to a Docker registry",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Use:     "login [OPTIONS] [SERVER]",
+	Short:   "Log in to a registry",
+	GroupID: "common",
+	Run:     func(cmd *cobra.Command, args []string) {},
 }
 
 func init() {

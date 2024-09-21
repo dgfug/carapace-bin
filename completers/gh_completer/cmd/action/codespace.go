@@ -4,9 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"path/filepath"
+	"strconv"
 	"strings"
 
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace/pkg/style"
 )
 
 type codespace struct {
@@ -32,7 +34,7 @@ func ActionCodespaces() carapace.Action {
 
 func ActionCodespacePath(codespace string, expand bool) carapace.Action {
 	return carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-		path := filepath.Dir(c.CallbackValue)
+		path := filepath.Dir(c.Value)
 
 		if !expand {
 			// scp treats each filename argument as a shell expression,
@@ -45,7 +47,7 @@ func ActionCodespacePath(codespace string, expand bool) carapace.Action {
 		}
 
 		args := []string{"codespace", "ssh", "--codespace", codespace, "--", "ls", "-1", "-p", path}
-		if splitted := strings.Split(c.CallbackValue, "/"); strings.HasPrefix(splitted[len(splitted)-1], ".") {
+		if splitted := strings.Split(c.Value, "/"); strings.HasPrefix(splitted[len(splitted)-1], ".") {
 			args = append(args, "-a") // show hidden
 		}
 		return carapace.ActionMultiParts("/", func(c carapace.Context) carapace.Action {
@@ -53,7 +55,7 @@ func ActionCodespacePath(codespace string, expand bool) carapace.Action {
 				lines := strings.Split(string(output), "\n")
 				return carapace.ActionValues(lines[:len(lines)-1]...)
 			})
-		})
+		}).StyleF(style.ForPathExt)
 	})
 }
 
@@ -63,7 +65,7 @@ func ActionCodespaceMachines() carapace.Action {
 
 type codespacePort struct {
 	Label      string
-	SourcePort string
+	SourcePort int
 	Visibility string
 }
 
@@ -76,7 +78,7 @@ func ActionCodespacePorts(codespace string) carapace.Action {
 
 		vals := make([]string, 0)
 		for _, port := range ports {
-			vals = append(vals, port.SourcePort, fmt.Sprintf("%v - %v", port.Label, port.Visibility))
+			vals = append(vals, strconv.Itoa(port.SourcePort), fmt.Sprintf("%v - %v", port.Label, port.Visibility))
 		}
 		return carapace.ActionValuesDescribed(vals...)
 	})

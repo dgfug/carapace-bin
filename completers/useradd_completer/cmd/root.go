@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/os"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/os"
 	"github.com/spf13/cobra"
 )
 
@@ -48,9 +48,7 @@ func init() {
 	carapace.Gen(rootCmd).FlagCompletion(carapace.ActionMap{
 		"base-dir": carapace.ActionDirectories(),
 		"gid":      os.ActionGroups(),
-		"groups": carapace.ActionMultiParts(",", func(c carapace.Context) carapace.Action {
-			return os.ActionGroups().Invoke(c).Filter(c.Parts).ToA()
-		}),
+		"groups":   os.ActionGroups().UniqueList(","),
 		"home-dir": carapace.ActionDirectories(),
 		"prefix":   carapace.ActionDirectories(),
 		"root":     carapace.ActionDirectories(),

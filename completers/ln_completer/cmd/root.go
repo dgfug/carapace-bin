@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
@@ -18,6 +18,7 @@ func Execute() error {
 func init() {
 	carapace.Gen(rootCmd).Standalone()
 
+	rootCmd.Flags().BoolS("F", "F", false, "allow the superuser to attempt to hard link directories")
 	rootCmd.Flags().BoolS("b", "b", false, "like --backup but does not accept an argument")
 	rootCmd.Flags().String("backup", "", "make a backup of each existing destination file")
 	rootCmd.Flags().BoolP("directory", "d", false, "allow the superuser to attempt to hard link directories")
@@ -35,8 +36,20 @@ func init() {
 	rootCmd.Flags().BoolP("verbose", "v", false, "print name of each linked file")
 	rootCmd.Flags().Bool("version", false, "output version information and exit")
 
+	rootCmd.MarkFlagsMutuallyExclusive("directory", "F")
+	rootCmd.Flag("backup").NoOptDefVal = " "
+
 	carapace.Gen(rootCmd).FlagCompletion(carapace.ActionMap{
-		"backup":           carapace.ActionValues("existing", "nil", "none", "off", "numbered", "t", "simple", "never"),
+		"backup": carapace.ActionValuesDescribed(
+			"existing", "numbered if numbered backup exists, simple otherwise",
+			"nil", "numbered if numbered backup exists, simple otherwise",
+			"none", "never make backups",
+			"off", "never make backups",
+			"numbered", "make numbered backups",
+			"t", "make numbered backups",
+			"simple", "always make simple backups",
+			"never", "always make simple backups",
+		),
 		"target-directory": carapace.ActionDirectories(),
 	})
 

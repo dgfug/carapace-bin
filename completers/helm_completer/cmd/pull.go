@@ -3,18 +3,20 @@ package cmd
 import (
 	"strings"
 
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/helm_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/helm"
 	"github.com/spf13/cobra"
 )
 
 var pullCmd = &cobra.Command{
-	Use:   "pull",
-	Short: "download a chart from a repository and (optionally) unpack it in local directory",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Use:     "pull",
+	Short:   "download a chart from a repository and (optionally) unpack it in local directory",
+	GroupID: "main",
+	Run:     func(cmd *cobra.Command, args []string) {},
 }
 
 func init() {
+	carapace.Gen(pullCmd).Standalone()
 	pullCmd.Flags().String("ca-file", "", "verify certificates of HTTPS-enabled servers using this CA bundle")
 	pullCmd.Flags().String("cert-file", "", "identify HTTPS client using this SSL certificate file")
 	pullCmd.Flags().StringP("destination", "d", ".", "location to write the chart. If this and tardir are specified, tardir is appended to this")
@@ -43,7 +45,7 @@ func init() {
 		"version": carapace.ActionCallback(func(c carapace.Context) carapace.Action {
 			if len(c.Args) > 0 {
 				if splitted := strings.Split(c.Args[0], "/"); len(splitted) == 2 {
-					return action.ActionChartVersions(splitted[0], splitted[1])
+					return helm.ActionChartVersions(splitted[0], splitted[1])
 				}
 			}
 			return carapace.ActionValues()
@@ -51,6 +53,6 @@ func init() {
 	})
 
 	carapace.Gen(pullCmd).PositionalCompletion(
-		action.ActionRepositoryCharts(),
+		helm.ActionRepositoryCharts(),
 	)
 }

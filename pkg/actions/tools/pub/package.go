@@ -7,8 +7,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/gh_completer/cmd/action/utils"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/util"
 )
 
 type searchResult struct {
@@ -18,8 +18,9 @@ type searchResult struct {
 }
 
 // ActionPackageSearch completes packages from pub.dev
-//   animated_text_kit
-//   dotted_border
+//
+//	animated_text_kit
+//	dotted_border
 func ActionPackageSearch() carapace.Action {
 	return carapace.ActionCallback(func(c carapace.Context) carapace.Action {
 		return carapace.Batch(
@@ -35,7 +36,7 @@ func ActionPackageSearch() carapace.Action {
 func actionPackageSearch(page int) carapace.Action {
 	return carapace.ActionCallback(func(c carapace.Context) carapace.Action {
 		// TODO verify on windows - should have a curl alias
-		return carapace.ActionExecCommand("curl", fmt.Sprintf("https://pub.dev/api/search?q=package:%v&page=%v", url.QueryEscape(c.CallbackValue), strconv.Itoa(page)))(func(output []byte) carapace.Action {
+		return carapace.ActionExecCommand("curl", fmt.Sprintf("https://pub.dev/api/search?q=package:%v&page=%v", url.QueryEscape(c.Value), strconv.Itoa(page)))(func(output []byte) carapace.Action {
 			var result searchResult
 			err := json.Unmarshal(output, &result)
 			if err != nil {
@@ -59,8 +60,9 @@ type dartPackage struct {
 }
 
 // ActionPackageVersions completes versions of a package
-//   1.3.1 (about 2 years ago)
-//   4.1.1 (about 4 months ago)
+//
+//	1.3.1 (about 2 years ago)
+//	4.1.1 (about 4 months ago)
 func ActionPackageVersions(pkg string) carapace.Action {
 	// TODO verify on windows - should have a curl alias
 	return carapace.ActionExecCommand("curl", fmt.Sprintf("https://pub.dev/api/packages/%v", url.QueryEscape(pkg)))(func(output []byte) carapace.Action {
@@ -72,7 +74,7 @@ func ActionPackageVersions(pkg string) carapace.Action {
 
 		vals := make([]string, 0)
 		for _, v := range result.Versions {
-			vals = append(vals, v.Version, utils.FuzzyAgo(time.Since(v.Published)))
+			vals = append(vals, v.Version, util.FuzzyAgo(time.Since(v.Published)))
 		}
 		return carapace.ActionValuesDescribed(vals...)
 	})

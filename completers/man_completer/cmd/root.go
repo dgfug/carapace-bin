@@ -1,10 +1,8 @@
 package cmd
 
 import (
-	"regexp"
-	"strings"
-
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/man"
 	"github.com/spf13/cobra"
 )
 
@@ -18,6 +16,7 @@ var rootCmd = &cobra.Command{
 func Execute() error {
 	return rootCmd.Execute()
 }
+
 func init() {
 	carapace.Gen(rootCmd).Standalone()
 
@@ -74,24 +73,12 @@ func init() {
 		"pager":       carapace.ActionFiles(),
 	})
 
-	carapace.Gen(rootCmd).PositionalCompletion(
-		ActionManPages(),
-	)
-}
-
-func ActionManPages() carapace.Action {
-	return carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-		return carapace.ActionExecCommand("man", "-k", c.CallbackValue)(func(output []byte) carapace.Action {
-			r := regexp.MustCompile(`^(?P<name>.*) \(\d+\) +- (?P<description>.*)$`)
-
-			vals := make([]string, 0)
-			for _, line := range strings.Split(string(output), "\n") {
-				if r.MatchString(line) {
-					matches := r.FindStringSubmatch(line)
-					vals = append(vals, matches[1], matches[2])
-				}
+	carapace.Gen(rootCmd).PositionalAnyCompletion(
+		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
+			if rootCmd.Flag("local-file").Changed {
+				return carapace.ActionFiles(".man")
 			}
-			return carapace.ActionValuesDescribed(vals...)
-		})
-	})
+			return man.ActionPages()
+		}),
+	)
 }

@@ -1,14 +1,14 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/tools/docker"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/docker"
 	"github.com/spf13/cobra"
 )
 
 var plugin_createCmd = &cobra.Command{
-	Use:   "create",
-	Short: "Create a plugin from a rootfs and configuration",
+	Use:   "create [OPTIONS] PLUGIN PLUGIN-DATA-DIR",
+	Short: "Create a plugin from a rootfs and configuration. Plugin data directory must contain config.json and rootfs directory.",
 	Run:   func(cmd *cobra.Command, args []string) {},
 }
 

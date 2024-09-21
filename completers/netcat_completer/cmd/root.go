@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/net"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/net"
 	"github.com/spf13/cobra"
 )
 
@@ -17,10 +17,6 @@ func Execute() error {
 	return rootCmd.Execute()
 }
 
-func ExecuteNc() error {
-	rootCmd.Use = "nc"
-	return rootCmd.Execute()
-}
 func init() {
 	carapace.Gen(rootCmd).Standalone()
 
@@ -53,7 +49,7 @@ func init() {
 		"tunnel": carapace.ActionMultiParts(":", func(c carapace.Context) carapace.Action {
 			switch len(c.Parts) {
 			case 0:
-				return net.ActionHosts()
+				return net.ActionHosts().NoSpace()
 			case 1:
 				return net.ActionPorts()
 			default:

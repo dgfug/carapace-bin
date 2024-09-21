@@ -1,18 +1,20 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/gh_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/gh_completer/cmd/action"
 	"github.com/spf13/cobra"
 )
 
 var alias_setCmd = &cobra.Command{
-	Use:   "set",
+	Use:   "set <alias name> '<command>' [flags]",
 	Short: "Set an alias.",
 	Run:   func(cmd *cobra.Command, args []string) {},
 }
 
 func init() {
+	carapace.Gen(alias_setCmd).Standalone()
+
 	alias_setCmd.Flags().BoolP("shell", "s", false, "Declare an alias to be passed through a shell interpreter")
 	aliasCmd.AddCommand(alias_setCmd)
 

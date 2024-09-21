@@ -1,14 +1,15 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
 var rmCmd = &cobra.Command{
-	Use:   "rm",
-	Short: "Remove files from the working tree and from the index",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Use:     "rm",
+	Short:   "Remove files from the working tree and from the index",
+	Run:     func(cmd *cobra.Command, args []string) {},
+	GroupID: groups[group_main].ID,
 }
 
 func init() {

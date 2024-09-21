@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/tools/git"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/git"
 	"github.com/spf13/cobra"
 )
 
@@ -21,7 +21,7 @@ func init() {
 	submoduleCmd.AddCommand(submodule_summaryCmd)
 
 	carapace.Gen(submodule_summaryCmd).PositionalCompletion(
-		git.ActionRefs(git.RefOptionDefault), // TODO commmit of submodule??
+		git.ActionRefs(git.RefOption{}.Default()), // TODO commmit of submodule??
 	)
 
 	carapace.Gen(submodule_summaryCmd).PositionalAnyCompletion(

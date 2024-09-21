@@ -1,15 +1,16 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/tools/docker"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/docker"
 	"github.com/spf13/cobra"
 )
 
 var context_rmCmd = &cobra.Command{
-	Use:   "rm",
-	Short: "Remove one or more contexts",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Use:     "rm CONTEXT [CONTEXT...]",
+	Short:   "Remove one or more contexts",
+	Aliases: []string{"remove"},
+	Run:     func(cmd *cobra.Command, args []string) {},
 }
 
 func init() {

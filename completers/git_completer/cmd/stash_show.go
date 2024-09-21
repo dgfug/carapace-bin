@@ -1,8 +1,9 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/tools/git"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/git_completer/cmd/common"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/git"
 	"github.com/spf13/cobra"
 )
 
@@ -14,6 +15,9 @@ var stash_showCmd = &cobra.Command{
 
 func init() {
 	carapace.Gen(stash_showCmd).Standalone()
+	stash_showCmd.Flags().Bool("include-untracked", false, "include untracked")
+	stash_showCmd.Flags().Bool("only-untracked", false, "only untracked")
+	common.AddDiffFlags(stash_showCmd)
 
 	stashCmd.AddCommand(stash_showCmd)
 

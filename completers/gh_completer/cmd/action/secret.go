@@ -3,17 +3,21 @@ package action
 import (
 	"strings"
 
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
 type SecretOpts struct {
+	App string
 	Org string
 	Env string
 }
 
 func (o SecretOpts) format() []string {
 	args := make([]string, 0)
+	if o.App != "" {
+		args = append(args, "--app", o.App)
+	}
 	if o.Org != "" {
 		args = append(args, "--org", o.Org)
 	}

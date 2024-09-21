@@ -1,128 +1,33 @@
 # carapace-bin
 
-[![CircleCI](https://circleci.com/gh/rsteube/carapace-bin.svg?style=svg)](https://circleci.com/gh/rsteube/carapace-bin)
-[![PkgGoDev](https://pkg.go.dev/badge/github.com/rsteube/carapace-bin/pkg/actions)](https://pkg.go.dev/github.com/rsteube/carapace-bin/pkg/actions)
-[![GoReportCard](https://goreportcard.com/badge/github.com/rsteube/carapace-bin)](https://goreportcard.com/report/github.com/rsteube/carapace-bin)
-[![Completers](https://rsteube.github.io/carapace-bin/badge.svg)](https://rsteube.github.io/carapace-bin/completers.html)
+[![PkgGoDev](https://pkg.go.dev/badge/github.com/carapace-sh/carapace-bin/pkg/actions)](https://pkg.go.dev/github.com/carapace-sh/carapace-bin/pkg/actions)
+[![GoReportCard](https://goreportcard.com/badge/github.com/carapace-sh/carapace-bin)](https://goreportcard.com/report/github.com/carapace-sh/carapace-bin)
+[![documentation](https://img.shields.io/badge/&zwnj;-documentation-blue?logo=gitbook)](https://carapace-sh.github.io/carapace-bin/)
+[![Completers](https://carapace-sh.github.io/carapace-bin/badge.svg)](https://carapace-sh.github.io/carapace-bin/completers.html)
+[![Macros](https://carapace-sh.github.io/carapace-bin/macros-badge.svg)](https://carapace-sh.github.io/carapace-bin/spec/macros.html)
+[![Packaging status](https://repology.org/badge/tiny-repos/carapace.svg)](https://repology.org/project/carapace/versions)
+[![faq](https://img.shields.io/badge/discussions-faq-white)](https://github.com/carapace-sh/carapace-bin/discussions/categories/q-a?discussions_q=category%3AQ%26A+label%3Afaq)
 
-Multi-shell multi-command argument completer based on [rsteube/carapace](https://github.com/rsteube/carapace).
+Carapace-bin provides argument completion for multiple CLI commands ([full list](https://carapace-sh.github.io/carapace-bin/completers.html)), and works across multiple POSIX and non-POSIX shells.
 
-[![asciicast](https://asciinema.org/a/357191.svg)](https://asciinema.org/a/357191)
+[![asciicast](https://asciinema.org/a/533283.svg)](https://asciinema.org/a/533283)
 
 Supported shells:
 - [Bash](https://www.gnu.org/software/bash/)
 - [Elvish](https://elv.sh/)
 - [Fish](https://fishshell.com/)
-- [Ion](https://doc.redox-os.org/ion-manual/html/) ([experimental](https://github.com/rsteube/carapace/issues/88))
-- [Nushell](https://www.nushell.sh/) ([experimental](https://github.com/rsteube/carapace/issues/89))
+- [Ion](https://doc.redox-os.org/ion-manual/) ([experimental](https://github.com/carapace-sh/carapace/issues/88))
+- [Nushell](https://www.nushell.sh/)
 - [Oil](http://www.oilshell.org/)
 - [Powershell](https://microsoft.com/powershell)
-- [Tcsh](https://www.tcsh.org/) ([experimental](https://github.com/rsteube/carapace/issues/331))
+- [Tcsh](https://www.tcsh.org/) ([experimental](https://github.com/carapace-sh/carapace/issues/331))
 - [Xonsh](https://xon.sh/)
 - [Zsh](https://www.zsh.org/)
 
-## Status
-
-A major part of the completers has been generated from help pages so there will be some quirks here and there. Also completion depends on what [rsteube/carapace](https://github.com/rsteube/carapace) is capable of so far.
-
-## Example
-
-```
-docker-compose run --rm build
-docker-compose run --rm [bash|elvish|fish|ion|nushell|oil|powershell|tcsh|xonsh|zsh]
-[ln|mkdir|chown...] <TAB>
-```
-
 ## Getting Started
 
-Ensure carapace is added to PATH.
+[Read], [Install] and [Setup].
 
-- completion for commands
-```sh
-# bash (~/.bashrc)
-source <(carapace _carapace)
-
-# elvish (~/.elvish/rc.elv)
-eval (carapace _carapace|slurp)
-
-# fish (~/.config/fish/config.fish)
-mkdir -p ~/.config/fish/completions
-carapace --list | awk '{print $1}' | xargs -I{} touch ~/.config/fish/completions/{}.fish # disable auto-loaded completions (#185)
-carapace _carapace | source
-
-# nushell [needs fork: https://github.com/rsteube/nushell]
-carapace _carapace nushell | save carapace.nu ; nu -c 'source carapace.nu'
-
-# oil (~/.config/oil/oshrc)
-source <(carapace _carapace)
-
-# powershell (~/.config/powershell/Microsoft.PowerShell_profile.ps1)
-Set-PSReadlineKeyHandler -Key Tab -Function MenuComplete
-carapace _carapace | Out-String | Invoke-Expression
-
-# tcsh (~/.tcshrc)
-set autolist
-eval `carapace _carapace`
-
-# xonsh (~/.config/xonsh/rc.xsh)
-COMPLETIONS_CONFIRM=True
-exec($(carapace _carapace))
-
-# zsh (~/.zshrc)
-source <(carapace _carapace)
-```
-
-Replace `_carapace` with completer name to load a single one.
-
-- list completions
-```sh
-carapace --list
-```
-
-## Build
-
-```sh
-cd cmd/carapace && go generate ./... && go build -ldflags="-s -w"
-```
-
-Completers can also be built separately:
-```sh
-cd completers/ln_completer && go build -ldflags="-s -w"
-./ln_completer _carapace [bash|elvish|fish|nushell|oil|powershell|tcsh|xonsh|zsh]
-```
-
-## Creating completers
-[caraparse](/cmd/caraparse) is a helper tool that uses regex to parse gnu help pages.
-Due to strong inconsistencies between these the results may differ but generally give a good head start.
-
-- copy a completer for simplicity
-```sh
-cp -r completers/cp_completer completers/ln_completer
-```
-- update the package name in `main.go`
-- replace `root.go`
-```sh
-ln --help | caraparse -n ln > completers/ln_completer/cmd/root.go
-```
-- fix issues and add completions as required
-```go
-	carapace.Gen(rootCmd).FlagCompletion(carapace.ActionMap{
-		"backup":           carapace.ActionValues("existing", "nil", "none", "off", "numbered", "t", "simple", "never"),
-		"target-directory": carapace.ActionDirectories(),
-	})
-
-	carapace.Gen(rootCmd).PositionalAnyCompletion(
-		carapace.ActionFiles(""),
-	)
-```
-- run the generator
-```sh
-go generate ./...
-```
-- build & test
-```sh
-docker-compose run --rm build
-docker-compose run --rm [bash|elvish|fish|ion|nushell|oil|powershell|tcsh|xonsh|zsh]
-```
-
-[![asciicast](https://asciinema.org/a/357895.svg)](https://asciinema.org/a/357895)
+[Read]:https://pixi.carapace.sh
+[Install]:https://carapace-sh.github.io/carapace-bin/install.html
+[Setup]:https://carapace-sh.github.io/carapace-bin/setup.html

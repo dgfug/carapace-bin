@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
@@ -12,6 +12,8 @@ var authCmd = &cobra.Command{
 }
 
 func init() {
+	carapace.Gen(authCmd).Standalone()
+
 	authCmd.Flags().String("audience", "", "OAuth2 audience")
 	authCmd.Flags().String("auth-url", "", "OAuth2 Authorize URL i.e. http://idp/oauth/authorize")
 	authCmd.Flags().String("client-id", "", "OAuth2 client_id")

@@ -3,17 +3,19 @@ package cmd
 import (
 	"time"
 
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
 var templateCmd = &cobra.Command{
-	Use:   "template",
-	Short: "locally render templates",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Use:     "template",
+	Short:   "locally render templates",
+	GroupID: "main",
+	Run:     func(cmd *cobra.Command, args []string) {},
 }
 
 func init() {
+	carapace.Gen(templateCmd).Standalone()
 	templateCmd.Flags().StringArrayP("api-versions", "a", []string{}, "Kubernetes api versions used for Capabilities.APIVersions")
 	templateCmd.Flags().Bool("atomic", false, "if set, the installation process deletes the installation on failure. The --wait flag will be set automatically if --atomic is used")
 	templateCmd.Flags().String("ca-file", "", "verify certificates of HTTPS-enabled servers using this CA bundle")
@@ -68,12 +70,13 @@ func init() {
 			return carapace.ActionMultiParts("=", func(c carapace.Context) carapace.Action {
 				switch len(c.Parts) {
 				case 1:
-					return carapace.ActionFiles()
+					return carapace.ActionFiles().NoSpace()
 				default:
 					return carapace.ActionValues()
 				}
 			})
 		}),
+		"values": carapace.ActionFiles(".yaml", ".yml"),
 	})
 
 	// TODO positional completion

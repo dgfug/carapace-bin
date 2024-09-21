@@ -1,9 +1,9 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/tools/git"
-	"github.com/rsteube/carapace-bin/pkg/util"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/git"
+	"github.com/carapace-sh/carapace/pkg/condition"
 	"github.com/spf13/cobra"
 )
 
@@ -12,12 +12,13 @@ var blameCmd = &cobra.Command{
 	Short:   "Show what revision and author last modified each line of a file",
 	Aliases: []string{"annotate"},
 	Run:     func(cmd *cobra.Command, args []string) {},
+	GroupID: groups[group_interrogator].ID,
 }
 
 func init() {
 	carapace.Gen(blameCmd).Standalone()
 
-	blameCmd.Flags().StringS("C", "C", "", "find line copies within and across files")
+	blameCmd.Flags().StringSliceS("C", "C", []string{}, "find line copies within and across files")
 	blameCmd.Flags().StringS("L", "L", "", "process only line range <start>,<end> or function :<funcname>")
 	blameCmd.Flags().StringS("M", "M", "", "find line movements within and across files")
 	blameCmd.Flags().StringS("S", "S", "", "use revisions from <file> instead of calling git-rev-list")
@@ -54,22 +55,21 @@ func init() {
 	carapace.Gen(blameCmd).FlagCompletion(carapace.ActionMap{
 		"S":                carapace.ActionFiles(),
 		"contents":         carapace.ActionFiles(),
-		"ignore-rev":       git.ActionRefs(git.RefOptionDefault),
+		"ignore-rev":       git.ActionRefs(git.RefOption{}.Default()),
 		"ignore-revs-file": carapace.ActionFiles(),
 	})
 
 	carapace.Gen(blameCmd).PositionalCompletion(
+		carapace.Batch(
+			carapace.ActionFiles(),
+			git.ActionRefs(git.RefOption{}.Default()).Unless(condition.CompletingPath),
+		).ToA(),
 		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-			if util.HasPathPrefix(c.CallbackValue) {
-				return carapace.ActionFiles()
-			}
-			return git.ActionRefs(git.RefOptionDefault)
+			return git.ActionRefFiles(c.Args[0]).Unless(condition.File(c.Args[0]))
 		}),
-		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-			if util.HasPathPrefix(c.Args[0]) {
-				return carapace.ActionValues()
-			}
-			return carapace.ActionFiles()
-		}),
+	)
+
+	carapace.Gen(blameCmd).DashAnyCompletion(
+		carapace.ActionPositional(blameCmd),
 	)
 }

@@ -1,9 +1,9 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/dfc_completer/cmd/action"
-	"github.com/rsteube/carapace-bin/pkg/actions/fs"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/dfc_completer/cmd/action"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/fs"
 	"github.com/spf13/cobra"
 )
 
@@ -56,13 +56,9 @@ func init() {
 			"tex", "Output is TeX formated.",
 			"text", "Text output (default).",
 		),
-		"p": carapace.ActionMultiParts(",", func(c carapace.Context) carapace.Action {
-			return action.ActionFSNames().Invoke(c).Filter(c.Parts).ToA()
-		}),
+		"p": action.ActionFSNames().UniqueList(","),
 		"q": carapace.ActionValues("name", "type", "mount"),
-		"t": carapace.ActionMultiParts(",", func(c carapace.Context) carapace.Action {
-			return fs.ActionFileSystemTypes().Invoke(c).Filter(c.Parts).ToA()
-		}),
+		"t": fs.ActionFilesystemTypes().UniqueList(","),
 		"u": carapace.ActionValuesDescribed(
 			"h", "Human readable",
 			"b", "Show bytes.",

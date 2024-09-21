@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
@@ -12,6 +12,7 @@ var addons_listCmd = &cobra.Command{
 }
 
 func init() {
+	carapace.Gen(addons_listCmd).Standalone()
 	addons_listCmd.Flags().StringP("output", "o", "list", "minikube addons list --output OUTPUT. json, list")
 	addonsCmd.AddCommand(addons_listCmd)
 

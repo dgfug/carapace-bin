@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/faas-cli_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/faas-cli_completer/cmd/action"
 	"github.com/spf13/cobra"
 )
 
@@ -13,6 +13,8 @@ var cloud_sealCmd = &cobra.Command{
 }
 
 func init() {
+	carapace.Gen(cloud_sealCmd).Standalone()
+
 	cloud_sealCmd.Flags().StringP("cert", "c", "pub-cert.pem", "Filename of public certificate")
 	cloud_sealCmd.Flags().Bool("download", false, "Download the kubeseal binary required for this command, see also --download-version")
 	cloud_sealCmd.Flags().String("download-to", "", "Specify download path for kubeseal, leave empty for a temp dir")
@@ -28,7 +30,7 @@ func init() {
 		"cert":        carapace.ActionFiles(".pem"),
 		"download-to": carapace.ActionDirectories(),
 		"from-file": carapace.ActionMultiParts(",", func(c carapace.Context) carapace.Action {
-			return carapace.ActionFiles()
+			return carapace.ActionFiles().NoSpace()
 		}),
 		"namespace":   action.ActionNamespaces(),
 		"output-file": carapace.ActionFiles(),

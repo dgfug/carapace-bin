@@ -1,16 +1,17 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/os"
-	"github.com/rsteube/carapace-bin/pkg/actions/tools/git"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/os"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/git"
 	"github.com/spf13/cobra"
 )
 
 var amCmd = &cobra.Command{
-	Use:   "am",
-	Short: "Apply a series of patches from a mailbox",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Use:     "am",
+	Short:   "Apply a series of patches from a mailbox",
+	Run:     func(cmd *cobra.Command, args []string) {},
+	GroupID: groups[group_main].ID,
 }
 
 func init() {
@@ -68,4 +69,12 @@ func init() {
 		"show-current-patch": carapace.ActionValues("diff", "raw"),
 		"whitespace":         git.ActionWhitespaceModes(),
 	})
+
+	carapace.Gen(amCmd).PositionalAnyCompletion(
+		carapace.ActionFiles(),
+	)
+
+	carapace.Gen(amCmd).DashAnyCompletion(
+		carapace.ActionPositional(amCmd),
+	)
 }

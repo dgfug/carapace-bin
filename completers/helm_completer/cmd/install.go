@@ -4,19 +4,21 @@ import (
 	"strings"
 	"time"
 
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/helm_completer/cmd/action"
-	"github.com/rsteube/carapace-bin/pkg/util"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/helm"
+	"github.com/carapace-sh/carapace/pkg/condition"
 	"github.com/spf13/cobra"
 )
 
 var installCmd = &cobra.Command{
-	Use:   "install",
-	Short: "install a chart",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Use:     "install",
+	Short:   "install a chart",
+	GroupID: "main",
+	Run:     func(cmd *cobra.Command, args []string) {},
 }
 
 func init() {
+	carapace.Gen(installCmd).Standalone()
 	installCmd.Flags().Bool("atomic", false, "if set, the installation process deletes the installation on failure. The --wait flag will be set automatically if --atomic is used")
 	installCmd.Flags().String("ca-file", "", "verify certificates of HTTPS-enabled servers using this CA bundle")
 	installCmd.Flags().String("cert-file", "", "identify HTTPS client using this SSL certificate file")
@@ -64,16 +66,17 @@ func init() {
 			return carapace.ActionMultiParts("=", func(c carapace.Context) carapace.Action {
 				switch len(c.Parts) {
 				case 1:
-					return carapace.ActionFiles()
+					return carapace.ActionFiles().NoSpace()
 				default:
 					return carapace.ActionValues()
 				}
 			})
 		}),
+		"values": carapace.ActionFiles(".yaml", ".yml"),
 		"version": carapace.ActionCallback(func(c carapace.Context) carapace.Action {
 			if len(c.Args) > 1 {
 				if splitted := strings.Split(c.Args[1], "/"); len(splitted) == 2 {
-					return action.ActionChartVersions(splitted[0], splitted[1])
+					return helm.ActionChartVersions(splitted[0], splitted[1])
 				}
 			}
 			return carapace.ActionValues()
@@ -82,11 +85,9 @@ func init() {
 
 	carapace.Gen(installCmd).PositionalCompletion(
 		carapace.ActionValues(),
-		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-			if util.HasPathPrefix(c.CallbackValue) {
-				return carapace.ActionDirectories()
-			}
-			return action.ActionRepositoryCharts()
-		}),
+		carapace.Batch(
+			carapace.ActionDirectories(),
+			helm.ActionRepositoryCharts().Unless(condition.CompletingPath),
+		).ToA(),
 	)
 }

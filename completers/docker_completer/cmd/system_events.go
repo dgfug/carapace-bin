@@ -1,12 +1,12 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
 var system_eventsCmd = &cobra.Command{
-	Use:   "events",
+	Use:   "events [OPTIONS]",
 	Short: "Get real time events from the server",
 	Run:   func(cmd *cobra.Command, args []string) {},
 }
@@ -19,6 +19,4 @@ func init() {
 	system_eventsCmd.Flags().String("since", "", "Show all events created since timestamp")
 	system_eventsCmd.Flags().String("until", "", "Stream events until this timestamp")
 	systemCmd.AddCommand(system_eventsCmd)
-
-	rootAlias(system_eventsCmd, func(cmd *cobra.Command, isAlias bool) {})
 }

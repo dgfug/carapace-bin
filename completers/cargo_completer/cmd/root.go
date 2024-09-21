@@ -1,12 +1,16 @@
 package cmd
 
 import (
-	exec "golang.org/x/sys/execabs"
+	"os"
 	"regexp"
 	"strings"
 
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/cargo"
+	"github.com/carapace-sh/carapace-bridge/pkg/actions/bridge"
+	"github.com/carapace-sh/carapace/pkg/style"
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 )
 
 var rootCmd = &cobra.Command{
@@ -16,49 +20,124 @@ var rootCmd = &cobra.Command{
 	Run:   func(cmd *cobra.Command, args []string) {},
 }
 
+const (
+	group_build = iota
+	group_manifest
+	group_package
+	group_publishing
+	group_general
+)
+
+var groups = []*cobra.Group{
+	{ID: "build", Title: "Build Commands"},
+	{ID: "manifest", Title: "Manifest Commands"},
+	{ID: "package", Title: "Package Commands"},
+	{ID: "publishing", Title: "Publishing Commands"},
+	{ID: "general", Title: "General Commands"},
+}
+
 func Execute() error {
 	return rootCmd.Execute()
 }
+
 func init() {
+	rootCmd.AddGroup(groups...)
+
 	carapace.Gen(rootCmd).Standalone()
 
-	rootCmd.Flags().StringS("Z", "Z", "", "Unstable (nightly-only) flags to Cargo, see 'cargo -Z help' for details")
-	rootCmd.Flags().String("color", "", "Coloring: auto, always, never")
+	rootCmd.Flags().StringS("C", "C", "", "Change to DIRECTORY before doing anything (nightly-only)")
+	rootCmd.PersistentFlags().StringSliceS("Z", "Z", []string{}, "Unstable (nightly-only) flags to Cargo, see 'cargo -Z help' for details")
+	rootCmd.PersistentFlags().String("color", "", "Coloring: auto, always, never")
+	rootCmd.PersistentFlags().StringSlice("config", []string{}, "Override a configuration value")
 	rootCmd.Flags().String("explain", "", "Run `rustc --explain CODE`")
-	rootCmd.Flags().Bool("frozen", false, "Require Cargo.lock and cache are up to date")
-	rootCmd.Flags().BoolP("help", "h", false, "Prints help information")
+	rootCmd.PersistentFlags().Bool("frozen", false, "Require Cargo.lock and cache are up to date")
+	rootCmd.Flags().BoolP("help", "h", false, "Print help")
 	rootCmd.Flags().Bool("list", false, "List installed commands")
-	rootCmd.Flags().Bool("locked", false, "Require Cargo.lock is up to date")
-	rootCmd.Flags().Bool("offline", false, "Run without accessing the network")
-	rootCmd.Flags().BoolP("quiet", "q", false, "No output printed to stdout")
-	rootCmd.Flags().BoolP("verbose", "v", false, "Use verbose output (-vv very verbose/build.rs output)")
+	rootCmd.PersistentFlags().Bool("locked", false, "Require Cargo.lock is up to date")
+	rootCmd.PersistentFlags().Bool("offline", false, "Run without accessing the network")
+	rootCmd.Flags().BoolP("quiet", "q", false, "Do not print cargo log messages")
+	rootCmd.PersistentFlags().CountP("verbose", "v", "Use verbose output (-vv very verbose/build.rs output)")
 	rootCmd.Flags().BoolP("version", "V", false, "Print version info and exit")
 
 	carapace.Gen(rootCmd).FlagCompletion(carapace.ActionMap{
-		"color": carapace.ActionValues("auto", "always", "never"),
+		"C":     carapace.ActionDirectories(),
+		"Z":     cargo.ActionNightlyFlags(),
+		"color": carapace.ActionValues("auto", "never", "always").StyleF(style.ForKeyword),
 	})
 
-	c, _, _ := rootCmd.Find([]string{"_carapace"})
-	c.PreRun = func(cmd *cobra.Command, args []string) {
-		if len(args) == 1 { // non-lazy completion script generation
-			if output, err := exec.Command("cargo", "--list").Output(); err != nil {
-				// TODO handle error
-			} else {
-				re := regexp.MustCompile(`^    (?P<command>\w+)( +(?P<description>.*))?$`)
-				installedCommands := make(map[string]bool)
-
-				for _, line := range strings.Split(string(output), "\n") {
-					if re.MatchString(line) {
-						installedCommands[re.FindStringSubmatch(line)[1]] = true
+	carapace.Gen(rootCmd).PreRun(func(cmd *cobra.Command, args []string) {
+		c := carapace.Context{Env: os.Environ()}    // TODO how to handle env here?
+		c.Setenv("RUSTUP_DIST_SERVER", "localhost") // prevent implicit toolchain synching by the rustup wrapper [#1328]
+		if output, err := c.Command("cargo", "--list").Output(); err == nil {
+			re := regexp.MustCompile(`^    (?P<command>[^ ]+)( +(?P<description>.*))?$`)
+			for _, line := range strings.Split(string(output), "\n") {
+				if matches := re.FindStringSubmatch(line); matches != nil {
+					pluginCmd := &cobra.Command{
+						Use:                matches[1],
+						Short:              matches[3],
+						Run:                func(cmd *cobra.Command, args []string) {},
+						GroupID:            groupFor(matches[1]),
+						DisableFlagParsing: true,
 					}
-				}
 
-				for _, subcommand := range rootCmd.Commands() {
-					if _, exists := installedCommands[subcommand.Name()]; !exists {
-						subcommand.Hidden = true // hide from completion
-					}
+					carapace.Gen(pluginCmd).PositionalAnyCompletion(
+						bridge.ActionCarapaceBin("cargo-" + matches[1]),
+					)
+
+					rootCmd.AddCommand(pluginCmd)
 				}
 			}
 		}
+	})
+
+	carapace.Gen(rootCmd).PreInvoke(func(cmd *cobra.Command, flag *pflag.Flag, action carapace.Action) carapace.Action {
+		return action.Chdir(rootCmd.Flag("C").Value.String())
+	})
+}
+
+func groupFor(name string) string {
+	// https: //doc.rust-lang.org/cargo/commands/index.html
+	switch name {
+	case "help",
+		"version":
+		return groups[group_general].ID
+	case "bench",
+		"build",
+		"check",
+		"clean",
+		"doc",
+		"fetch",
+		"fix",
+		"run",
+		"rustc",
+		"rustdoc",
+		"test",
+		"report":
+		return groups[group_build].ID
+	case "add",
+		"generate-lockfile",
+		"locate-project",
+		"metadata",
+		"pkgid",
+		"remove",
+		"tree",
+		"update",
+		"vendor",
+		"verify-project":
+		return groups[group_manifest].ID
+	case "init",
+		"install",
+		"new",
+		"search",
+		"uninstall":
+		return groups[group_package].ID
+	case "login",
+		"owner",
+		"package",
+		"publish",
+		"yank":
+		return groups[group_publishing].ID
+	default:
+		return ""
 	}
 }

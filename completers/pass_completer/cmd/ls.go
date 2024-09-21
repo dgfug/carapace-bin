@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/pass_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/pass"
 	"github.com/spf13/cobra"
 )
 
@@ -17,5 +17,7 @@ func init() {
 
 	rootCmd.AddCommand(lsCmd)
 
-	carapace.Gen(lsCmd).PositionalCompletion(action.ActionPassDirectories())
+	carapace.Gen(lsCmd).PositionalCompletion(
+		pass.ActionDirectories(),
+	)
 }

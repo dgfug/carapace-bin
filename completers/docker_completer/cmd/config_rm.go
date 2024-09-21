@@ -1,15 +1,16 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/tools/docker"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/docker"
 	"github.com/spf13/cobra"
 )
 
 var config_rmCmd = &cobra.Command{
-	Use:   "rm",
-	Short: "Remove one or more configs",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Use:     "rm CONFIG [CONFIG...]",
+	Short:   "Remove one or more configs",
+	Aliases: []string{"remove"},
+	Run:     func(cmd *cobra.Command, args []string) {},
 }
 
 func init() {

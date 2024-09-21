@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/pamac_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/pamac"
 	"github.com/spf13/cobra"
 )
 
@@ -23,7 +23,7 @@ func init() {
 	removeCmd.Flags().BoolP("unneeded", "u", false, "remove packages only if they are not required by any other")
 	rootCmd.AddCommand(removeCmd)
 
-	carapace.Gen(removeCmd).PositionalAnyCompletion(carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-		return action.ActionInstalledPackages(true).Invoke(c).Filter(c.Args).ToA()
-	}))
+	carapace.Gen(removeCmd).PositionalAnyCompletion(
+		pamac.ActionInstalledPackages(true).FilterArgs(),
+	)
 }

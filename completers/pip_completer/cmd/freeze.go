@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/pip_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/pip"
 	"github.com/spf13/cobra"
 )
 
@@ -26,7 +26,7 @@ func init() {
 	rootCmd.AddCommand(freezeCmd)
 
 	carapace.Gen(freezeCmd).FlagCompletion(carapace.ActionMap{
-		"exclude":     action.ActionInstalledPackages(),
+		"exclude":     pip.ActionInstalledPackages(),
 		"path":        carapace.ActionDirectories(),
 		"requirement": carapace.ActionFiles(),
 	})

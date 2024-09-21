@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/pulumi_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/pulumi_completer/cmd/action"
 	"github.com/spf13/cobra"
 )
 
@@ -13,6 +13,7 @@ var plugin_rmCmd = &cobra.Command{
 }
 
 func init() {
+	carapace.Gen(plugin_rmCmd).Standalone()
 	plugin_rmCmd.PersistentFlags().BoolP("all", "a", false, "Remove all plugins")
 	plugin_rmCmd.PersistentFlags().BoolP("yes", "y", false, "Skip confirmation prompts, and proceed with removal anyway")
 	pluginCmd.AddCommand(plugin_rmCmd)

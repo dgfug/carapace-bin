@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/glab_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/glab_completer/cmd/action"
 	"github.com/spf13/cobra"
 )
 
@@ -13,6 +13,8 @@ var auth_statusCmd = &cobra.Command{
 }
 
 func init() {
+	carapace.Gen(auth_statusCmd).Standalone()
+
 	auth_statusCmd.Flags().StringP("hostname", "h", "", "Check a specific instance's authentication status")
 	auth_statusCmd.Flags().BoolP("show-token", "t", false, "Display the auth token")
 	authCmd.AddCommand(auth_statusCmd)

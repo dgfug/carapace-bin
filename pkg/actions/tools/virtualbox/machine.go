@@ -5,12 +5,13 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 )
 
 // ActionMachines completes virtualbox machines
-//   machine1 (34234234-87b5-4027-a683-c239a8cbd180)
-//   machine2 (32423523-87b5-4027-a683-c239a8cbd180)
+//
+//	machine1 (34234234-87b5-4027-a683-c239a8cbd180)
+//	machine2 (32423523-87b5-4027-a683-c239a8cbd180)
 func ActionMachines() carapace.Action {
 	return carapace.ActionExecCommand("vboxmanage", "list", "vms")(func(output []byte) carapace.Action {
 		lines := strings.Split(string(output), "\n")

@@ -1,24 +1,31 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/docker-compose_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/docker-compose_completer/cmd/action"
 	"github.com/spf13/cobra"
 )
 
 var scaleCmd = &cobra.Command{
-	Use:   "scale",
-	Short: "Set number of containers for a service",
+	Use:   "scale [SERVICE=REPLICAS...]",
+	Short: "Scale services ",
 	Run:   func(cmd *cobra.Command, args []string) {},
 }
 
 func init() {
 	carapace.Gen(scaleCmd).Standalone()
 
-	scaleCmd.Flags().StringP("timeout", "t", "", "Specify a shutdown timeout in seconds.")
+	scaleCmd.Flags().Bool("no-deps", false, "Don't start linked services.")
 	rootCmd.AddCommand(scaleCmd)
 
 	carapace.Gen(scaleCmd).PositionalAnyCompletion(
-		action.ActionServices(scaleCmd), // TODO Multiparts Action/ or simply add = suffix
+		carapace.ActionMultiPartsN("=", 2, func(c carapace.Context) carapace.Action {
+			switch len(c.Parts) {
+			case 0:
+				return action.ActionServices(scaleCmd).Suffix("=")
+			default:
+				return carapace.ActionValues()
+			}
+		}),
 	)
 }

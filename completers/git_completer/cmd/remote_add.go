@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/tools/git"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/git"
 	"github.com/spf13/cobra"
 )
 
@@ -28,7 +28,7 @@ func init() {
 	carapace.Gen(remote_addCmd).FlagCompletion(carapace.ActionMap{
 		"master": carapace.ActionCallback(func(c carapace.Context) carapace.Action {
 			if len(c.Args) > 1 {
-				return git.ActionLsRemoteRefs(c.Args[1], git.LsRemoteRefOption{Branches: true})
+				return git.ActionLsRemoteRefs(git.LsRemoteRefOption{Url: c.Args[1], Branches: true})
 			} else {
 				return carapace.ActionValues()
 			}
@@ -36,7 +36,7 @@ func init() {
 		"mirror": carapace.ActionValues("push", "fetch"),
 		"track": carapace.ActionCallback(func(c carapace.Context) carapace.Action {
 			if len(c.Args) > 1 {
-				return git.ActionLsRemoteRefs(c.Args[1], git.LsRemoteRefOption{Branches: true})
+				return git.ActionLsRemoteRefs(git.LsRemoteRefOption{Url: c.Args[1], Branches: true})
 			} else {
 				return carapace.ActionValues()
 			}
@@ -45,5 +45,6 @@ func init() {
 
 	carapace.Gen(remote_addCmd).PositionalCompletion(
 		git.ActionRemotes(),
+		git.ActionRepositorySearch(git.SearchOpts{}.Default()),
 	)
 }

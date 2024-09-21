@@ -1,14 +1,15 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
 var volumeCmd = &cobra.Command{
-	Use:   "volume",
-	Short: "Manage volumes",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Use:     "volume COMMAND",
+	Short:   "Manage volumes",
+	GroupID: "management",
+	Run:     func(cmd *cobra.Command, args []string) {},
 }
 
 func init() {

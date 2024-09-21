@@ -1,13 +1,13 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/tools/docker"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/docker"
 	"github.com/spf13/cobra"
 )
 
 var container_renameCmd = &cobra.Command{
-	Use:   "rename",
+	Use:   "rename CONTAINER NEW_NAME",
 	Short: "Rename a container",
 	Run:   func(cmd *cobra.Command, args []string) {},
 }
@@ -17,9 +17,7 @@ func init() {
 
 	containerCmd.AddCommand(container_renameCmd)
 
-	rootAlias(container_renameCmd, func(cmd *cobra.Command, isAlias bool) {
-		carapace.Gen(cmd).PositionalCompletion(
-			docker.ActionContainers(),
-		)
-	})
+	carapace.Gen(container_renameCmd).PositionalCompletion(
+		docker.ActionContainers(),
+	)
 }

@@ -1,13 +1,13 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/tools/docker"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/docker"
 	"github.com/spf13/cobra"
 )
 
 var network_disconnectCmd = &cobra.Command{
-	Use:   "disconnect",
+	Use:   "disconnect [OPTIONS] NETWORK CONTAINER",
 	Short: "Disconnect a container from a network",
 	Run:   func(cmd *cobra.Command, args []string) {},
 }

@@ -1,7 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace/pkg/style"
 	"github.com/spf13/cobra"
 )
 
@@ -33,17 +34,11 @@ func init() {
 	rootCmd.Flags().StringP("wait", "w", "", "set timeout waiting for finishing operations")
 
 	carapace.Gen(rootCmd).FlagCompletion(carapace.ActionMap{
-		"colors":     carapace.ActionValues("auto", "yes", "no"),
-		"escape":     carapace.ActionValues("yes", "no"),
-		"fields":     ActionMultiFields(),
-		"get-values": ActionMultiFields(),
+		"colors":     carapace.ActionValues("auto", "yes", "no").StyleF(style.ForKeyword),
+		"escape":     carapace.ActionValues("yes", "no").StyleF(style.ForKeyword),
+		"fields":     ActionFields().UniqueList(","),
+		"get-values": ActionFields().UniqueList(","),
 		"mode":       carapace.ActionValues("tabular", "multiline"),
-	})
-}
-
-func ActionMultiFields() carapace.Action {
-	return carapace.ActionMultiParts(",", func(c carapace.Context) carapace.Action {
-		return ActionFields().Invoke(c).Filter(c.Parts).Suffix(",").ToA()
 	})
 }
 

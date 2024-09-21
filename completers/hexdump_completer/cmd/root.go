@@ -3,7 +3,8 @@ package cmd
 import (
 	"regexp"
 
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace/pkg/style"
 	"github.com/spf13/cobra"
 )
 
@@ -38,7 +39,7 @@ func init() {
 	rootCmd.Flag("color").NoOptDefVal = " "
 
 	carapace.Gen(rootCmd).FlagCompletion(carapace.ActionMap{
-		"color":  carapace.ActionValues("auto", "never", "always"),
+		"color":  carapace.ActionValues("auto", "never", "always").StyleF(style.ForKeyword),
 		"length": ActionMultiplicativeSuffixes(),
 		"skip":   ActionMultiplicativeSuffixes(),
 	})
@@ -51,8 +52,8 @@ func init() {
 func ActionMultiplicativeSuffixes() carapace.Action {
 	return carapace.ActionCallback(func(c carapace.Context) carapace.Action {
 		r := regexp.MustCompile(`^(?P<num>\d+)`)
-		if r.MatchString(c.CallbackValue) {
-			matches := r.FindStringSubmatch(c.CallbackValue)
+		if r.MatchString(c.Value) {
+			matches := r.FindStringSubmatch(c.Value)
 			return carapace.ActionValues("KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB").Invoke(c).Prefix(matches[1]).ToA()
 		}
 		return carapace.ActionValues()

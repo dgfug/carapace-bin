@@ -2,12 +2,11 @@ package action
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
+	"github.com/carapace-sh/carapace"
 	"github.com/pelletier/go-toml"
-	"github.com/rsteube/carapace"
 	"github.com/spf13/cobra"
 )
 
@@ -18,7 +17,7 @@ type theme struct {
 
 func loadTheme(path string) (t theme, err error) {
 	var content []byte
-	if content, err = ioutil.ReadFile(path); err == nil {
+	if content, err = os.ReadFile(path); err == nil {
 		err = toml.Unmarshal(content, &t)
 	}
 	return

@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
@@ -12,6 +12,7 @@ var import_jekyllCmd = &cobra.Command{
 }
 
 func init() {
+	carapace.Gen(import_jekyllCmd).Standalone()
 	import_jekyllCmd.Flags().Bool("force", false, "allow import into non-empty target directory")
 	importCmd.AddCommand(import_jekyllCmd)
 

@@ -1,14 +1,15 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
 var swarmCmd = &cobra.Command{
-	Use:   "swarm",
-	Short: "Manage Swarm",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Use:     "swarm",
+	Short:   "Manage Swarm",
+	GroupID: "swarm",
+	Run:     func(cmd *cobra.Command, args []string) {},
 }
 
 func init() {

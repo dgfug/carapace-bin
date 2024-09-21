@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/hugo_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/hugo_completer/cmd/action"
 	"github.com/spf13/cobra"
 )
 
@@ -13,6 +13,7 @@ var deployCmd = &cobra.Command{
 }
 
 func init() {
+	carapace.Gen(deployCmd).Standalone()
 	deployCmd.Flags().Bool("confirm", false, "ask for confirmation before making changes to the target")
 	deployCmd.Flags().Bool("dryRun", false, "dry run")
 	deployCmd.Flags().Bool("force", false, "force upload of all files")

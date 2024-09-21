@@ -1,15 +1,16 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/tools/docker"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/docker"
 	"github.com/spf13/cobra"
 )
 
 var container_rmCmd = &cobra.Command{
-	Use:   "rm",
-	Short: "Remove one or more containers",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Use:     "rm [OPTIONS] CONTAINER [CONTAINER...]",
+	Short:   "Remove one or more containers",
+	Aliases: []string{"remove"},
+	Run:     func(cmd *cobra.Command, args []string) {},
 }
 
 func init() {
@@ -20,7 +21,5 @@ func init() {
 	container_rmCmd.Flags().BoolP("volumes", "v", false, "Remove anonymous volumes associated with the container")
 	containerCmd.AddCommand(container_rmCmd)
 
-	rootAlias(container_rmCmd, func(cmd *cobra.Command, isAlias bool) {
-		carapace.Gen(cmd).PositionalAnyCompletion(docker.ActionContainers())
-	})
+	carapace.Gen(container_rmCmd).PositionalAnyCompletion(docker.ActionContainers())
 }

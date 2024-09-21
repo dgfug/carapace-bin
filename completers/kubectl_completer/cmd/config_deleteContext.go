@@ -1,13 +1,13 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/kubectl_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/kubectl"
 	"github.com/spf13/cobra"
 )
 
 var config_deleteContextCmd = &cobra.Command{
-	Use:   "delete-context",
+	Use:   "delete-context NAME",
 	Short: "Delete the specified context from the kubeconfig",
 	Run:   func(cmd *cobra.Command, args []string) {},
 }
@@ -18,6 +18,6 @@ func init() {
 	configCmd.AddCommand(config_deleteContextCmd)
 
 	carapace.Gen(config_deleteContextCmd).PositionalCompletion(
-		action.ActionContexts(),
+		kubectl.ActionContexts(),
 	)
 }

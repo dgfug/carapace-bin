@@ -3,7 +3,7 @@ package action
 import (
 	"strings"
 
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
@@ -28,7 +28,7 @@ func ActionNodeIdentity(cmd *cobra.Command) carapace.Action {
 	return carapace.ActionMultiParts(":", func(c carapace.Context) carapace.Action {
 		switch len(c.Parts) {
 		case 0:
-			return ActionNodes(cmd)
+			return ActionNodes(cmd).NoSpace()
 		case 1:
 			return ActionDatacenters(cmd)
 		default:

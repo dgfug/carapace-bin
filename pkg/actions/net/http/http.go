@@ -2,14 +2,33 @@
 package http
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/os"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/os"
+	"github.com/carapace-sh/carapace/pkg/style"
 )
 
-// ActionHttpRequestHeaderNames completes http reqest header names
-//   Accept-Charset (Character sets that are acceptable.)
-//   Accept-Datetime (Acceptable version in time.)
-func ActionHttpRequestHeaderNames() carapace.Action {
+// ActionRequestHeaders completes http request headers
+//
+//	Accept:application/json
+//	Accept-Encoding:exi,br
+func ActionRequestHeaders() carapace.Action {
+	return carapace.ActionMultiParts(":", func(c carapace.Context) carapace.Action {
+		switch len(c.Parts) {
+		case 0:
+			return ActionRequestHeaderNames().Invoke(c).Suffix(":").ToA()
+		case 1:
+			return ActionRequestHeaderValues(c.Parts[0])
+		default:
+			return carapace.ActionValues()
+		}
+	})
+}
+
+// ActionRequestHeaderNames completes http request header names
+//
+//	Accept-Charset (Character sets that are acceptable.)
+//	Accept-Datetime (Acceptable version in time.)
+func ActionRequestHeaderNames() carapace.Action {
 	return carapace.ActionValuesDescribed(
 		"A-IM", "Acceptable instance-manipulations for the request.[10]",
 		"Accept", "Media type(s) that is/are acceptable for the response. See Content negotiation.",
@@ -52,40 +71,29 @@ func ActionHttpRequestHeaderNames() carapace.Action {
 		"Upgrade", "Ask the server to upgrade to another protocol. Must not be used in HTTP/2.[13]",
 		"Via", "Informs the server of proxies through which the request was sent.",
 		"Warning", "A general warning about possible problems with the entity body.",
-	)
+	).Tag("request headers")
 }
 
-// ActionHttpRequestHeaderValues completes values for given request header
-//   ActionHttpRequestHeaderValues("Accept")
-//   ActionHttpRequestHeaderValues("Accept-Encoding")
-func ActionHttpRequestHeaderValues(header string) carapace.Action {
+// ActionRequestHeaderValues completes values for given request header
+//
+//	ActionRequestHeaderValues("Accept")
+//	ActionRequestHeaderValues("Accept-Encoding")
+func ActionRequestHeaderValues(header string) carapace.Action {
 	return carapace.ActionCallback(func(c carapace.Context) carapace.Action {
 		switch header {
 		// TODO complete more headers
 		case "Accept":
-			return carapace.ActionMultiParts(",", func(c carapace.Context) carapace.Action {
-				return ActionMediaTypes().Invoke(c).Filter(c.Parts).ToMultiPartsA("/")
-			})
+			return ActionMediaTypes().MultiParts("/").UniqueList(",")
 		case "Accept-Encoding":
-			return carapace.ActionMultiParts(",", func(c carapace.Context) carapace.Action {
-				return ActionContentEncodingTokens().Invoke(c).Filter(c.Parts).ToA()
-			})
+			return ActionContentEncodingTokens().UniqueList(",")
 		case "Accept-Language":
-			return carapace.ActionMultiParts(",", func(c carapace.Context) carapace.Action {
-				return os.ActionLanguages().Invoke(c).Filter(c.Parts).ToA()
-			})
+			return os.ActionLanguages().UniqueList(",")
 		case "Cache-Control":
-			return carapace.ActionMultiParts(",", func(c carapace.Context) carapace.Action {
-				return ActionCacheControlRequestDirectives()
-			})
+			return ActionCacheControlRequestDirectives().UniqueList(",")
 		case "Content-Encoding":
-			return carapace.ActionMultiParts(",", func(c carapace.Context) carapace.Action {
-				return ActionContentEncodingTokens().Invoke(c).Filter(c.Parts).ToA()
-			})
+			return ActionContentEncodingTokens().UniqueList(",")
 		case "Content-Type":
-			return carapace.ActionMultiParts(",", func(c carapace.Context) carapace.Action {
-				return ActionMediaTypes().Invoke(c).Filter(c.Parts).ToMultiPartsA("/")
-			})
+			return ActionMediaTypes().MultiParts("/").UniqueList(",")
 		case "Transfer-Encoding":
 			return ActionTransferEncodingTokens()
 		case "User-Agent":
@@ -97,51 +105,55 @@ func ActionHttpRequestHeaderValues(header string) carapace.Action {
 }
 
 // ActionMediaTypes completes media types
-//   "audio/ogg",
-//   "image/gif",
+//
+//	"audio/ogg",
+//	"image/gif",
 func ActionMediaTypes() carapace.Action {
-	return carapace.ActionValues(
-		"application/x-executable",
-		"application/graphql",
-		"application/javascript",
-		"application/json",
-		"application/ld+json",
-		"application/msword",
-		"application/pdf",
-		"application/sql",
-		"application/vnd.api+json",
-		"application/vnd.ms-excel",
-		"application/vnd.ms-powerpoint",
-		"application/vnd.oasis.opendocument.text",
-		"application/vnd.openxmlformats-officedocument.presentationml.presentation",
-		"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-		"application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-		"application/x-www-form-urlencoded",
-		"application/xml",
-		"application/zip",
-		"application/zstd",
-		"audio/mpeg",
-		"audio/ogg",
-		"image/gif",
-		"image/apng",
-		"image/flif",
-		"image/webp",
-		"image/x-mng",
-		"image/jpeg",
-		"image/png",
-		"multipart/form-data",
-		"text/css",
-		"text/csv",
-		"text/html",
-		"text/php",
-		"text/plain",
-		"text/xml",
-	)
+	return carapace.ActionCallback(func(c carapace.Context) carapace.Action {
+		return carapace.ActionStyledValues(
+			"application/x-executable", style.ForPathExt(".exe", c),
+			"application/graphql", style.Default,
+			"application/javascript", style.ForPathExt(".js", c),
+			"application/json", style.ForPathExt(".json", c),
+			"application/ld+json", style.ForPathExt(".json", c),
+			"application/msword", style.ForPathExt(".docx", c),
+			"application/pdf", style.ForPathExt(".pdf", c),
+			"application/sql", style.ForPathExt(".sql", c),
+			"application/vnd.api+json", style.ForPathExt(".json", c),
+			"application/vnd.ms-excel", style.ForPathExt(".xslx", c),
+			"application/vnd.ms-powerpoint", style.ForPathExt(".pptx", c),
+			"application/vnd.oasis.opendocument.text", style.ForPathExt(".odt", c),
+			"application/vnd.openxmlformats-officedocument.presentationml.presentation", style.ForPathExt(".odp", c),
+			"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", style.ForPathExt(".ods", c),
+			"application/vnd.openxmlformats-officedocument.wordprocessingml.document", style.ForPathExt(".odt", c),
+			"application/x-www-form-urlencoded", style.Default,
+			"application/xml", style.ForPathExt(".xml", c),
+			"application/zip", style.ForPathExt(".zip", c),
+			"application/zstd", style.ForPathExt(".zstd", c),
+			"audio/mpeg", style.ForPathExt(".mpeg", c),
+			"audio/ogg", style.ForPathExt(".ogg", c),
+			"image/gif", style.ForPathExt(".gif", c),
+			"image/apng", style.ForPathExt(".apng", c),
+			"image/flif", style.ForPathExt(".flif", c),
+			"image/webp", style.ForPathExt(".webp", c),
+			"image/x-mng", style.ForPathExt(".x-mng", c),
+			"image/jpeg", style.ForPathExt(".jpeg", c),
+			"image/png", style.ForPathExt(".png", c),
+			"multipart/form-data", style.Default,
+			"text/css", style.ForPathExt(".css", c),
+			"text/csv", style.ForPathExt(".csv", c),
+			"text/html", style.ForPathExt(".html", c),
+			"text/php", style.ForPathExt(".php", c),
+			"text/plain", style.ForPathExt(".txt", c),
+			"text/xml", style.ForPathExt(".xml", c),
+		)
+	})
 }
 
 // ActionContentEncodingTokens completes content encoding tokens
-//   br (Brotli)
-//   gzip (GNU zip format)
+//
+//	br (Brotli)
+//	gzip (GNU zip format)
 func ActionContentEncodingTokens() carapace.Action {
 	return carapace.ActionValuesDescribed(
 		"br", "Brotli",
@@ -156,8 +168,9 @@ func ActionContentEncodingTokens() carapace.Action {
 }
 
 // ActionTransferEncodingTokens completes transfer encoding tokens
-//   chunked (Transfer in a series of chunks)
-//   gzip (GZIP file format)
+//
+//	chunked (Transfer in a series of chunks)
+//	gzip (GZIP file format)
 func ActionTransferEncodingTokens() carapace.Action {
 	return carapace.ActionValuesDescribed(
 		"chunked", "Transfer in a series of chunks",
@@ -167,26 +180,10 @@ func ActionTransferEncodingTokens() carapace.Action {
 	)
 }
 
-// ActionRequestMethods completes request methods
-//   DELETE (The DELETE method deletes the specified resource.)
-//   GET (The GET method requests a representation of the specified resource.)
-func ActionRequestMethods() carapace.Action {
-	return carapace.ActionValuesDescribed(
-		"GET", "The GET method requests a representation of the specified resource.",
-		"HEAD", "The HEAD method asks for a response identical to that of a GET request, but without the response body.",
-		"POST", "The POST method is used to submit an entity to the specified resource.",
-		"PUT", "The PUT method replaces all current representations of the target resource with the request payload.",
-		"DELETE", "The DELETE method deletes the specified resource.",
-		"CONNECT", "The CONNECT method establishes a tunnel to the server identified by the target resource.",
-		"OPTIONS", "The OPTIONS method is used to describe the communication options for the target resource.",
-		"TRACE", "The TRACE method performs a message loop-back test along the path to the target resource.",
-		"PATCH", "The PATCH method is used to apply partial modifications to a resource.",
-	)
-}
-
 // ActionCacheControlRequestDirectives completes Cache-Control directives for a request
-//   no-store (The response may not be stored in any cache.)
-//   no-transform (An intermediate cache or proxy cannot edit the response body.)
+//
+//	no-store (The response may not be stored in any cache.)
+//	no-transform (An intermediate cache or proxy cannot edit the response body.)
 func ActionCacheControlRequestDirectives() carapace.Action {
 	return carapace.ActionMultiParts("=", func(c carapace.Context) carapace.Action {
 		switch len(c.Parts) {
@@ -207,8 +204,9 @@ func ActionCacheControlRequestDirectives() carapace.Action {
 }
 
 // ActionUserAgents completes common user agents
-//   curl/7.35.0 (Curl)
-//   Lynx/2.8.8pre.4 libwww-FM/2.14 SSL-MM/1.4.1 GNUTLS/2.12.23 (Lynx)
+//
+//	curl/7.35.0 (Curl)
+//	Lynx/2.8.8pre.4 libwww-FM/2.14 SSL-MM/1.4.1 GNUTLS/2.12.23 (Lynx)
 func ActionUserAgents() carapace.Action {
 	// https://www.networkinghowtos.com/howto/common-user-agent-list/
 	return carapace.ActionValuesDescribed(

@@ -1,10 +1,15 @@
 package http
 
-import "github.com/rsteube/carapace"
+import (
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/styles"
+	"github.com/carapace-sh/carapace/pkg/style"
+)
 
 // ActionStatusCodes completes http status codes
-//   100 (Continue)
-//   200 (OK)
+//
+//	100 (Continue)
+//	200 (OK)
 func ActionStatusCodes() carapace.Action {
 	return carapace.ActionValuesDescribed(
 		"100", "Continue",
@@ -64,5 +69,20 @@ func ActionStatusCodes() carapace.Action {
 		"508", "Loop Detected",
 		"510", "Not Extended",
 		"511", "Network Authentication Required",
-	)
+	).StyleF(func(s string, _ style.Context) string {
+		switch []rune(s)[0] {
+		case '1':
+			return styles.CarapaceBin.HttpStatusInformational
+		case '2':
+			return styles.CarapaceBin.HttpStatusSuccessful
+		case '3':
+			return styles.CarapaceBin.HttpStatusRedirection
+		case '4':
+			return styles.CarapaceBin.HttpStatusClientError
+		case '5':
+			return styles.CarapaceBin.HttpStatusServerError
+		default:
+			return ""
+		}
+	})
 }

@@ -3,18 +3,21 @@ package cmd
 import (
 	"time"
 
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/helm_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/helm_completer/cmd/action"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/helm"
 	"github.com/spf13/cobra"
 )
 
 var rollbackCmd = &cobra.Command{
-	Use:   "rollback",
-	Short: "roll back a release to a previous revision",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Use:     "rollback",
+	Short:   "roll back a release to a previous revision",
+	GroupID: "main",
+	Run:     func(cmd *cobra.Command, args []string) {},
 }
 
 func init() {
+	carapace.Gen(rollbackCmd).Standalone()
 	rollbackCmd.Flags().Bool("cleanup-on-fail", false, "allow deletion of new resources created in this rollback when rollback fails")
 	rollbackCmd.Flags().Bool("dry-run", false, "simulate a rollback")
 	rollbackCmd.Flags().Bool("force", false, "force resource update through delete/recreate if needed")
@@ -27,9 +30,9 @@ func init() {
 	rootCmd.AddCommand(rollbackCmd)
 
 	carapace.Gen(rollbackCmd).PositionalCompletion(
-		action.ActionReleases(),
+		action.ActionReleases(rollbackCmd),
 		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-			return action.ActionRevisions(c.Args[0])
+			return helm.ActionRevisions(c.Args[0])
 		}),
 	)
 }

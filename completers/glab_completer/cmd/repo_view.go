@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/glab_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/glab_completer/cmd/action"
 	"github.com/spf13/cobra"
 )
 
@@ -14,9 +14,9 @@ var repo_viewCmd = &cobra.Command{
 
 func init() {
 	carapace.Gen(repo_viewCmd).Standalone()
+
 	repo_viewCmd.Flags().StringP("branch", "b", "", "View a specific branch of the repository")
 	repo_viewCmd.Flags().BoolP("web", "w", false, "Open a project in the browser")
-
 	repoCmd.AddCommand(repo_viewCmd)
 
 	carapace.Gen(repo_viewCmd).FlagCompletion(carapace.ActionMap{

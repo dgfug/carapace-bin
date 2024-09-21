@@ -1,15 +1,17 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/tools/git"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/git"
 	"github.com/spf13/cobra"
 )
 
 var addCmd = &cobra.Command{
-	Use:   "add",
-	Short: "Add file contents to the index",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Use:     "add",
+	Aliases: []string{"stage"},
+	Short:   "Add file contents to the index",
+	Run:     func(cmd *cobra.Command, args []string) {},
+	GroupID: groups[group_main].ID,
 }
 
 func init() {
@@ -33,6 +35,7 @@ func init() {
 	addCmd.Flags().String("pathspec-from-file", "", "Pathspec is passed in <file> instead of commandline args.")
 	addCmd.Flags().Bool("refresh", false, "Don't add the file(s), but only refresh their stat() information in the index.")
 	addCmd.Flags().Bool("renormalize", false, "Apply the \"clean\" process freshly to all tracked files to forcibly add them again to the index.")
+	addCmd.Flags().Bool("sparse", false, "Allow updating index entries outside of the sparse-checkout cone")
 	addCmd.Flags().BoolP("update", "u", false, "Update the index just where it already has an entry matching <pathspec>.")
 	addCmd.Flags().BoolP("verbose", "v", false, "Be verbose.")
 	rootCmd.AddCommand(addCmd)
@@ -42,8 +45,10 @@ func init() {
 	})
 
 	carapace.Gen(addCmd).PositionalAnyCompletion(
-		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-			return git.ActionChanges(git.ChangeOption{Unstaged: true}).Invoke(c).Filter(c.Args).ToA()
-		}),
+		git.ActionChanges(git.ChangeOpts{Unstaged: true}).FilterArgs(),
+	)
+
+	carapace.Gen(addCmd).DashAnyCompletion(
+		carapace.ActionPositional(addCmd),
 	)
 }

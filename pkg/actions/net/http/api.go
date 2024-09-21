@@ -1,56 +1,77 @@
 package http
 
 import (
-	"regexp"
+	"encoding/json"
+	"os"
+	"path/filepath"
 	"strings"
 
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
+	"gopkg.in/yaml.v3"
 )
 
-// ActionApiPaths completes api paths with placeholders
-func ActionApiPaths(paths []string, placeholderPattern string, match func(c carapace.Context, matchedData map[string]string, segment string) carapace.Action) carapace.Action {
-	return carapace.ActionMultiParts("/", func(c carapace.Context) carapace.Action {
-		placeholder := regexp.MustCompile(placeholderPattern)
-		matchedData := make(map[string]string)
-		matchedSegments := make(map[string]bool)
-		staticMatches := make(map[int]bool)
+type openapi struct {
+	Paths map[string]map[string]struct {
+		Summary string
+	}
+}
 
-	path:
-		for _, path := range paths {
-			segments := strings.Split(path, "/")
-		segment:
-			for index, segment := range segments {
-				if index > len(c.Parts)-1 {
-					break segment
-				} else {
-					if segment != c.Parts[index] {
-						if !placeholder.MatchString(segment) {
-							continue path // skip this path as it doesn't match and is not a placeholder
-						} else {
-							matchedData[segment] = c.Parts[index] // store entered data for placeholder (overwrite if duplicate)
-						}
-					} else {
-						staticMatches[index] = true // static segment matches so placeholders should be ignored for this index
-					}
+type OpenApiPathOpts struct {
+	Spec   string
+	Method string
+}
+
+// ActionOpenApiPaths completes api paths
+//
+//	  http.ActionOpenApiPaths(http.OpenApiPathOpts{Spec: "petstore.json"}).
+//			MultiPartsP("/", "{.*}", func(placeholder string, matches map[string]string) carapace.Action {
+//				switch placeholder {
+//				case "{petId}":
+//					return carapace.ActionValues("pet1", "pet2", "pet3")
+//				case "{orderId}":
+//					return carapace.ActionValues("order1", "order2", "order3")
+//				case "{username}":
+//					return carapace.ActionValues("user1", "user2", "user3")
+//				default:
+//					return carapace.ActionValues()
+//				}
+//			})
+func ActionOpenApiPaths(opts OpenApiPathOpts) carapace.Action {
+	return carapace.ActionCallback(func(c carapace.Context) carapace.Action {
+		if splitted := strings.SplitN(opts.Spec, "\n", 2); len(splitted) == 1 {
+			switch filepath.Ext(opts.Spec) {
+			case ".json", ".yaml", ".yml":
+				content, err := os.ReadFile(opts.Spec)
+				if err != nil {
+					return carapace.ActionMessage(err.Error())
 				}
+				opts.Spec = string(content)
 			}
-
-			if len(segments) < len(c.Parts)+1 {
-				continue path // skip path as it is shorter than what was entered (must be after staticMatches being set)
-			}
-
-			for key := range staticMatches {
-				if segments[key] != c.Parts[key] {
-					continue path // skip this path as it has a placeholder where a static segment was matched
-				}
-			}
-			matchedSegments[segments[len(c.Parts)]] = true // store segment as path matched so far and this is currently being completed
+		}
+		if opts.Method == "" {
+			opts.Method = "GET"
 		}
 
-		actions := make([]carapace.Action, 0, len(matchedSegments))
-		for key := range matchedSegments {
-			actions = append(actions, match(c, matchedData, key))
+		var api openapi
+		switch {
+		case strings.HasPrefix(opts.Spec, "{"):
+			if err := json.Unmarshal([]byte(opts.Spec), &api); err != nil {
+				return carapace.ActionMessage(err.Error())
+			}
+		default:
+			if err := yaml.Unmarshal([]byte(opts.Spec), &api); err != nil {
+				return carapace.ActionMessage(err.Error())
+			}
 		}
-		return carapace.Batch(actions...).Invoke(c).Merge().ToA()
+
+		pathsDescribed := make([]string, 0)
+		for path, methods := range api.Paths {
+			for _method, details := range methods {
+				if strings.EqualFold(_method, opts.Method) {
+					pathsDescribed = append(pathsDescribed, path, details.Summary)
+				}
+			}
+		}
+		return carapace.ActionValuesDescribed(pathsDescribed...)
 	})
 }

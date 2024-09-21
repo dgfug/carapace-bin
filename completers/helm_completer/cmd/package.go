@@ -1,17 +1,19 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
 var packageCmd = &cobra.Command{
-	Use:   "package",
-	Short: "package a chart directory into a chart archive",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Use:     "package",
+	Short:   "package a chart directory into a chart archive",
+	GroupID: "main",
+	Run:     func(cmd *cobra.Command, args []string) {},
 }
 
 func init() {
+	carapace.Gen(packageCmd).Standalone()
 	packageCmd.Flags().String("app-version", "", "set the appVersion on the chart to this version")
 	packageCmd.Flags().BoolP("dependency-update", "u", false, "update dependencies from \"Chart.yaml\" to dir \"charts/\" before packaging")
 	packageCmd.Flags().StringP("destination", "d", ".", "location to write the chart.")

@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/kubeadm_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/kubeadm_completer/cmd/action"
 	"github.com/spf13/cobra"
 )
 
@@ -19,10 +19,6 @@ func init() {
 	reset_phaseCmd.AddCommand(reset_phase_preflightCmd)
 
 	carapace.Gen(reset_phase_preflightCmd).FlagCompletion(carapace.ActionMap{
-		"ignore-preflight-errors": carapace.ActionMultiParts(",", func(c carapace.Context) carapace.Action {
-			return carapace.ActionMultiParts(",", func(c carapace.Context) carapace.Action {
-				return action.ActionChecks().Invoke(c).Filter(c.Parts).ToA()
-			})
-		}),
+		"ignore-preflight-errors": action.ActionChecks().UniqueList(","),
 	})
 }

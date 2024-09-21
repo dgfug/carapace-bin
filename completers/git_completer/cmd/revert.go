@@ -1,16 +1,17 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/os"
-	"github.com/rsteube/carapace-bin/pkg/actions/tools/git"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/os"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/git"
 	"github.com/spf13/cobra"
 )
 
 var revertCmd = &cobra.Command{
-	Use:   "revert",
-	Short: "Revert some existing commits",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Use:     "revert",
+	Short:   "Revert some existing commits",
+	Run:     func(cmd *cobra.Command, args []string) {},
+	GroupID: groups[group_main].ID,
 }
 
 func init() {
@@ -42,5 +43,5 @@ func init() {
 		}),
 	})
 
-	carapace.Gen(revertCmd).PositionalAnyCompletion(git.ActionRefs(git.RefOptionDefault))
+	carapace.Gen(revertCmd).PositionalAnyCompletion(git.ActionRefs(git.RefOption{}.Default()))
 }

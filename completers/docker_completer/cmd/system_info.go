@@ -1,12 +1,12 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
 var system_infoCmd = &cobra.Command{
-	Use:   "info",
+	Use:   "info [OPTIONS]",
 	Short: "Display system-wide information",
 	Run:   func(cmd *cobra.Command, args []string) {},
 }
@@ -16,6 +16,4 @@ func init() {
 
 	system_infoCmd.Flags().StringP("format", "f", "", "Format the output using the given Go template")
 	systemCmd.AddCommand(system_infoCmd)
-
-	rootAlias(system_infoCmd, func(cmd *cobra.Command, isAlias bool) {})
 }

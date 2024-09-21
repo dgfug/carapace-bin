@@ -5,7 +5,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
@@ -20,12 +20,12 @@ type topicQuery struct {
 
 func ActionTopicSearch(cmd *cobra.Command) carapace.Action {
 	return carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-		if len(c.CallbackValue) < 2 {
+		if len(c.Value) < 2 {
 			return carapace.ActionMessage("topic search needs at least two characters")
 		}
 
 		var queryResult topicQuery
-		return ApiV3Action(cmd, fmt.Sprintf(`search/topics?per_page=100&q=%v`, url.QueryEscape(c.CallbackValue)), &queryResult, func() carapace.Action {
+		return ApiV3Action(cmd, fmt.Sprintf(`search/topics?per_page=100&q=%v`, url.QueryEscape(c.Value)), &queryResult, func() carapace.Action {
 			vals := make([]string, 0, len(queryResult.Items)*2)
 			for _, topic := range queryResult.Items {
 				vals = append(vals, topic.Name, topic.ShortDescription)
@@ -39,5 +39,23 @@ func ActionTopics(cmd *cobra.Command, user string) carapace.Action {
 	return carapace.ActionExecCommand("gh", "repo", "list", "--limit", "500", "--json", "repositoryTopics", "--jq", "[ .[].repositoryTopics | select(. != null) | .[].name ] | sort | unique | .[]", user)(func(output []byte) carapace.Action {
 		lines := strings.Split(string(output), "\n")
 		return carapace.ActionValues(lines[:len(lines)-1]...)
+	})
+}
+
+type repoTopicsQuery struct {
+	Names []string
+}
+
+func ActionRepoTopics(cmd *cobra.Command) carapace.Action {
+	return carapace.ActionCallback(func(c carapace.Context) carapace.Action {
+		repo, err := repoOverride(cmd, c)
+		if err != nil {
+			return carapace.ActionMessage(err.Error())
+		}
+
+		var queryResult repoTopicsQuery
+		return ApiV3Action(cmd, fmt.Sprintf(`repos/%v/%v/topics`, repo.RepoOwner(), repo.RepoName()), &queryResult, func() carapace.Action {
+			return carapace.ActionValues(queryResult.Names...)
+		})
 	})
 }

@@ -1,13 +1,13 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/tools/docker"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/docker"
 	"github.com/spf13/cobra"
 )
 
 var secret_createCmd = &cobra.Command{
-	Use:   "create",
+	Use:   "create [OPTIONS] SECRET [file|-]",
 	Short: "Create a secret from a file or STDIN as content",
 	Run:   func(cmd *cobra.Command, args []string) {},
 }

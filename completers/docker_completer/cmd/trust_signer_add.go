@@ -1,13 +1,13 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/tools/docker"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/docker"
 	"github.com/spf13/cobra"
 )
 
 var trust_signer_addCmd = &cobra.Command{
-	Use:   "add",
+	Use:   "add OPTIONS NAME REPOSITORY [REPOSITORY...] ",
 	Short: "Add a signer",
 	Run:   func(cmd *cobra.Command, args []string) {},
 }

@@ -1,15 +1,16 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/tools/git"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/git"
 	"github.com/spf13/cobra"
 )
 
 var pruneCmd = &cobra.Command{
-	Use:   "prune",
-	Short: "Prune all unreachable objects from the object database",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Use:     "prune",
+	Short:   "Prune all unreachable objects from the object database",
+	Run:     func(cmd *cobra.Command, args []string) {},
+	GroupID: groups[group_manipulator].ID,
 }
 
 func init() {

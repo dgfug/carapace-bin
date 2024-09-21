@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/faas-cli_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/faas-cli_completer/cmd/action"
 	"github.com/spf13/cobra"
 )
 
@@ -13,6 +13,8 @@ var listCmd = &cobra.Command{
 }
 
 func init() {
+	carapace.Gen(listCmd).Standalone()
+
 	listCmd.Flags().Bool("envsubst", true, "Substitute environment variables in stack.yml file")
 	listCmd.Flags().StringP("gateway", "g", "http://127.0.0.1:8080", "Gateway URL starting with http(s)://")
 	listCmd.Flags().StringP("namespace", "n", "", "Namespace of the function")

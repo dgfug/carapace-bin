@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/tools/git"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/git"
 	"github.com/spf13/cobra"
 )
 
@@ -13,6 +13,7 @@ var convertCmd = &cobra.Command{
 }
 
 func init() {
+	carapace.Gen(convertCmd).Standalone()
 	convertCmd.Flags().String("build", "none", "Set the type of build (\"local\"|\"build-config\"(OpenShift only)|\"none\")")
 	convertCmd.Flags().String("build-branch", "", "Specify repository branch to use for buildconfig (default master)")
 	convertCmd.Flags().String("build-repo", "", "Specify source repository for buildconfig (default remote origin)")
@@ -44,11 +45,11 @@ func init() {
 		"build": carapace.ActionValues("local", "build-config", "none"),
 		"build-branch": carapace.ActionCallback(func(c carapace.Context) carapace.Action {
 			if flag := convertCmd.Flag("build-repo"); flag.Changed {
-				return git.ActionLsRemoteRefs(flag.Value.String(), git.LsRemoteRefOption{Branches: true})
+				return git.ActionLsRemoteRefs(git.LsRemoteRefOption{Url: flag.Value.String(), Branches: true})
 			}
 			return carapace.ActionValues()
 		}),
-		"build-repo": git.ActionRepositorySearch(),
+		"build-repo": git.ActionRepositorySearch(git.SearchOpts{}.Default()),
 		"controller": carapace.ActionValues("deployment", "daemonSet", "replicationController"),
 		"out":        carapace.ActionFiles(),
 		"service-group-mode": carapace.ActionValuesDescribed(

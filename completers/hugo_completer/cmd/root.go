@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/hugo_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/hugo_completer/cmd/action"
 	"github.com/spf13/cobra"
 )
 
@@ -18,6 +18,8 @@ func Execute() error {
 }
 
 func init() {
+	carapace.Gen(rootCmd).Standalone()
+
 	rootCmd.Flags().StringP("baseURL", "b", "", "hostname (and path) to the root, e.g. http://spf13.com/")
 	rootCmd.Flags().BoolP("buildDrafts", "D", false, "include content marked as draft")
 	rootCmd.Flags().BoolP("buildExpired", "E", false, "include expired content")

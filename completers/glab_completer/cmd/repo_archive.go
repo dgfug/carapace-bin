@@ -1,19 +1,21 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/glab_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/glab_completer/cmd/action"
 	"github.com/spf13/cobra"
 )
 
 var repo_archiveCmd = &cobra.Command{
-	Use:   "archive",
+	Use:   "archive <command> [flags]",
 	Short: "Get an archive of the repository.",
 	Run:   func(cmd *cobra.Command, args []string) {},
 }
 
 func init() {
-	repo_archiveCmd.Flags().StringP("format", "f", "zip", "Optionally Specify format if you want a downloaded archive: {tar.gz|tar.bz2|tbz|tbz2|tb2|bz2|tar|zip} (Default: zip)")
+	carapace.Gen(repo_archiveCmd).Standalone()
+
+	repo_archiveCmd.Flags().StringP("format", "f", "", "Optionally Specify format if you want a downloaded archive: {tar.gz|tar.bz2|tbz|tbz2|tb2|bz2|tar|zip}.")
 	repo_archiveCmd.Flags().StringP("sha", "s", "", "The commit SHA to download. A tag, branch reference, or SHA can be used. This defaults to the tip of the default branch if not specified")
 	repoCmd.AddCommand(repo_archiveCmd)
 

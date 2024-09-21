@@ -1,14 +1,14 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/docker-compose_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/docker-compose_completer/cmd/action"
 	"github.com/spf13/cobra"
 )
 
 var eventsCmd = &cobra.Command{
-	Use:   "events",
-	Short: "Receive real time events from containers",
+	Use:   "events [OPTIONS] [SERVICE...]",
+	Short: "Receive real time events from containers.",
 	Run:   func(cmd *cobra.Command, args []string) {},
 }
 
@@ -19,6 +19,6 @@ func init() {
 	rootCmd.AddCommand(eventsCmd)
 
 	carapace.Gen(eventsCmd).PositionalAnyCompletion(
-		action.ActionServices(eventsCmd),
+		action.ActionServices(eventsCmd).FilterArgs(),
 	)
 }

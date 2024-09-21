@@ -2,9 +2,9 @@ package action
 
 import (
 	"encoding/json"
-	"github.com/rsteube/carapace"
+
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
-	"os"
 )
 
 type stack struct {
@@ -25,7 +25,7 @@ func ActionStacks(cmd *cobra.Command, opts StackOpts) carapace.Action {
 			args = append(args, "--all")
 		}
 
-		os.Setenv("PULUMI_SKIP_UPDATE_CHECK", "1")
+		c.Setenv("PULUMI_SKIP_UPDATE_CHECK", "1")
 		return carapace.ActionExecCommand("pulumi", args...)(func(output []byte) carapace.Action {
 			var stacks []stack
 			if err := json.Unmarshal(output, &stacks); err != nil {
@@ -40,6 +40,6 @@ func ActionStacks(cmd *cobra.Command, opts StackOpts) carapace.Action {
 				vals = append(vals, s.Name)
 			}
 			return carapace.ActionValues(vals...)
-		})
+		}).Invoke(c).ToA()
 	})
 }

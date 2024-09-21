@@ -2,23 +2,38 @@
 package ssh
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/net"
-	"github.com/rsteube/carapace-bin/pkg/actions/os"
+	"strings"
+
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/net"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/os"
 )
 
 // ActionCiphers completes ciphers
-//   3des-cbc
-//   aes128-cbc
+//
+//	3des-cbc
+//	aes128-cbc
 func ActionCiphers() carapace.Action {
 	return carapace.ActionValues(
 		"3des-cbc", "aes128-cbc", "aes192-cbc", "aes256-cbc", "aes128-ctr", "aes192-ctr", "aes256-ctr", "arcfour128", "arcfour256", "arcfour", "blowfish-cbc", "cast128-cbc",
 	)
 }
 
+// ActionHostKeyAlgorithms completes host key algorithms
+//
+//	ssh-ed25519
+//	ssh-ed25519-cert-v01@openssh.com
+func ActionHostKeyAlgorithms() carapace.Action {
+	return carapace.ActionExecCommand("ssh", "-Q", "hostkeyalgorithms")(func(output []byte) carapace.Action {
+		lines := strings.Split(string(output), "\n")
+		return carapace.ActionValues(lines[:len(lines)-1]...)
+	})
+}
+
 // ActionOptions completes options and their values
-//   AddKeysToAgent
-//   AddressFamily=inet
+//
+//	AddKeysToAgent
+//	AddressFamily=inet
 func ActionOptions() carapace.Action {
 	return carapace.ActionMultiParts("=", func(c carapace.Context) carapace.Action {
 		options := map[string]carapace.Action{
@@ -58,7 +73,7 @@ func ActionOptions() carapace.Action {
 			"Host":                             net.ActionHosts(),
 			"HostbasedAuthentication":          carapace.ActionValues("yes", "no"),
 			"HostbasedKeyTypes":                carapace.ActionValues(),
-			"HostKeyAlgorithms":                carapace.ActionValues(),
+			"HostKeyAlgorithms":                ActionHostKeyAlgorithms(),
 			"HostKeyAlias":                     carapace.ActionValues(),
 			"Hostname":                         carapace.ActionValues(),
 			"IdentitiesOnly":                   carapace.ActionValues("yes", "no"),
@@ -78,7 +93,7 @@ func ActionOptions() carapace.Action {
 			"PasswordAuthentication":           carapace.ActionValues("yes", "no"),
 			"PermitLocalCommand":               carapace.ActionValues("yes", "no"),
 			"PKCS11Provider":                   carapace.ActionValues(),
-			"Port":                             carapace.ActionValues(),
+			"Port":                             net.ActionPorts(),
 			"PreferredAuthentications":         carapace.ActionValues(),
 			"ProxyCommand":                     carapace.ActionValues(),
 			"ProxyJump":                        carapace.ActionValues(),

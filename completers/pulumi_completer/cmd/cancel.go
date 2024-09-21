@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/pulumi_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/pulumi_completer/cmd/action"
 	"github.com/spf13/cobra"
 )
 
@@ -13,6 +13,7 @@ var cancelCmd = &cobra.Command{
 }
 
 func init() {
+	carapace.Gen(cancelCmd).Standalone()
 	cancelCmd.PersistentFlags().StringP("stack", "s", "", "The name of the stack to operate on. Defaults to the current stack")
 	cancelCmd.PersistentFlags().BoolP("yes", "y", false, "Skip confirmation prompts, and proceed with cancellation anyway")
 	rootCmd.AddCommand(cancelCmd)

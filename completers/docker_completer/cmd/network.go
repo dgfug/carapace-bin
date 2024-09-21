@@ -1,14 +1,15 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
 var networkCmd = &cobra.Command{
-	Use:   "network",
-	Short: "Manage networks",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Use:     "network",
+	Short:   "Manage networks",
+	GroupID: "management",
+	Run:     func(cmd *cobra.Command, args []string) {},
 }
 
 func init() {

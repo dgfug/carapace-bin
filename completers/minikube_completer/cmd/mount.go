@@ -4,19 +4,21 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/fs"
-	"github.com/rsteube/carapace-bin/pkg/actions/os"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/fs"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/os"
 	"github.com/spf13/cobra"
 )
 
 var mountCmd = &cobra.Command{
-	Use:   "mount",
-	Short: "Mounts the specified directory into minikube",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Use:     "mount",
+	Short:   "Mounts the specified directory into minikube",
+	GroupID: "advanced",
+	Run:     func(cmd *cobra.Command, args []string) {},
 }
 
 func init() {
+	carapace.Gen(mountCmd).Standalone()
 	mountCmd.Flags().String("9p-version", "9p2000.L", "Specify the 9p version that the mount should use")
 	mountCmd.Flags().String("gid", "docker", "Default group id used for the mount")
 	mountCmd.Flags().String("ip", "", "Specify the ip that the mount should be setup on")
@@ -39,9 +41,9 @@ func init() {
 		carapace.ActionMultiParts(":", func(c carapace.Context) carapace.Action {
 			switch len(c.Parts) {
 			case 0:
-				return carapace.ActionDirectories()
+				return carapace.ActionDirectories().NoSpace()
 			case 1:
-				path := filepath.Dir(c.CallbackValue)
+				path := filepath.Dir(c.Value)
 				if path == "" {
 					path = "/"
 				}

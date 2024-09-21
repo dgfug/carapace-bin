@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/helm_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/helm"
 	"github.com/spf13/cobra"
 )
 
@@ -13,11 +13,10 @@ var repo_removeCmd = &cobra.Command{
 }
 
 func init() {
+	carapace.Gen(repo_removeCmd).Standalone()
 	repoCmd.AddCommand(repo_removeCmd)
 
 	carapace.Gen(repo_removeCmd).PositionalAnyCompletion(
-		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-			return action.ActionRepositories().Invoke(c).Filter(c.Args).ToA()
-		}),
+		helm.ActionRepositories().FilterArgs(),
 	)
 }

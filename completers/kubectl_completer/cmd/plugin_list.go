@@ -1,13 +1,13 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
 var plugin_listCmd = &cobra.Command{
 	Use:   "list",
-	Short: "list all visible plugin executables on a user's PATH",
+	Short: "List all visible plugin executables on a user's PATH",
 	Run:   func(cmd *cobra.Command, args []string) {},
 }
 

@@ -2,64 +2,42 @@
 package pacman
 
 import (
-	"fmt"
+	"regexp"
 	"strings"
 
-	"github.com/rsteube/carapace"
-	"gopkg.in/ini.v1"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace/pkg/style"
 )
 
-// ActionRepositories completion package repositories
-//   extra
-//   multilib
-func ActionRepositories() carapace.Action {
+// ActionPackages completes installed packages
+//
+//	gnome-common
+//	gstreamer
+func ActionPackages() carapace.Action {
 	return carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-		loadOptions := ini.LoadOptions{}
-		loadOptions.AllowBooleanKeys = true
-		loadOptions.UnparseableSections = []string{"options"}
-		if cfg, err := ini.LoadSources(loadOptions, "/etc/pacman.conf"); err != nil {
-			return carapace.ActionMessage(err.Error())
-		} else {
-			repos := make([]string, 0)
-			for _, section := range cfg.SectionStrings() {
-				if section != "DEFAULT" && section != "options" {
-					repos = append(repos, section)
+		return carapace.ActionExecCommand("pacman", "-Qs", "^"+c.Value)(func(output []byte) carapace.Action {
+			lines := strings.Split(string(output), "\n")
+			r := regexp.MustCompile(`^(?P<group>[^/]+)/(?P<name>[^ ]+) (?P<version>[^ ]+)(?P<context>.*)$`)
+
+			vals := make([]string, 0)
+			for i := 0; i < len(lines)-1; i += 2 {
+				if matches := r.FindStringSubmatch(lines[i]); matches != nil {
+					s := style.Default
+					if strings.Contains(matches[4], "[installed]") {
+						s = style.Blue
+					}
+					vals = append(vals, matches[2], strings.TrimSpace(lines[i+1]), s)
 				}
 			}
-			return carapace.ActionValues(repos...)
-		}
-	})
-}
-
-type PackageOption struct {
-	Explicit bool
-}
-
-func (o PackageOption) format(callbackValue string) []string {
-	options := []string{"-Qq"}
-	if o.Explicit {
-		options[0] = options[0] + "e"
-	} else {
-		options = []string{options[0] + "s", fmt.Sprintf("^%v", callbackValue)}
-	}
-	return options
-}
-
-// ActionPackages completes package names
-//   gnome-common
-//   gstreamer
-func ActionPackages(option PackageOption) carapace.Action {
-	return carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-		return carapace.ActionExecCommand("pacman", option.format(c.CallbackValue)...)(func(output []byte) carapace.Action {
-			lines := strings.Split(string(output), "\n")
-			return carapace.ActionValues(lines[:len(lines)-1]...)
+			return carapace.ActionStyledValuesDescribed(vals...)
 		})
 	})
 }
 
 // ActionPackageGroups completes package group names
-//   i3-manjaro
-//   linux49-extramodules
+//
+//	i3-manjaro
+//	linux49-extramodules
 func ActionPackageGroups() carapace.Action {
 	return carapace.ActionCallback(func(c carapace.Context) carapace.Action {
 		return carapace.ActionExecCommand("sh", "-c", "pacman -Qg | cut -d' ' -f1 | sort |  uniq")(func(output []byte) carapace.Action {

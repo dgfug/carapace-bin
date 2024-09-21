@@ -1,19 +1,24 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/gh_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/gh_completer/cmd/action"
 	"github.com/spf13/cobra"
 )
 
 var repo_deleteCmd = &cobra.Command{
-	Use:   "delete",
-	Short: "Delete a repository",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Use:     "delete [<repository>]",
+	Short:   "Delete a repository",
+	GroupID: "Targeted commands",
+	Run:     func(cmd *cobra.Command, args []string) {},
 }
 
 func init() {
+	carapace.Gen(repo_deleteCmd).Standalone()
+
 	repo_deleteCmd.Flags().Bool("confirm", false, "confirm deletion without prompting")
+	repo_deleteCmd.Flags().Bool("yes", false, "confirm deletion without prompting")
+	repo_deleteCmd.Flag("confirm").Hidden = true
 	repoCmd.AddCommand(repo_deleteCmd)
 
 	carapace.Gen(repo_deleteCmd).PositionalCompletion(

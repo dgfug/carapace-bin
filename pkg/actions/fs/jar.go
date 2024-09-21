@@ -4,12 +4,14 @@ import (
 	"archive/zip"
 	"strings"
 
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace/pkg/style"
 )
 
 // ActionJarFileClasses completes classes within a jar file
-//   com.google.common.io.AppendableWriter
-//   kotlin.DeepRecursiveKt
+//
+//	com.google.common.io.AppendableWriter
+//	kotlin.DeepRecursiveKt
 func ActionJarFileClasses(file string) carapace.Action {
 	return carapace.ActionCallback(func(c carapace.Context) carapace.Action {
 		if reader, err := zip.OpenReader(file); err != nil {
@@ -25,7 +27,7 @@ func ActionJarFileClasses(file string) carapace.Action {
 					vals = append(vals, name)
 				}
 			}
-			return carapace.ActionValues(vals...)
+			return carapace.ActionValues(vals...).Style(style.ForPathExt(".class", c))
 		}
 	})
 }

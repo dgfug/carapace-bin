@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/kubeadm_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/kubeadm_completer/cmd/action"
 	"github.com/spf13/cobra"
 )
 
@@ -23,16 +23,10 @@ func init() {
 	rootCmd.AddCommand(resetCmd)
 
 	carapace.Gen(resetCmd).FlagCompletion(carapace.ActionMap{
-		"cert-dir":   carapace.ActionDirectories(),
-		"cri-socket": carapace.ActionFiles(),
-		"ignore-preflight-errors": carapace.ActionMultiParts(",", func(c carapace.Context) carapace.Action {
-			return carapace.ActionMultiParts(",", func(c carapace.Context) carapace.Action {
-				return action.ActionChecks().Invoke(c).Filter(c.Parts).ToA()
-			})
-		}),
-		"kubeconfig": carapace.ActionFiles(),
-		"skip-phases": carapace.ActionMultiParts(",", func(c carapace.Context) carapace.Action {
-			return action.ActionPhases().Invoke(c).Filter(c.Parts).ToA()
-		}),
+		"cert-dir":                carapace.ActionDirectories(),
+		"cri-socket":              carapace.ActionFiles(),
+		"ignore-preflight-errors": action.ActionChecks().UniqueList(","),
+		"kubeconfig":              carapace.ActionFiles(),
+		"skip-phases":             action.ActionPhases().UniqueList(","),
 	})
 }

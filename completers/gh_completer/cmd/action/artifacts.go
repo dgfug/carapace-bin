@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
@@ -20,7 +20,7 @@ type artifactQuery struct {
 
 func ActionWorkflowArtifactNames(cmd *cobra.Command, runId string) carapace.Action {
 	return carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-		repo, err := repoOverride(cmd)
+		repo, err := repoOverride(cmd, c)
 		if err != nil {
 			return carapace.ActionMessage(err.Error())
 		}
@@ -43,7 +43,7 @@ func ActionWorkflowArtifactNames(cmd *cobra.Command, runId string) carapace.Acti
 
 func ActionWorkflowArtifactIds(cmd *cobra.Command, runId string) carapace.Action {
 	return carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-		repo, err := repoOverride(cmd)
+		repo, err := repoOverride(cmd, c)
 		if err != nil {
 			return carapace.ActionMessage(err.Error())
 		}

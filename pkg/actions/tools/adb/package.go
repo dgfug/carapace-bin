@@ -3,12 +3,13 @@ package adb
 import (
 	"strings"
 
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 )
 
 // ActionPackages completes installed packages
-//   com.google.android.apps.maps
-//   com.google.android.music
+//
+//	com.google.android.apps.maps
+//	com.google.android.music
 func ActionPackages() carapace.Action {
 	return carapace.ActionExecCommand("adb", "shell", "pm", "list", "packages")(func(output []byte) carapace.Action {
 		lines := strings.Split(string(output), "\n")

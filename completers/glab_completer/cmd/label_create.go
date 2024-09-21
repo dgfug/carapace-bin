@@ -1,24 +1,30 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/glab_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/glab_completer/cmd/action"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/color"
 	"github.com/spf13/cobra"
 )
 
 var label_createCmd = &cobra.Command{
-	Use:   "create",
-	Short: "Create labels for repository/project",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Use:     "create [flags]",
+	Short:   "Create labels for repository/project",
+	Aliases: []string{"new"},
+	Run:     func(cmd *cobra.Command, args []string) {},
 }
 
 func init() {
-	label_createCmd.Flags().StringP("color", "c", "#428BCA", "Color of label in plain or HEX code. (Default: #428BCA)")
+	carapace.Gen(label_createCmd).Standalone()
+
+	label_createCmd.Flags().StringP("color", "c", "", "Color of label in plain or HEX code.")
 	label_createCmd.Flags().StringP("description", "d", "", "Label description")
 	label_createCmd.Flags().StringP("name", "n", "", "Name of label")
+	label_createCmd.MarkFlagRequired("name")
 	labelCmd.AddCommand(label_createCmd)
 
 	carapace.Gen(label_createCmd).FlagCompletion(carapace.ActionMap{
-		"name": action.ActionLabels(label_createCmd),
+		"color": color.ActionHexColors(),
+		"name":  action.ActionLabels(label_createCmd),
 	})
 }

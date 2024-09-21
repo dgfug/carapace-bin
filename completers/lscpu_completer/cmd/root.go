@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
@@ -38,16 +38,10 @@ func init() {
 	rootCmd.Flag("parse").NoOptDefVal = " "
 
 	carapace.Gen(rootCmd).FlagCompletion(carapace.ActionMap{
-		"caches": carapace.ActionMultiParts(",", func(c carapace.Context) carapace.Action {
-			return ActionCacheColumns().Invoke(c).Filter(c.Parts).ToA()
-		}),
-		"extended": carapace.ActionMultiParts(",", func(c carapace.Context) carapace.Action {
-			return ActionFormatColumns().Invoke(c).Filter(c.Parts).ToA()
-		}),
-		"parse": carapace.ActionMultiParts(",", func(c carapace.Context) carapace.Action {
-			return ActionFormatColumns().Invoke(c).Filter(c.Parts).ToA()
-		}),
-		"sysroot": carapace.ActionDirectories(),
+		"caches":   ActionCacheColumns().UniqueList(","),
+		"extended": ActionFormatColumns().UniqueList(","),
+		"parse":    ActionFormatColumns().UniqueList(","),
+		"sysroot":  carapace.ActionDirectories(),
 	})
 }
 

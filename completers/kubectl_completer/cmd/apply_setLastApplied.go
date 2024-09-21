@@ -1,32 +1,34 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/kubectl_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/kubectl"
 	"github.com/spf13/cobra"
 )
 
-var setLastAppliedCmd = &cobra.Command{
-	Use:   "set-last-applied",
+var apply_setLastAppliedCmd = &cobra.Command{
+	Use:   "set-last-applied -f FILENAME",
 	Short: "Set the last-applied-configuration annotation on a live object to match the contents of a file",
 	Run:   func(cmd *cobra.Command, args []string) {},
 }
 
 func init() {
-	carapace.Gen(setLastAppliedCmd).Standalone()
+	carapace.Gen(apply_setLastAppliedCmd).Standalone()
 
-	setLastAppliedCmd.Flags().Bool("allow-missing-template-keys", false, "If true, ignore any errors in templates when a field or map key is missing in the template. Only app")
-	setLastAppliedCmd.Flags().Bool("create-annotation", false, "Will create 'last-applied-configuration' annotations if current objects doesn't have one")
-	setLastAppliedCmd.Flags().String("dry-run", "", "Must be \"none\", \"server\", or \"client\". If client strategy, only print the object that would be sent,")
-	setLastAppliedCmd.Flags().StringP("filename", "f", "", "Filename, directory, or URL to files that contains the last-applied-configuration annotations")
-	setLastAppliedCmd.Flags().StringP("output", "o", "", "Output format. One of: json|yaml|name|go-template|go-template-file|template|templatefile|jsonpath|js")
-	setLastAppliedCmd.Flags().String("template", "", "Template string or path to template file to use when -o=go-template, -o=go-template-file. The templa")
-	applyCmd.AddCommand(setLastAppliedCmd)
+	apply_setLastAppliedCmd.Flags().Bool("allow-missing-template-keys", false, "If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to golang and jsonpath output formats.")
+	apply_setLastAppliedCmd.Flags().Bool("create-annotation", false, "Will create 'last-applied-configuration' annotations if current objects doesn't have one")
+	apply_setLastAppliedCmd.Flags().String("dry-run", "", "Must be \"none\", \"server\", or \"client\". If client strategy, only print the object that would be sent, without sending it. If server strategy, submit server-side request without persisting the resource.")
+	apply_setLastAppliedCmd.Flags().StringSliceP("filename", "f", []string{}, "Filename, directory, or URL to files that contains the last-applied-configuration annotations")
+	apply_setLastAppliedCmd.Flags().StringP("output", "o", "", "Output format. One of: (json, yaml, name, go-template, go-template-file, template, templatefile, jsonpath, jsonpath-as-json, jsonpath-file).")
+	apply_setLastAppliedCmd.Flags().Bool("show-managed-fields", false, "If true, keep the managedFields when printing objects in JSON or YAML format.")
+	apply_setLastAppliedCmd.Flags().String("template", "", "Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format is golang templates [http://golang.org/pkg/text/template/#pkg-overview].")
+	apply_setLastAppliedCmd.Flag("dry-run").NoOptDefVal = " "
+	applyCmd.AddCommand(apply_setLastAppliedCmd)
 
-	carapace.Gen(setLastAppliedCmd).FlagCompletion(carapace.ActionMap{
-		"dry-run":  action.ActionDryRunModes(),
+	carapace.Gen(apply_setLastAppliedCmd).FlagCompletion(carapace.ActionMap{
+		"dry-run":  kubectl.ActionDryRunModes(),
 		"filename": carapace.ActionFiles(),
-		"output":   action.ActionOutputFormats(),
+		"output":   kubectl.ActionOutputFormats(),
 		"template": carapace.ActionFiles(),
 	})
 }

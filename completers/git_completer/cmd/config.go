@@ -1,19 +1,21 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/tools/git"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/git"
 	"github.com/spf13/cobra"
 )
 
 var configCmd = &cobra.Command{
-	Use:   "config",
-	Short: "Get and set repository or global options",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Use:     "config",
+	Short:   "Get and set repository or global options",
+	Run:     func(cmd *cobra.Command, args []string) {},
+	GroupID: groups[group_manipulator].ID,
 }
 
 func init() {
 	carapace.Gen(configCmd).Standalone()
+	configCmd.Flags().SetInterspersed(false)
 
 	configCmd.Flags().Bool("add", false, "add a new variable: name value")
 	configCmd.Flags().String("blob", "", "read config from given blob object")
@@ -67,7 +69,7 @@ func init() {
 					return git.ActionConfigTypeOptions(t)
 				}
 			}
-			return carapace.ActionValues()
+			return git.ActionConfigValues(c.Args[0])
 		}),
 	)
 }

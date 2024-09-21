@@ -1,13 +1,13 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
 var config_unsetCmd = &cobra.Command{
-	Use:   "unset",
-	Short: "Unsets an individual value in a kubeconfig file",
+	Use:   "unset PROPERTY_NAME",
+	Short: "Unset an individual value in a kubeconfig file",
 	Run:   func(cmd *cobra.Command, args []string) {},
 }
 

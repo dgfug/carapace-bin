@@ -1,7 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/golang"
 	"github.com/spf13/cobra"
 )
 
@@ -13,11 +14,16 @@ var getCmd = &cobra.Command{
 
 func init() {
 	carapace.Gen(getCmd).Standalone()
+	getCmd.Flags().SetInterspersed(false)
 
 	getCmd.Flags().BoolS("d", "d", false, "only download the source code needed to build")
-	getCmd.Flags().Bool("insecure", false, "permit using insecure schemes such as HTTP")
+	getCmd.Flags().BoolS("insecure", "insecure", false, "permit using insecure schemes such as HTTP")
 	getCmd.Flags().BoolS("t", "t", false, "consider modules needed to build tests")
 	getCmd.Flags().BoolS("u", "u", false, "update modules providing dependencies")
-	getCmd.Flags().BoolS("v", "v", false, "verbose output")
+	addBuildFlags(getCmd)
 	rootCmd.AddCommand(getCmd)
+
+	carapace.Gen(getCmd).PositionalCompletion(
+		golang.ActionModuleSearch(),
+	)
 }

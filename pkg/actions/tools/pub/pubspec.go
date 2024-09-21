@@ -2,13 +2,12 @@ package pub
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
 
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/util"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace/pkg/util"
 	"gopkg.in/yaml.v3"
 )
 
@@ -27,18 +26,13 @@ type pubspec struct {
 	Executables     map[string]interface{} `yaml:"executables"`
 }
 
-func loadPubspec() (*pubspec, error) {
-	wd, err := os.Getwd()
+func loadPubspec(c carapace.Context) (*pubspec, error) {
+	path, err := util.FindReverse(c.Dir, "pubspec.yaml")
 	if err != nil {
 		return nil, err
 	}
 
-	path, err := util.FindReverse(wd, "pubspec.yaml")
-	if err != nil {
-		return nil, err
-	}
-
-	content, err := ioutil.ReadFile(path)
+	content, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
@@ -54,18 +48,13 @@ type pubspecLock struct {
 	}
 }
 
-func loadPubspecLock() (*pubspecLock, error) {
-	wd, err := os.Getwd()
+func loadPubspecLock(c carapace.Context) (*pubspecLock, error) {
+	path, err := util.FindReverse(c.Dir, "pubspec.lock")
 	if err != nil {
 		return nil, err
 	}
 
-	path, err := util.FindReverse(wd, "pubspec.lock")
-	if err != nil {
-		return nil, err
-	}
-
-	content, err := ioutil.ReadFile(path)
+	content, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
@@ -76,11 +65,12 @@ func loadPubspecLock() (*pubspecLock, error) {
 }
 
 // ActionDependencies completes pubspec dependencies
-//   build_runner (^1.5.0)
-//   build_web_compilers (^2.1.0)
+//
+//	build_runner (^1.5.0)
+//	build_web_compilers (^2.1.0)
 func ActionDependencies() carapace.Action { // TODO configure which dependencies to include
 	return carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-		p, err := loadPubspec()
+		p, err := loadPubspec(c)
 		if err != nil {
 			return carapace.ActionMessage(err.Error())
 		}
@@ -97,20 +87,26 @@ func ActionDependencies() carapace.Action { // TODO configure which dependencies
 	})
 }
 
+type HostedExecutablesOpts struct {
+	Name    string
+	Version string
+}
+
 // ActionHostedExecutables completes executables from pub_cache
-//   dcat
-//   dgrep
-func ActionHostedExecutables(name string, version string) carapace.Action {
+//
+//	dcat
+//	dgrep
+func ActionHostedExecutables(opts HostedExecutablesOpts) carapace.Action {
 	return carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-		if version == "" {
-			pl, err := loadPubspecLock()
+		if opts.Version == "" {
+			pl, err := loadPubspecLock(c)
 			if err != nil {
 				return carapace.ActionMessage(err.Error())
 			}
-			if pkg, ok := pl.Packages[name]; !ok {
-				return carapace.ActionMessage(fmt.Sprintf("Missing '%v' in pubspec.lock", name))
+			if pkg, ok := pl.Packages[opts.Name]; !ok {
+				return carapace.ActionMessage(fmt.Sprintf("Missing '%v' in pubspec.lock", opts.Name))
 			} else {
-				version = pkg.Version
+				opts.Version = pkg.Version
 			}
 		}
 
@@ -119,7 +115,7 @@ func ActionHostedExecutables(name string, version string) carapace.Action {
 			return carapace.ActionMessage(err.Error())
 		}
 
-		files, err := ioutil.ReadDir(fmt.Sprintf("%v/.pub-cache/hosted/pub.dartlang.org/%v-%v/bin", home, name, version))
+		files, err := os.ReadDir(fmt.Sprintf("%v/.pub-cache/hosted/pub.dartlang.org/%v-%v/bin", home, opts.Name, opts.Version))
 		if err != nil {
 			return carapace.ActionMessage(err.Error())
 		}

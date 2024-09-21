@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/gh_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/gh_completer/cmd/action"
 	"github.com/spf13/cobra"
 )
 
@@ -13,6 +13,8 @@ var workflow_disableCmd = &cobra.Command{
 }
 
 func init() {
+	carapace.Gen(workflow_disableCmd).Standalone()
+
 	workflowCmd.AddCommand(workflow_disableCmd)
 
 	carapace.Gen(workflow_disableCmd).PositionalCompletion(

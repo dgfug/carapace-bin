@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/rustup_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/rustup_completer/cmd/action"
 	"github.com/spf13/cobra"
 )
 
@@ -19,6 +19,9 @@ func init() {
 	rootCmd.AddCommand(defaultCmd)
 
 	carapace.Gen(defaultCmd).PositionalCompletion(
-		action.ActionToolchains(),
+		carapace.Batch(
+			action.ActionDefaultChannels(),
+			action.ActionToolchains(),
+		).ToA(),
 	)
 }

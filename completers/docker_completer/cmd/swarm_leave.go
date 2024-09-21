@@ -1,12 +1,12 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
 	"github.com/spf13/cobra"
 )
 
 var swarm_leaveCmd = &cobra.Command{
-	Use:   "leave",
+	Use:   "leave [OPTIONS]",
 	Short: "Leave the swarm",
 	Run:   func(cmd *cobra.Command, args []string) {},
 }

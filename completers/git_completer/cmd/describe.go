@@ -1,15 +1,16 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/tools/git"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/git"
 	"github.com/spf13/cobra"
 )
 
 var describeCmd = &cobra.Command{
-	Use:   "describe",
-	Short: "Give an object a human readable name based on an available ref",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Use:     "describe",
+	Short:   "Give an object a human readable name based on an available ref",
+	Run:     func(cmd *cobra.Command, args []string) {},
+	GroupID: groups[group_main].ID,
 }
 
 func init() {
@@ -40,7 +41,7 @@ func init() {
 			if describeCmd.Flag("dirty").Changed || describeCmd.Flag("broken").Changed {
 				return carapace.ActionValues()
 			} else {
-				return git.ActionRefs(git.RefOptionDefault)
+				return git.ActionRefs(git.RefOption{}.Default())
 			}
 		}),
 	)

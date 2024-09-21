@@ -1,9 +1,9 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/net"
-	"github.com/rsteube/carapace-bin/pkg/actions/net/ssh"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/net"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/net/ssh"
 	"github.com/spf13/cobra"
 )
 
@@ -53,7 +53,7 @@ func init() {
 		"c": ssh.ActionCiphers(),
 		"i": carapace.ActionFiles(),
 		"o": carapace.ActionMultiParts(",", func(c carapace.Context) carapace.Action {
-			return ssh.ActionOptions()
+			return ssh.ActionOptions().NoSpace()
 		}),
 	})
 

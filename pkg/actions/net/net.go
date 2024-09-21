@@ -2,35 +2,45 @@
 package net
 
 import (
-	exec "golang.org/x/sys/execabs"
-	"io/ioutil"
+	"os"
 	"regexp"
 	"strings"
 
-	"github.com/mitchellh/go-homedir"
-
-	"github.com/rsteube/carapace"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/internal/actions/net/ssh"
+	"github.com/carapace-sh/carapace/pkg/execlog"
+	"github.com/carapace-sh/carapace/pkg/style"
 )
 
 // ActionHosts completes known hosts
-//   192.168.1.1
-//   pihole
+//
+//	192.168.1.1
+//	pihole
 func ActionHosts() carapace.Action {
 	return carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-		hosts := []string{}
-		if file, err := homedir.Expand("~/.ssh/known_hosts"); err == nil {
-			if content, err := ioutil.ReadFile(file); err == nil {
+		batch := carapace.Batch()
+		if file, err := c.Abs("~/.ssh/known_hosts"); err == nil {
+			if content, err := os.ReadFile(file); err == nil {
 				r := regexp.MustCompile(`^(?P<host>[^ ,#]+)`)
+				rIPv4 := regexp.MustCompile(`^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$`)
+				rIPv6 := regexp.MustCompile(`^([A-Fa-f0-9]{0,4}:){5,7}[A-Fa-f0-9]{0,4}$`) // TODO likely wrong
 				for _, entry := range strings.Split(string(content), "\n") {
 					if r.MatchString(entry) {
-						hosts = append(hosts, r.FindStringSubmatch(entry)[0])
+						if host := r.FindStringSubmatch(entry)[0]; rIPv4.MatchString(host) {
+							batch = append(batch, carapace.ActionStyledValues(host, style.Default).Tag("ipv4 addresses"))
+						} else if rIPv6.MatchString(host) {
+							batch = append(batch, carapace.ActionStyledValues(host, style.Bold).Tag("ipv6 addresses"))
+						} else {
+							batch = append(batch, carapace.ActionStyledValues(host, style.Blue).Tag("hostnames"))
+						}
 					}
 				}
 			} else {
-				return carapace.ActionMessage(err.Error())
+				batch = append(batch, carapace.ActionMessage(err.Error()))
 			}
 		}
-		return carapace.ActionValues(hosts...)
+		batch = append(batch, ssh.ActionHosts().Style(style.Yellow).Suppress(`open .*/.ssh/config: no such file or directory`))
+		return batch.ToA()
 	})
 }
 
@@ -105,11 +115,12 @@ var AllDevices = IncludedDevices{
 }
 
 // ActionDevices completes network devices
-//   lo (loopback)
-//   wlp3s0 (wifi)
+//
+//	lo (loopback)
+//	wlp3s0 (wifi)
 func ActionDevices(includedDevices IncludedDevices) carapace.Action {
 	return carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-		if _, err := exec.LookPath("nmcli"); err == nil {
+		if _, err := execlog.LookPath("nmcli"); err == nil {
 			return carapace.ActionExecCommand("nmcli", "--terse", "--fields", "device,type", "device", "status")(func(output []byte) carapace.Action {
 				lines := strings.Split(string(output), "\n")
 				vals := make([]string, 0)
@@ -121,7 +132,7 @@ func ActionDevices(includedDevices IncludedDevices) carapace.Action {
 				}
 				return carapace.ActionValuesDescribed(vals...)
 			})
-		} else if _, err := exec.LookPath("ifconfig"); err == nil {
+		} else if _, err := execlog.LookPath("ifconfig"); err == nil {
 			// fallback to basic ifconfig if nmcli is not available
 			return carapace.ActionExecCommand("ifconfig")(func(output []byte) carapace.Action {
 				interfaces := []string{}
@@ -135,12 +146,13 @@ func ActionDevices(includedDevices IncludedDevices) carapace.Action {
 			})
 		}
 		return carapace.ActionMessage("neither nmcli nor ifconfig available")
-	})
+	}).Tag("network devices")
 }
 
 // ActionConnections completes stored network connections
-//   somewifi (802-11-wireless abcdefgh-hijk-lmnop-qert-012345678902)
-//   private (vpn abcdefgh-hijk-lmnop-qert-012345678901)
+//
+//	somewifi (802-11-wireless abcdefgh-hijk-lmnop-qert-012345678902)
+//	private (vpn abcdefgh-hijk-lmnop-qert-012345678901)
 func ActionConnections() carapace.Action {
 	return carapace.ActionCallback(func(c carapace.Context) carapace.Action {
 		return carapace.ActionExecCommand("nmcli", "--terse", "connection", "show")(func(output []byte) carapace.Action {
@@ -153,40 +165,64 @@ func ActionConnections() carapace.Action {
 			}
 			return carapace.ActionValuesDescribed(vals...)
 		})
-	})
+	}).Tag("network connections")
 }
 
 // ActionBssids completes BSSID's of local wifi networks
-//   AA:BB:CC:DD:EE:FF (somewifi)
-//   AA:BB:CC:DD:EE:11 (anotherwifi)
+//
+//	AA:BB:CC:DD:EE:FF (somewifi)
+//	AA:BB:CC:DD:EE:11 (anotherwifi)
 func ActionBssids() carapace.Action {
 	return carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-		return carapace.ActionExecCommand("nmcli", "--terse", "--fields", "bssid,ssid", "device", "wifi", "list")(func(output []byte) carapace.Action {
+		return carapace.ActionExecCommand("nmcli", "--terse", "--fields", "bssid,ssid,bars", "device", "wifi", "list")(func(output []byte) carapace.Action {
 			lines := strings.Split(string(output), "\n")
-			vals := make([]string, (len(lines)-1)*2)
-			for index, line := range lines[:len(lines)-1] {
-				vals[index*2] = strings.Replace(line[:22], `\:`, `:`, -1)
-				vals[index*2+1] = line[23:]
+
+			vals := make([]string, 0)
+			for _, line := range lines[:len(lines)-1] {
+				mac := strings.Replace(line[:22], `\:`, `:`, -1)
+				splitted := strings.Split(line[23:], ":")
+				if name := splitted[0]; name != "" {
+					vals = append(vals, mac, splitted[0], styleForBars(splitted[1]))
+				}
 			}
-			return carapace.ActionValuesDescribed(vals...)
+			return carapace.ActionStyledValuesDescribed(vals...)
 		})
-	})
+	}).Tag("bssids")
 }
 
 // ActionSsids completes SSID's of local wifi networks
-//   somewifi (AA:BB:CC:DD:EE:FF)
-//   anotherwifi (AA:BB:CC:DD:EE:11)
+//
+//	somewifi (AA:BB:CC:DD:EE:FF)
+//	anotherwifi (AA:BB:CC:DD:EE:11)
 func ActionSsids() carapace.Action {
 	return carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-		return carapace.ActionExecCommand("nmcli", "--terse", "--fields", "bssid,ssid", "device", "wifi", "list")(func(output []byte) carapace.Action {
+		return carapace.ActionExecCommand("nmcli", "--terse", "--fields", "bssid,ssid,bars", "device", "wifi", "list")(func(output []byte) carapace.Action {
 			lines := strings.Split(string(output), "\n")
+
 			vals := make([]string, 0)
 			for _, line := range lines[:len(lines)-1] {
-				if ssid := line[23:]; ssid != "" {
-					vals = append(vals, line[23:], strings.Replace(line[:22], `\:`, `:`, -1))
+				mac := strings.Replace(line[:22], `\:`, `:`, -1)
+				splitted := strings.Split(line[23:], ":")
+				if name := splitted[0]; name != "" {
+					vals = append(vals, splitted[0], mac, styleForBars(splitted[1]))
 				}
 			}
-			return carapace.ActionValuesDescribed(vals...)
+			return carapace.ActionStyledValuesDescribed(vals...)
 		})
-	})
+	}).Tag("ssids")
+}
+
+func styleForBars(s string) string {
+	switch s {
+	case "▂___":
+		return style.Blue
+	case "▂▄__":
+		return style.Magenta
+	case "▂▄▆_":
+		return style.Yellow
+	case "▂▄▆█":
+		return style.Green
+	default:
+		return style.Default
+	}
 }

@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/completers/localectl_completer/cmd/action"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/completers/localectl_completer/cmd/action"
 	"github.com/spf13/cobra"
 )
 
@@ -22,7 +22,7 @@ func init() {
 		action.ActionKeymapModels(),
 		action.ActionKeymapVariants(),
 		carapace.ActionMultiParts(",", func(c carapace.Context) carapace.Action {
-			return action.ActionKeymapOptions().Invoke(c).Filter(c.Parts).ToMultiPartsA(":")
+			return action.ActionKeymapOptions().Invoke(c).Filter(c.Parts...).ToMultiPartsA(":").NoSpace()
 		}),
 	)
 }

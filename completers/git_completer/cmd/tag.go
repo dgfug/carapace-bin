@@ -1,16 +1,17 @@
 package cmd
 
 import (
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/os"
-	"github.com/rsteube/carapace-bin/pkg/actions/tools/git"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/os"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/git"
 	"github.com/spf13/cobra"
 )
 
 var tagCmd = &cobra.Command{
-	Use:   "tag",
-	Short: "Create, list, delete or verify a tag object signed with GPG",
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Use:     "tag",
+	Short:   "Create, list, delete or verify a tag object signed with GPG",
+	Run:     func(cmd *cobra.Command, args []string) {},
+	GroupID: groups[group_main].ID,
 }
 
 func init() {
@@ -45,14 +46,14 @@ func init() {
 
 	carapace.Gen(tagCmd).FlagCompletion(carapace.ActionMap{
 		"cleanup":     git.ActionCleanupMode(),
-		"color":       carapace.ActionValues("always", "never", "auto"),
-		"contains":    git.ActionRefs(git.RefOption{Commits: 100}),
+		"color":       git.ActionColorModes(),
+		"contains":    git.ActionRefs(git.RefOption{HeadCommits: true}),
 		"file":        carapace.ActionFiles(),
 		"local-user":  os.ActionGpgKeyIds(),
-		"merged":      git.ActionRefs(git.RefOption{Commits: 100}),
-		"no-contains": git.ActionRefs(git.RefOption{Commits: 100}),
-		"no-merged":   git.ActionRefs(git.RefOption{Commits: 100}),
-		"points-at":   git.ActionRefs(git.RefOption{LocalBranches: true, RemoteBranches: true, Commits: 100}),
+		"merged":      git.ActionRefs(git.RefOption{HeadCommits: true}),
+		"no-contains": git.ActionRefs(git.RefOption{HeadCommits: true}),
+		"no-merged":   git.ActionRefs(git.RefOption{HeadCommits: true}),
+		"points-at":   git.ActionRefs(git.RefOption{LocalBranches: true, RemoteBranches: true, HeadCommits: true}),
 	})
 
 	carapace.Gen(tagCmd).PositionalAnyCompletion(
@@ -60,13 +61,13 @@ func init() {
 			if tagCmd.Flag("delete").Changed ||
 				tagCmd.Flag("list").Changed ||
 				tagCmd.Flag("verify").Changed {
-				return git.ActionRefs(git.RefOption{Tags: true}).Invoke(c).Filter(c.Args).ToA()
+				return git.ActionRefs(git.RefOption{Tags: true}).FilterArgs()
 			}
 			switch len(c.Args) {
 			case 0:
 				return git.ActionRefs(git.RefOption{Tags: true})
 			case 1:
-				return git.ActionRefs(git.RefOption{LocalBranches: true, Commits: 100})
+				return git.ActionRefs(git.RefOption{LocalBranches: true, HeadCommits: true})
 			default:
 				return carapace.ActionValues()
 			}

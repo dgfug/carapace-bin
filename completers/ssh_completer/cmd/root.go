@@ -3,9 +3,9 @@ package cmd
 import (
 	"strings"
 
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/actions/net"
-	"github.com/rsteube/carapace-bin/pkg/actions/net/ssh"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/net"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/net/ssh"
 	"github.com/spf13/cobra"
 )
 
@@ -92,19 +92,20 @@ func init() {
 		),
 		"Q": ActionQueryOptions(),
 		"S": carapace.ActionFiles(),
-		"c": carapace.ActionMultiParts(",", func(c carapace.Context) carapace.Action {
-			return ssh.ActionCiphers().Invoke(c).Filter(c.Parts).ToA()
-		}),
-		"i": carapace.ActionFiles(),
+		"c": ssh.ActionCiphers().UniqueList(","),
+		"i": carapace.Batch(
+			ssh.ActionPrivateKeys(),
+			carapace.ActionFiles(),
+		).ToA(),
 		"o": carapace.ActionMultiParts(",", func(c carapace.Context) carapace.Action {
-			return ssh.ActionOptions()
+			return ssh.ActionOptions().NoSpace()
 		}),
 	})
 
 	carapace.Gen(rootCmd).PositionalCompletion(
 		carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-			if strings.Contains(c.CallbackValue, "@") {
-				prefix := strings.SplitN(c.CallbackValue, "@", 2)[0]
+			if strings.Contains(c.Value, "@") {
+				prefix := strings.SplitN(c.Value, "@", 2)[0]
 				return net.ActionHosts().Invoke(c).Prefix(prefix + "@").ToA()
 			} else {
 				return net.ActionHosts()

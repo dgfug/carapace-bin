@@ -2,19 +2,17 @@ package action
 
 import (
 	"encoding/json"
-	"fmt"
-	exec "golang.org/x/sys/execabs"
-	"io/ioutil"
 	"os"
 	"regexp"
 	"strings"
 
-	"github.com/mitchellh/go-homedir"
 	"github.com/pelletier/go-toml"
 	"github.com/spf13/cobra"
 
-	"github.com/rsteube/carapace"
-	"github.com/rsteube/carapace-bin/pkg/util"
+	"github.com/carapace-sh/carapace"
+	"github.com/carapace-sh/carapace-bin/pkg/actions/tools/cargo"
+	"github.com/carapace-sh/carapace/pkg/style"
+	"github.com/carapace-sh/carapace/pkg/util"
 )
 
 type manifestJson struct {
@@ -44,11 +42,11 @@ func manifestLocation(cmd *cobra.Command) (string, error) {
 	return util.FindReverse("", "Cargo.toml")
 }
 
-func readManifest(cmd *cobra.Command) (m manifestJson, err error) {
+func readManifest(cmd *cobra.Command, c carapace.Context) (m manifestJson, err error) {
 	var output []byte
 	var path string
 	if path, err = manifestLocation(cmd); err == nil {
-		if output, err = exec.Command("cargo", "read-manifest", "--offline", "--manifest-path", path).Output(); err == nil {
+		if output, err = c.Command("cargo", "read-manifest", "--offline", "--manifest-path", path).Output(); err == nil {
 			err = json.Unmarshal(output, &m)
 		}
 	}
@@ -59,7 +57,7 @@ func parseManifest(cmd *cobra.Command) (m manifestToml, err error) {
 	var content []byte
 	var path string
 	if path, err = manifestLocation(cmd); err == nil {
-		if content, err = ioutil.ReadFile(path); err == nil {
+		if content, err = os.ReadFile(path); err == nil {
 			err = toml.Unmarshal(content, &m)
 		}
 	}
@@ -67,7 +65,7 @@ func parseManifest(cmd *cobra.Command) (m manifestToml, err error) {
 }
 
 func ActionColorModes() carapace.Action {
-	return carapace.ActionValues("auto", "always", "never")
+	return carapace.ActionValues("auto", "never", "always").StyleF(style.ForKeyword)
 }
 
 type TargetOpts struct {
@@ -102,7 +100,7 @@ func (t *TargetOpts) Includes(kinds []string) bool {
 
 func readManifestAction(cmd *cobra.Command, f func(m manifestJson, args []string) carapace.Action) carapace.Action {
 	return carapace.ActionCallback(func(c carapace.Context) carapace.Action {
-		if m, err := readManifest(cmd); err != nil {
+		if m, err := readManifest(cmd, c); err != nil {
 			return carapace.ActionMessage(err.Error())
 		} else {
 			return f(m, c.Args)
@@ -132,15 +130,26 @@ func ActionTargets(cmd *cobra.Command, opts TargetOpts) carapace.Action {
 	})
 }
 
-func ActionDependencies(cmd *cobra.Command) carapace.Action {
-	return readManifestAction(cmd, func(m manifestJson, args []string) carapace.Action {
-		vals := make([]string, len(m.Dependencies)*2)
-		for index, dependency := range m.Dependencies {
-			vals[index*2] = fmt.Sprintf("%v:%v", dependency.Name, strings.TrimLeft(dependency.Req, "^"))
-			vals[(index*2)+1] = dependency.Req
+func ActionFeatures(cmd *cobra.Command) carapace.Action {
+	return carapace.ActionCallback(func(c carapace.Context) carapace.Action {
+		path := ""
+		if flag := cmd.Flag("manifest-path"); flag != nil {
+			path = flag.Value.String()
 		}
-		return carapace.ActionValuesDescribed(vals...)
+		return cargo.ActionFeatures(path)
+	})
+}
 
+func ActionDependencies(cmd *cobra.Command, includeVersion bool) carapace.Action {
+	return carapace.ActionCallback(func(c carapace.Context) carapace.Action {
+		path := ""
+		if flag := cmd.Flag("manifest-path"); flag != nil {
+			path = flag.Value.String()
+		}
+		return cargo.ActionDependencies(cargo.DependencyOpts{
+			Path:           path,
+			IncludeVersion: includeVersion,
+		})
 	})
 }
 
@@ -161,16 +170,6 @@ func ActionMessageFormats() carapace.Action {
 	)
 }
 
-func ActionFeatures(cmd *cobra.Command) carapace.Action {
-	return readManifestAction(cmd, func(m manifestJson, args []string) carapace.Action {
-		vals := make([]string, 0)
-		for name, packages := range m.Features {
-			vals = append(vals, name, strings.Join(packages, ", "))
-		}
-		return carapace.ActionValuesDescribed(vals...)
-	})
-}
-
 func ActionProfiles(cmd *cobra.Command) carapace.Action {
 	return parseManifestAction(cmd, func(m manifestToml, args []string) carapace.Action {
 		profiles := make([]string, 0)
@@ -189,7 +188,7 @@ type config struct {
 
 func parseConfig(path string) (c config, err error) {
 	var content []byte
-	if content, err = ioutil.ReadFile(path); err == nil {
+	if content, err = os.ReadFile(path); err == nil {
 		err = toml.Unmarshal(content, &c)
 	}
 	return
@@ -199,12 +198,12 @@ func ActionRegistries() carapace.Action {
 	return carapace.ActionCallback(func(c carapace.Context) carapace.Action {
 		registries := make(map[string]string)
 
-		cargo_home := os.Getenv("CARGO_HOME")
-		if cargo_home == "" {
-			cargo_home = "~"
+		path := "~/.cargo/config.toml"
+		if cargo_home := os.Getenv("CARGO_HOME"); cargo_home != "" {
+			path = cargo_home + "/config.toml"
 		}
 
-		if path, err := homedir.Expand(cargo_home + "/.cargo/config.toml"); err == nil {
+		if path, err := c.Abs(path); err == nil {
 			if c, err := parseConfig(path); err == nil {
 				for key, value := range c.Registries {
 					registries[key] = value.Index
